@@ -1,0 +1,7 @@
+# Raw Hipparcos CSV (~37 MB) — not committed; see "Regenerating star data" in README
+_build/hip_main.csv
+
+# OS / editor noise
+Thumbs.db
+~*
+*.tmp

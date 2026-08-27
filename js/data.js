@@ -1,0 +1,162 @@
+/* ============================================================================
+ * PERIHELION — data
+ * Mean orbital elements (epoch J2000.0), a bright-star catalog and
+ * constellation line work. Positions are computed analytically at runtime,
+ * so this is a self-contained, offline dataset.
+ * ==========================================================================*/
+'use strict';
+window.P = window.P || {};
+
+P.J2000_MS = Date.UTC(2000, 0, 1, 12, 0, 0); // J2000.0 epoch in ms
+
+/* Mean orbital elements at J2000.0
+ *   a      semimajor axis [AU]
+ *   e      eccentricity
+ *   i      inclination to ecliptic [deg]
+ *   L0     mean longitude at epoch [deg]
+ *   varpi  longitude of perihelion [deg]
+ *   Omega  longitude of ascending node [deg]
+ *   n      mean motion [deg/day]
+ */
+P.planets = [
+  { name: 'Mercury', a: 0.38709927, e: 0.20563593, i: 7.00497902, L0: 252.25032350, varpi: 77.45779628, Omega: 48.33076593, n: 4.09233445,
+    color: 0x9a8f83, size: 0.55, au: 0.387, period: '88.0 days',
+    facts: { diameter: '4,879 km', rotation: '58.6 days', revolution: '88.0 days', moons: '0',
+      fun: 'Closest to the Sun, with surface temperatures swinging from -173 C to +427 C.' } },
+  { name: 'Venus', a: 0.72333566, e: 0.00677672, i: 3.39467605, L0: 181.97909950, varpi: 131.60246718, Omega: 76.67984255, n: 1.60213034,
+    color: 0xe6c98f, size: 0.85, au: 0.723, period: '224.7 days',
+    facts: { diameter: '12,104 km', rotation: '243 days (retrograde)', revolution: '224.7 days', moons: '0',
+      fun: 'Spins backwards, so its Sun rises in the west - and a single day outlasts its year.' } },
+  { name: 'Earth', a: 1.00000261, e: 0.01671123, i: -0.00001531, L0: 100.46457166, varpi: 102.94719049, Omega: 0, n: 0.98560912,
+    color: 0x4d7fd1, size: 0.9, au: 1.0, period: '365.25 days',
+    facts: { diameter: '12,742 km', rotation: '23.9 hours', revolution: '365.25 days', moons: '1',
+      fun: 'The only world known to host life. You are standing on it right now.' } },
+  { name: 'Mars', a: 1.52367900, e: 0.09340000, i: 1.84969142, L0: 355.44753854, varpi: 336.04084327, Omega: 49.55953891, n: 0.52402078,
+    color: 0xc1573f, size: 0.65, au: 1.524, period: '687 days',
+    facts: { diameter: '6,779 km', rotation: '24.6 hours', revolution: '687 days', moons: '2',
+      fun: 'Home to Olympus Mons, a volcano nearly three times the height of Everest.' } },
+  { name: 'Jupiter', a: 5.20260300, e: 0.04838622, i: 1.30317731, L0: 34.39644051, varpi: 14.72847983, Omega: 100.46443927, n: 0.08308530,
+    color: 0xd8b48a, size: 2.4, au: 5.203, period: '11.86 years',
+    facts: { diameter: '139,820 km', rotation: '9.9 hours', revolution: '11.86 years', moons: '95',
+      fun: 'The Great Red Spot is a storm that has raged for centuries - wider than Earth.' } },
+  { name: 'Saturn', a: 9.55490950, e: 0.05550749, i: 2.48446796, L0: 49.95424423, varpi: 92.59887831, Omega: 113.66242448, n: 0.03345918,
+    color: 0xe0cf9f, size: 2.1, rings: true, au: 9.555, period: '29.4 years',
+    facts: { diameter: '116,460 km', rotation: '10.7 hours', revolution: '29.4 years', moons: '274',
+      fun: 'Its rings are mostly water ice, and would fit inside a coin if flattened.' } },
+  { name: 'Uranus', a: 19.21844700, e: 0.04725744, i: 0.77263783, L0: 313.23810451, varpi: 170.95427630, Omega: 74.01692503, n: 0.01166860,
+    color: 0x9fd8db, size: 1.5, au: 19.218, period: '84 years',
+    facts: { diameter: '50,724 km', rotation: '17.2 hours (retrograde)', revolution: '84 years', moons: '28',
+      fun: 'Rolls around the Sun on its side, tilted a full 98 degrees.' } },
+  { name: 'Neptune', a: 30.11038700, e: 0.00859048, i: 1.76949558, L0: 304.88003974, varpi: 44.96476227, Omega: 131.78422574, n: 0.00600476,
+    color: 0x5b7fdd, size: 1.45, au: 30.11, period: '164.8 years',
+    facts: { diameter: '49,244 km', rotation: '16.1 hours', revolution: '164.8 years', moons: '16',
+      fun: 'Winds here reach 2,100 km/h - the fastest in the Solar System.' } }
+];
+
+/* Bright star catalog: [name, RA [deg], Dec [deg], magnitude V, B-V, distance ly (null = unknown)] */
+P.stars = [
+  ['Sirius', 101.28854, -16.71314, -1.46, 0.01, 8.6],
+  ['Canopus', 95.98788, -52.69572, -0.74, 0.17, 310],
+  ['Rigil Kentaurus', 219.91413, -60.83947, -0.27, 0.93, 4.4],
+  ['Arcturus', 213.91811, 19.18727, -0.05, 1.22, 11.3],
+  ['Vega', 279.23411, 38.78299, 0.03, 0.00, 25],
+  ['Capella', 79.17207, 45.99903, 0.08, 0.83, 43],
+  ['Rigel', 78.63446, -8.20164, 0.13, -0.11, 860],
+  ['Betelgeuse', 88.79287, 7.40704, 0.42, 1.81, 548],
+  ['Procyon', 114.82724, 5.22751, 0.34, 0.42, 11.5],
+  ['Achernar', 24.42813, -57.23666, 0.46, 0.01, 144],
+  ['Altair', 297.69451, 8.86738, 0.77, 0.22, 16.7],
+  ['Aldebaran', 68.980, 16.509, 0.85, 1.54, 65],
+  ['Antares', 247.35195, -26.43195, 0.96, 1.83, 550],
+  ['Spica', 201.29835, -11.16124, 0.97, -0.22, 250],
+  ['Pollux', 116.33068, 28.02631, 1.14, 0.97, 34],
+  ['Fomalhaut', 344.41177, -29.62184, 1.16, 0.22, 25],
+  ['Deneb', 310.35797, 45.280330, 1.25, -0.05, 2615],
+  ['Regulus', 152.09358, 11.96720, 1.35, 0.37, 79],
+  ['Castor', 113.650, 31.888, 1.58, 0.03, 51],
+  ['Adhara', 104.65644, -28.97209, 1.50, -0.23, 43],
+  ['Shaula', 263.40219, -37.10375, 1.62, 0.01, 570],
+  ['Mintaka', 83.00167, -0.29909, 2.23, 0.05, 1200],
+  ['Alnilam', 84.05339, -1.20192, 1.69, -0.18, 1970],
+  ['Alnitak', 85.190, -1.943, 1.77, 0.63, 1200],
+  ['Bellatrix', 81.28278, 6.349730, 1.64, 0.18, 250],
+  ['Saiph', 99.24680, -56.258100, 2.09, 0.05, 650],
+  ['Polaris', 37.94615, 89.26414, 1.98, 0.08, 433],
+  ['Mizar', 220.59680, 54.80344, 2.27, 0.17, 83],
+  ['Alkaid', 222.670, 49.313, 1.86, 0.05, 104],
+  ['Alioth', 193.50680, 55.959840, 1.77, 0.03, 82],
+  ['Phecda', 178.45726, 53.694730, 2.44, 0.23, 84],
+  ['Megrez', 183.85604, 57.03260, 3.31, 0.74, 80],
+  ['Dubhe', 165.93265, 61.75112, 1.79, 1.07, 123],
+  ['Schedar', 26.30400, 56.64328, 2.24, 1.17, 228],
+  ['Caph', 2.29204, 59.150220, 2.27, 0.85, 55],
+  ['Navi', 14.17709, 60.71675, 2.15, -0.04, 550],
+  ['Ruchbah', 21.45251, 60.23540, 2.68, 0.01, 99],
+  ['Segin', 28.59868, 63.670150, 3.38, 0.01, 410],
+  ['Albireo', 292.68915, 27.965280, 3.18, 1.98, 430],
+  ['Sadr', 300.36363, 40.29956, 2.23, 0.55, 1800],
+  ['Gienah', 290.59106, 33.883250, 2.46, 0.86, 72],
+  ['Dschubba', 240.08338, -22.62162, 2.32, 0.12, 45],
+  ['Acrab', 242.72555, -20.01180, 2.56, 0.28, 48],
+  ['Sargas', 264.32969, -42.99782, 1.87, 0.39, 300],
+  ['Kaus Australis', 276.04311, -34.38431, 1.85, 0.66, 143],
+  ['Acrux', 191.51944, -57.21699, 0.76, -0.34, 149],
+  ['Mimosa', 194.24859, -59.74250, 1.25, 0.21, 275],
+  ['Gacrux', 187.790, -57.113, 1.64, 1.68, 88],
+  ['Hadar', 210.95602, -60.37298, 0.61, 0.05, 42],
+  ['Alhena', 99.42793, 16.39941, 1.93, 0.12, 109],
+  ['Mirzam', 99.76494, -18.18583, 1.98, 0.16, 42],
+  ['Wezen', 107.09786, -26.39321, 1.83, 0.16, 1600],
+  ['Algieba', 154.99234, 19.84186, 2.08, 1.05, 130],
+  ['Denebola', 201.15429, 14.85684, 2.14, 0.17, 36],
+  ['Izar', 215.96782, 27.27080, 2.37, 1.22, 160],
+  ['Muphrid', 217.11096, 18.17872, 2.68, 0.38, 207],
+  ['Almach', 30.97466, 42.329850, 2.10, 1.47, 35],
+  ['Mirach', 17.43249, 35.62083, 2.05, 1.56, 43],
+  ['Alpheratz', 2.09653, 29.090830, 2.06, 0.19, 97],
+  ['Scheat', 2.91580, 28.22514, 2.42, 1.23, 660],
+  ['Markab', 346.19007, 15.20537, 2.49, 0.06, 145],
+  ['Algenib', 342.32212, 15.27571, 2.83, 0.11, 730],
+  ['Cor Caroli', 190.35541, 38.38911, 1.98, 0.04, 96],
+  ['Elnath', 81.57291, 28.60787, 1.65, 0.13, 134],
+  ['Gomeisa', 105.76299, -15.71980, 2.87, -0.06, 69],
+  ['Menkent', 209.910, -36.059, 2.06, 0.70, 59],
+  ['Aspidiske', 228.93907, -60.23167, 2.07, 0.66, 207],
+  ['Miaplacid', 222.20965, -35.57668, 1.75, 0.63, 105],
+  ['Sheliak', 284.76105, 33.11723, 3.25, 0.58, 960],
+  ['Sulafat', 282.520, 32.690, 3.25, 0.05, 620],
+  ['Rasalhague', 250.21400, 12.395060, 2.07, 0.92, 47],
+  ['Enif', 303.01776, 9.99586, 2.38, 1.50, 690],
+  ['Nunki', 261.71155, -26.33178, 2.05, 0.81, 228],
+  ['Tarazed', 296.23659, 10.77516, 2.72, 1.42, 470],
+  ['Diphda', 1.600, -17.987, 2.02, 0.66, 96],
+  ['Alphecca', 235.67972, 26.84451, 2.23, 0.69, 74],
+  ['Menkalinan', 89.88237, 44.94743, 1.90, 0.57, 116],
+  ['Deneb Algedi', 310.13566, -16.12436, 2.45, 0.79, 40],
+  ['Eltanin', 267.65752, 51.24209, 2.23, 1.49, 154],
+  ['Alsephina', 339.460, -30.063, 3.29, 1.20, 300],
+  ['Mirfak', 51.08062, 49.86124, 1.79, 1.24, 510],
+  ['Avior', 94.07849, -59.212730, 1.86, 1.63, 460],
+  ['Ras Algethi', 12.97643, 27.77945, 2.64, 1.44, 60]
+];
+
+/* Constellation figures: [name, [[starA, starB], ...]] referencing P.stars by name */
+P.constellations = [
+  ['Orion', [['Betelgeuse', 'Alnitak'], ['Bellatrix', 'Mintaka'], ['Alnitak', 'Alnilam'], ['Alnilam', 'Mintaka'], ['Alnitak', 'Saiph'], ['Mintaka', 'Rigel']]],
+  ['Ursa Major', [['Alkaid', 'Mizar'], ['Mizar', 'Alioth'], ['Alioth', 'Megrez'], ['Megrez', 'Dubhe'], ['Dubhe', 'Phecda'], ['Phecda', 'Alioth']]],
+  ['Cassiopeia', [['Caph', 'Schedar'], ['Schedar', 'Navi'], ['Navi', 'Ruchbah'], ['Ruchbah', 'Segin']]],
+  ['Cygnus', [['Deneb', 'Sadr'], ['Sadr', 'Albireo'], ['Sadr', 'Gienah']]],
+  ['Lyra', [['Vega', 'Sheliak'], ['Sheliak', 'Sulafat']]],
+  ['Scorpius', [['Dschubba', 'Acrab'], ['Dschubba', 'Antares'], ['Antares', 'Sargas'], ['Sargas', 'Shaula']]],
+  ['Leo', [['Regulus', 'Algieba'], ['Algieba', 'Denebola'], ['Denebola', 'Regulus']]],
+  ['Pegasus', [['Scheat', 'Markab'], ['Markab', 'Algenib'], ['Algenib', 'Alpheratz'], ['Alpheratz', 'Scheat']]],
+  ['Gemini', [['Castor', 'Pollux']]],
+  ['Taurus', [['Aldebaran', 'Elnath']]],
+  ['Crux', [['Acrux', 'Gacrux'], ['Acrux', 'Mimosa'], ['Gacrux', 'Mimosa']]],
+  ['Bootes', [['Arcturus', 'Izar'], ['Arcturus', 'Muphrid']]],
+  ['Canis Major', [['Sirius', 'Mirzam'], ['Wezen', 'Adhara']]],
+  ['Andromeda', [['Alpheratz', 'Mirach'], ['Mirach', 'Almach']]],
+  ['Sagittarius', [['Kaus Australis', 'Nunki']]],
+  ['Carina', [['Canopus', 'Miaplacid'], ['Miaplacid', 'Aspidiske']]],
+  ['Aquila', [['Altair', 'Tarazed']]]
+];
