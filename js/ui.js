@@ -22,7 +22,7 @@ P.ui = (function () {
     return n;
   }
 
-  function buildUI() {
+  function buildUI(app) {
     /* top bar */
     const top = el('div', 'hud');
     top.id = 'topbar';
@@ -195,7 +195,7 @@ P.ui = (function () {
 
   /* ------------------------------------------------------------- bindings */
   function wire(app) {
-    buildUI();
+    buildUI(app);
     $('#tg-catalog').onclick = () => app.toggleCatalog();
     $('#tg-hover').onclick = () => app.toggleState('hoverNames');
     document.getElementById('chk-marker').addEventListener('change', e => app.setHighlight(e.target.checked));

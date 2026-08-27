@@ -5,3 +5,6 @@ _build/hip_main.csv
 Thumbs.db
 ~*
 *.tmp
+
+# Video production (local-only: capture tooling + takes)
+video/
