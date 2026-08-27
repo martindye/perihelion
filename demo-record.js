@@ -133,16 +133,27 @@
   }
 
   /* ---------------------------------------------------- overlays ---------- */
+  /* 4K master at 150% UI zoom: the HUD lays out in a 1280×720 box and is
+     rendered at 1.5× (true browser-zoom semantics, vector-crisp text); the
+     canvas keeps 100% FOV at native 1920×1080. Labels & tooltip live in
+     canvas coordinate space, so they get font-only scaling. */
+  var zoom = document.createElement('style');
+  zoom.textContent =
+    '#ui-root{inset:0 auto auto 0 !important;width:1280px !important;height:720px !important;zoom:1.5;}' +
+    '.lbl{font-size:16.5px !important;}' +
+    '#tooltip{zoom:1.5;}';
+  document.head.appendChild(zoom);
+
   var style = document.createElement('style');
   style.textContent =
     '#dcard{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;' +
     'justify-content:center;z-index:60;pointer-events:none;opacity:0;transition:opacity .5s;}' +
-    '#dcard h1{font:700 64px "Segoe UI";letter-spacing:.35em;color:#eaf2ff;margin:0;' +
+    '#dcard h1{font:700 96px "Segoe UI";letter-spacing:.35em;color:#eaf2ff;margin:0;' +
     'text-shadow:0 0 34px rgba(111,214,255,.55);}' +
-    '#dcard p{font:400 21px "Segoe UI";letter-spacing:.16em;color:#9fb4d8;margin-top:16px;}' +
-    '#dlt{position:fixed;left:46px;bottom:132px;z-index:60;pointer-events:none;' +
-    'font:600 20px "Segoe UI";letter-spacing:.04em;color:#dbe7ff;' +
-    'background:rgba(8,13,26,.72);border-left:3px solid #ffd27a;padding:11px 22px;' +
+    '#dcard p{font:400 31px "Segoe UI";letter-spacing:.16em;color:#9fb4d8;margin-top:24px;}' +
+    '#dlt{position:fixed;left:69px;bottom:198px;z-index:60;pointer-events:none;' +
+    'font:600 30px "Segoe UI";letter-spacing:.04em;color:#dbe7ff;' +
+    'background:rgba(8,13,26,.72);border-left:4.5px solid #ffd27a;padding:16px 33px;' +
     'opacity:0;transition:opacity .45s;}' +
     '#dcard.on,#dlt.on{opacity:1;}';
   document.head.appendChild(style);
@@ -224,6 +235,17 @@
   async function run() {
     /* wait for the app to boot (title flips to PERIHELION READY) */
     while (document.title.indexOf('READY') < 0) await sleep(200);
+    /* move the tooltip to <body>: it is positioned in canvas (1920) space,
+       which the 1280×720 zoomed #ui-root box would rescale */
+    var tip = document.getElementById('tooltip');
+    if (tip) document.body.appendChild(tip);
+    /* .lbl sky labels are created inside #ui-root (makeLabel quirk) and are
+       positioned in canvas space — the zoom would 1.5× their coordinates.
+       Continuously re-home any of them to <body> (1920 space, unzoomed). */
+    new MutationObserver(function () {
+      var bad = document.querySelectorAll('#ui-root .lbl');
+      for (var i = 0; i < bad.length; i++) document.body.appendChild(bad[i]);
+    }).observe(document.getElementById('ui-root'), { childList: true, subtree: true });
     document.body.style.cursor = 'none';
     document.title = 'PERIHELION DEMO';
     await sleep(SHORT ? 1500 : 3000); /* static lead-in so the recorder is rolling */
