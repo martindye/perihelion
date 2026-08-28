@@ -112,14 +112,20 @@ P.sky = (function () {
     attribute float aFaint;
     uniform float uTime;
     uniform float uPx;
+    uniform float uTw;
+    uniform float uSoft;
     varying vec3 vColor;
     varying float vAlpha;
     void main() {
       vColor = aColor;
-      float size = 0.9 + max(0.0, 6.9 - aMag) * 0.45;
+      float size = (0.9 + max(0.0, 6.9 - aMag) * 0.45) * uSoft;
       float tw = 1.0;
-      if (aMag < 4.6) tw = 0.82 + 0.18 * sin(uTime * (0.7 + aPhase * 2.3) + aPhase * 40.0);
-      vAlpha = aFaint * tw;
+      if (aMag < 4.6) {
+        float base = 0.82 + 0.18 * sin(uTime * (0.7 + aPhase * 2.3) + aPhase * 40.0);
+        tw = 1.0 + (base - 1.0) * uTw;   /* uTw=0 (video demos) → constant brightness */
+      }
+      /* energy-conserving: the wider soft profile spreads the same light */
+      vAlpha = aFaint * tw / (uSoft * uSoft);
       gl_PointSize = size * uPx;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }`;
@@ -216,7 +222,7 @@ P.sky = (function () {
     geo.setAttribute('aPhase', new THREE.BufferAttribute(pha, 1));
     geo.setAttribute('aFaint', new THREE.BufferAttribute(fnt, 1));
     const mat = new THREE.ShaderMaterial({
-      uniforms: { uTime: { value: 0 }, uPx: { value: 1 } },
+      uniforms: { uTime: { value: 0 }, uPx: { value: 1 }, uTw: { value: 1 }, uSoft: { value: 1 } },
       vertexShader: STAR_VERT,
       fragmentShader: STAR_FRAG,
       transparent: true,
@@ -226,6 +232,11 @@ P.sky = (function () {
     const points = new THREE.Points(geo, mat);
     points.frustumCulled = false;
     dome.add(points);
+
+    /* video demos (#demo*): freeze the twinkle. The ±18 % brightness pulse on
+       sub-2-px stars is what made the small stars look like they flickered and
+       jumped when the sky was moving — interactive mode keeps the twinkle. */
+    if (/demo/.test(location.hash)) mat.uniforms.uTw.value = 0;
 
     /* soft glow halos for the brightest named stars */
     for (const s of named) {
@@ -333,7 +344,12 @@ P.sky = (function () {
           else rec.holder ? rec.holder.position.copy(wv) : rec.sprite.position.copy(wv);
         }
       },
-      setPixelRatio(px) { mat.uniforms.uPx.value = px; }
+      setPixelRatio(px) { mat.uniforms.uPx.value = px; },
+      /* uSoft > 1: wider, softer star sprites (energy-conserving). Used by
+         the video demos: a 1-px star is a sub-Nyquist feature that snaps
+         between pixel centres while the sky moves; a smooth ~3 px profile
+         makes the perceived (centroid) position continuous instead. */
+      setSoft(s) { mat.uniforms.uSoft.value = s; }
     };
   }
   const _w = new THREE.Vector3();

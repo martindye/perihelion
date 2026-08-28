@@ -30,6 +30,10 @@ P.app = (function () {
 
   /* ---------------------------------------------------------- renderer --- */
   let renderer;
+  /* Video demos (#demo): stars are drawn with a soft, wide profile
+     (sky.setSoft below) so their perceived position stays smooth while the
+     sky pans — see sky.setSoft for the details. */
+  const CAPTURE_MODE = /demo/.test(location.hash);
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   } catch (e) {
@@ -46,6 +50,7 @@ P.app = (function () {
 
   /* ------------------------------------------------------------- scene --- */
   const sky = P.sky.build(scene);
+  if (CAPTURE_MODE) sky.setSoft(2.2);
   const solar = P.solar.build(scene);
   P.astro.selfTest(P.planets, THREE.Vector3);
 
@@ -196,12 +201,26 @@ P.app = (function () {
     lastY = downY = e.clientY;
     cv.setPointerCapture(e.pointerId);
   });
+  /* Video demos (#demo): drag panning goes through a critically-damped
+     target instead of moving the camera directly. Pointer events arrive in
+     discrete bursts (the page event loop), so a direct update makes the
+     camera step 2-5 px per video frame and the small stars look like they
+     jitter. The spring re-samples the motion at frame rate — the pan in
+     recorded video becomes continuous. Interactive mode is untouched. */
+  const DEMO_SMOOTH = /demo/.test(location.hash);
+  let yawT = null, pitchT = null;
   cv.addEventListener('pointermove', e => {
     if (dragging) {
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       lastX = e.clientX; lastY = e.clientY;
-      cam.yaw -= dx * 0.0042;
-      cam.pitch = Math.max(-1.55, Math.min(1.55, cam.pitch + dy * 0.0042));
+      if (DEMO_SMOOTH) {
+        if (yawT === null) { yawT = cam.yaw; pitchT = cam.pitch; }
+        yawT -= dx * 0.0042;
+        pitchT = Math.max(-1.55, Math.min(1.55, pitchT + dy * 0.0042));
+      } else {
+        cam.yaw -= dx * 0.0042;
+        cam.pitch = Math.max(-1.55, Math.min(1.55, cam.pitch + dy * 0.0042));
+      }
     } else {
       const hit = pick(e.clientX, e.clientY);
       state.hover = hit ? hit.key : null;
@@ -835,6 +854,15 @@ P.app = (function () {
       cam.yaw = a.y0 + a.dy * e;
       cam.pitch = a.p0 + a.dp * e;
       if (a.t >= 1) cam.viewAnim = null;
+    }
+
+    if (DEMO_SMOOTH) {
+      /* while a fly-to owns the camera, keep the spring targets synced to it
+         so the next drag starts from the animated position */
+      if (cam.viewAnim || yawT === null) { yawT = cam.yaw; pitchT = cam.pitch; }
+      const k = 1 - Math.exp(-(dtms / 1000) * 30);   /* τ ≈ 33 ms */
+      cam.yaw += (yawT - cam.yaw) * k;
+      cam.pitch += (pitchT - cam.pitch) * k;
     }
 
     applyCamera();

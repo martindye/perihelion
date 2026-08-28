@@ -29,15 +29,23 @@
     }));
   }
 
-  /* camera pan: total pixel offsets applied over ms (app maps 0.0042 rad/px) */
+  /* camera pan: total pixel offsets applied over ms (app maps 0.0042 rad/px).
+     Time-accurate via rAF: position is a function of elapsed time, not of a
+     fixed event cadence — the app's demo-mode spring turns this into a
+     perfectly continuous pan in the recorded video. */
   async function drag(dx, dy, ms) {
     var x0 = innerWidth / 2, y0 = innerHeight / 2;
     ptr('pointerdown', x0, y0, 1);
-    var N = Math.max(6, Math.round(ms / 40));
-    for (var i = 1; i <= N; i++) {
-      await sleep(ms / N);
-      ptr('pointermove', x0 + dx * i / N, y0 + dy * i / N, 1);
-    }
+    var t0 = performance.now();
+    await new Promise(function (res) {
+      function step() {
+        var t = (performance.now() - t0) / ms;
+        if (t >= 1) { ptr('pointermove', x0 + dx, y0 + dy, 1); res(); return; }
+        if (t > 0) ptr('pointermove', x0 + dx * t, y0 + dy * t, 1);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
     ptr('pointerup', x0 + dx, y0 + dy, 0);
   }
   function hover(x, y) { ptr('pointermove', x, y, 0); }
