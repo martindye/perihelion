@@ -141,27 +141,30 @@
   }
 
   /* ---------------------------------------------------- overlays ---------- */
-  /* 4K master at 150% UI zoom: the HUD lays out in a 1280×720 box and is
-     rendered at 1.5× (true browser-zoom semantics, vector-crisp text); the
-     canvas keeps 100% FOV at native 1920×1080. Labels & tooltip live in
+  /* The 4K master at 150% UI zoom: the HUD lays out in a box the size of
+     the window divided by 1.5 and is rendered at 1.5× (true browser-zoom
+     semantics, vector-crisp text); the canvas keeps 100% FOV at native
+     resolution. S scales every final-pixel value: 1.0 for the 1920×1080
+     build, 2.0 for a native 3840×2160 window. Labels & tooltip live in
      canvas coordinate space, so they get font-only scaling. */
+  var S = innerWidth / 1920;
   var zoom = document.createElement('style');
   zoom.textContent =
-    '#ui-root{inset:0 auto auto 0 !important;width:1280px !important;height:720px !important;zoom:1.5;}' +
-    '.lbl{font-size:16.5px !important;}' +
-    '#tooltip{zoom:1.5;}';
+    '#ui-root{inset:0 auto auto 0 !important;width:' + (innerWidth / 1.5 | 0) + 'px !important;height:' + (innerHeight / 1.5 | 0) + 'px !important;zoom:1.5;}' +
+    '.lbl{font-size:' + (16.5 * S) + 'px !important;}' +
+    '#tooltip{zoom:' + (1.5 * S) + ';}';
   document.head.appendChild(zoom);
 
   var style = document.createElement('style');
   style.textContent =
     '#dcard{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;' +
     'justify-content:center;z-index:60;pointer-events:none;opacity:0;transition:opacity .5s;}' +
-    '#dcard h1{font:700 96px "Segoe UI";letter-spacing:.35em;color:#eaf2ff;margin:0;' +
-    'text-shadow:0 0 34px rgba(111,214,255,.55);}' +
-    '#dcard p{font:400 31px "Segoe UI";letter-spacing:.16em;color:#9fb4d8;margin-top:24px;}' +
-    '#dlt{position:fixed;left:69px;bottom:198px;z-index:60;pointer-events:none;' +
-    'font:600 30px "Segoe UI";letter-spacing:.04em;color:#dbe7ff;' +
-    'background:rgba(8,13,26,.72);border-left:4.5px solid #ffd27a;padding:16px 33px;' +
+    '#dcard h1{font:700 ' + (96 * S) + 'px "Segoe UI";letter-spacing:.35em;color:#eaf2ff;margin:0;' +
+    'text-shadow:0 0 ' + (34 * S) + 'px rgba(111,214,255,.55);}' +
+    '#dcard p{font:400 ' + (31 * S) + 'px "Segoe UI";letter-spacing:.16em;color:#9fb4d8;margin-top:' + (24 * S) + 'px;}' +
+    '#dlt{position:fixed;left:' + (69 * S) + 'px;bottom:' + (198 * S) + 'px;z-index:60;pointer-events:none;' +
+    'font:600 ' + (30 * S) + 'px "Segoe UI";letter-spacing:.04em;color:#dbe7ff;' +
+    'background:rgba(8,13,26,.72);border-left:' + (4.5 * S) + 'px solid #ffd27a;padding:' + (16 * S) + 'px ' + (33 * S) + 'px;' +
     'opacity:0;transition:opacity .45s;}' +
     '#dcard.on,#dlt.on{opacity:1;}';
   document.head.appendChild(style);
@@ -324,9 +327,9 @@
     at(18).then(function () { return typeSearch('sirius'); });
     at(21).then(function () { clickName('Sirius'); });
     at(24.5).then(function () {
-      hover(innerWidth / 2 + 26, innerHeight / 2 - 14);   /* tooltip on Sirius */
+      hover(innerWidth / 2 + 26 * S, innerHeight / 2 - 14 * S);   /* tooltip on Sirius */
     });
-    at(28).then(function () { hover(150, 150); });
+    at(28).then(function () { hover(150 * S, 150 * S); });
     at(28.5).then(async function () {
       await clearSearch();
       at(29.5).then(function () { return typeSearch('acamar'); });

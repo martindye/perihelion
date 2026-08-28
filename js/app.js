@@ -50,7 +50,12 @@ P.app = (function () {
 
   /* ------------------------------------------------------------- scene --- */
   const sky = P.sky.build(scene);
-  if (CAPTURE_MODE) sky.setSoft(2.2);
+  if (CAPTURE_MODE) {
+    sky.setSoft(2.2);
+    /* native 4K capture window: double the point size in device px so the
+       stars keep the same angular size as in the 1080p captures */
+    if (innerWidth >= 3000) sky.setPixelRatio(2);
+  }
   const solar = P.solar.build(scene);
   P.astro.selfTest(P.planets, THREE.Vector3);
 
@@ -755,7 +760,7 @@ P.app = (function () {
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
-    sky.setPixelRatio(renderer.getPixelRatio());
+    sky.setPixelRatio(CAPTURE_MODE && innerWidth >= 3000 ? 2 : renderer.getPixelRatio());
   }
   window.addEventListener('resize', onResize);
   onResize();
