@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+  xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/v1.3">
+ <DESCRIPTION>
+   VizieR Astronomical Server vizier.cds.unistra.fr
+    Date: 2026-08-29T17:12:38 [V7.6]
+   Explanations and Statistics of UCDs:			See LINK below
+   In case of problem, please report to:	cds-question@unistra.fr
+ </DESCRIPTION>
+<!-- VOTable description at http://www.ivoa.net/Documents/latest/VOT.html -->
+<INFO name="service_protocol" value="ASU">  IVOID of the protocol through which the data was retrieved</INFO>
+<INFO name="request_date" value="2026-08-29T17:12:38">  Query execution date</INFO>
+<INFO name="request" value="https://vizier.cds.unistra.fr/viz-bin/votable?-source=Sinnott&amp;-meta=ap">  Full request URL</INFO>
+<INFO name="contact" value="cds-question@unistra.fr">  Email or URL to contact publisher</INFO>
+<INFO name="server_software" value="VizieR/7.6">  Software version</INFO>
+<INFO name="publisher" value="CDS">  Data centre that produced the VOTable</INFO>
+<INFO name="MaxTuples" value="50000" />
+
+<RESOURCE ID="yCat_2266" name="II/266" type="meta">
+  <DESCRIPTION>QUEST1 200k light curve catalog (Rengstorf+, 2004)</DESCRIPTION>
+  <INFO name="ivoid" value="ivo://cds.vizier/ii/266">    IVOID of underlying data collection  </INFO>
+  <INFO name="data_ivoid" value="ivo://cds.vizier/ii/266">    IVOID of underlying data collection  </INFO>
+  <INFO name="creator" value="Rengstorf A.W.">    First author or institution  </INFO>
+  <INFO name="cites" value="bibcode:2004ApJ...617..184R">    Article or Data origin sources  </INFO>
+  <INFO name="journal" value="ApJ">    Journal name  </INFO>
+  <INFO name="original_date" value="2004">    Year of the article publication  </INFO>
+  <INFO name="reference_url" value="https://cdsarc.cds.unistra.fr/viz-bin/cat/II/266">    Dataset landing page  </INFO>
+  <INFO name="rights_uri" value="https://cds.unistra.fr/vizier-org/licences_vizier.html">    Licence URI  </INFO>
+  <INFO name="ipopu" value="0.484558">popularity index</INFO>
+  <INFO name="cpopu" value="2917">number of calls</INFO>
+  <INFO name="-kw.Wavelength" value="optical"/>
+  <INFO name="-kw.Astronomy" value="Photometry"/>
+  <INFO name="-kw.Astronomy" value="Stars:variable"/>
+<INFO name="media" value="timeserie"/>
+<INFO name="media" value="SED"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=II/266"/>
+
+  <TABLE ID="yCat_2266_1" name="II/266/catalog" type="meta" nrows="198213">
+<FIELD name='QUEST1' display='1' ucd='meta.id;meta.main'/><FIELD name='RAJ2000' display='1' ucd='pos.eq.ra;meta.main'/><FIELD name='DEJ2000' display='1' ucd='pos.eq.dec;meta.main'/><FIELD name='GCL' display='1' ucd='stat.fit.param'/><FIELD name='N1' display='1' ucd='meta.number'/><FIELD name='N2' display='1' ucd='meta.number'/><FIELD name='N3' display='1' ucd='meta.number'/><FIELD name='N4' display='1' ucd='meta.number'/><FIELD name='umag' display='1' ucd='phot.mag;em.opt.U'/><FIELD name='gmag' display='1' ucd='phot.mag;em.opt.B'/><FIELD name='rmag' display='1' ucd='phot.mag;em.opt.R'/><FIELD name='imag' display='1' ucd='phot.mag;em.opt.I'/><FIELD name='zmag' display='1' ucd='phot.mag;em.opt.I'/><FIELD name='LC' display='1' ucd='meta.ref.url'/><FIELD name='QUEST' display='1' ucd='meta.id'/><FIELD name='ObjID' display='1' ucd='meta.id'/>    <INFO name="nrows" value="198213">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      200k Light Curve Catalog
+    </DESCRIPTION>
+  </TABLE>
+</RESOURCE>
+
+<RESOURCE ID="yCat_2296" name="II/296" type="meta">
+  <DESCRIPTION>QUEST1 variability survey (QVS). III. (Rengstorf+, 2009)</DESCRIPTION>
+  <INFO name="ivoid" value="ivo://cds.vizier/ii/296">    IVOID of underlying data collection  </INFO>
+  <INFO name="data_ivoid" value="ivo://cds.vizier/ii/296">    IVOID of underlying data collection  </INFO>
+  <INFO name="creator" value="Rengstorf A.W.">    First author or institution  </INFO>
+  <INFO name="cites" value="bibcode:2009ApJS..181..129R">    Article or Data origin sources  </INFO>
+  <INFO name="journal" value="ApJS">    Journal name  </INFO>
+  <INFO name="original_date" value="2009">    Year of the article publication  </INFO>
+  <INFO name="reference_url" value="https://cdsarc.cds.unistra.fr/viz-bin/cat/II/296">    Dataset landing page  </INFO>
+  <INFO name="rights_uri" value="https://cds.unistra.fr/vizier-org/licences_vizier.html">    Licence URI  </INFO>
+  <INFO name="ipopu" value="0.549591">popularity index</INFO>
+  <INFO name="cpopu" value="8513">number of calls</INFO>
+  <INFO name="-kw.Wavelength" value="optical"/>
+  <INFO name="-kw.Astronomy" value="Photometry"/>
+  <INFO name="-kw.Astronomy" value="Stars:variable"/>
+<INFO name="media" value="timeserie"/>
+<INFO name="media" value="SED"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=II/296"/>
+
+  <TABLE ID="yCat_2296_1" name="II/296/catalog" type="meta" nrows="214941">
+<FIELD name='QVS2' display='1' ucd='meta.id'/><FIELD name='RAJ2000' display='1' ucd='pos.eq.ra;meta.main'/><FIELD name='DEJ2000' display='1' ucd='pos.eq.dec;meta.main'/><FIELD name='GCL' display='1' ucd='src.var.index'/><FIELD name='LC' display='1' ucd='meta.ref.url'/><FIELD name='N1' display='1' ucd='meta.number'/><FIELD name='N2' display='1' ucd='meta.number'/><FIELD name='N3' display='1' ucd='meta.number'/><FIELD name='N4' display='1' ucd='meta.number'/><FIELD name='umag' display='1' ucd='phot.mag;em.opt.U'/><FIELD name='gmag' display='1' ucd='phot.mag;em.opt.B'/><FIELD name='rmag' display='1' ucd='phot.mag;em.opt.R'/><FIELD name='imag' display='1' ucd='phot.mag;em.opt.I'/><FIELD name='zmag' display='1' ucd='phot.mag;em.opt.I'/><FIELD name='DR6' display='1' ucd='meta.ref.url'/><FIELD name='QUEST' display='1' ucd='meta.id;meta.main'/><FIELD name='ObjID' display='1' ucd='meta.id'/>    <INFO name="nrows" value="214941">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      QVS Light Curve Catalog, version 2: Main Table
+    </DESCRIPTION>
+  </TABLE>
+</RESOURCE>
+
+<RESOURCE ID="yCat_6140" name="VI/140" type="meta">
+  <DESCRIPTION>Catalogue of Lunar Eclipse Crater Timings (Herald+ 2014)</DESCRIPTION>
+  <INFO name="ivoid" value="ivo://cds.vizier/vi/140">    IVOID of underlying data collection  </INFO>
+  <INFO name="data_ivoid" value="ivo://cds.vizier/vi/140">    IVOID of underlying data collection  </INFO>
+  <INFO name="creator" value="Herald D.">    First author or institution  </INFO>
+  <INFO name="cites" value="bibcode:2014JBAA...24..247H">    Article or Data origin sources  </INFO>
+  <INFO name="journal" value="JBAA">    Journal name  </INFO>
+  <INFO name="original_date" value="2014">    Year of the article publication  </INFO>
+  <INFO name="reference_url" value="https://cdsarc.cds.unistra.fr/viz-bin/cat/VI/140">    Dataset landing page  </INFO>
+  <INFO name="rights_uri" value="https://cds.unistra.fr/vizier-org/licences_vizier.html">    Licence URI  </INFO>
+  <INFO name="ipopu" value="0.398806">popularity index</INFO>
+  <INFO name="cpopu" value="710">number of calls</INFO>
+  <INFO name="-kw.Astronomy" value="Planets+Asteroids"/>
+  <INFO name="-kw.Astronomy" value="Earth"/>
+  <INFO name="-kw.Astronomy" value="Ephemerides"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=VI/140"/>
+
+  <TABLE ID="yCat_6140_1" name="VI/140/crater_t" type="meta" nrows="22539">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='Ecl' display='1' ucd='time.epoch'/><FIELD name='Necl' display='1' ucd='meta.number'/><FIELD name='Feature' display='1' ucd='meta.id;meta.main'/><FIELD name='Nf' display='1' ucd='meta.number'/><FIELD name='Ev' display='1' ucd='src.class'/><FIELD name='f_Ev' display='1' ucd='meta.code'/><FIELD name='Event' display='1' ucd='pos.eq.ha'/><FIELD name='Nobs' display='1' ucd='meta.number;phys.atmol.number;obs'/><FIELD name='Height' display='1' ucd='pos.earth.altitude;instr.obsty'/><FIELD name='ULat' display='1' ucd='pos.earth.lat'/><FIELD name='Uenl' display='1' ucd='arith.factor'/><FIELD name='Name' display='1' ucd='obs.observer'/>    <INFO name="nrows" value="22539">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      The catalogue of Lunar Eclipse Crater Timings
+    </DESCRIPTION>
+
+<!-- The catalogue of Lunar Eclipse Crater Timings (see the \pFile{doc6140_640x480}{VI/140/doc.txt}{full documentation}) -->
+  </TABLE>
+</RESOURCE>
+
+<RESOURCE ID="yCat_7118" name="VII/118" type="meta">
+  <DESCRIPTION>NGC 2000.0 (Sky Publishing, ed. Sinnott 1988)</DESCRIPTION>
+  <INFO name="ivoid" value="ivo://cds.vizier/vii/118">    IVOID of underlying data collection  </INFO>
+  <INFO name="data_ivoid" value="ivo://cds.vizier/vii/118">    IVOID of underlying data collection  </INFO>
+  <INFO name="creator" value="Sinnott">    First author or institution  </INFO>
+  <INFO name="cites" value="1988cngc.book.....S">    Article or Data origin sources  </INFO>
+  <INFO name="reference_url" value="https://cdsarc.cds.unistra.fr/viz-bin/cat/VII/118">    Dataset landing page  </INFO>
+  <INFO name="rights_uri" value="https://cds.unistra.fr/vizier-org/licences_vizier.html">    Licence URI  </INFO>
+  <INFO name="ipopu" value="0.689853">popularity index</INFO>
+  <INFO name="cpopu" value="85733">number of calls</INFO>
+  <INFO name="-kw.Astronomy" value="Galaxies"/>
+  <INFO name="-kw.Astronomy" value="Nonstellar"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=VII/118"/>
+
+  <TABLE ID="yCat_7118_1" name="VII/118/ngc2000" type="meta" nrows="13226">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='Name' display='1' ucd='meta.id;meta.main'/><FIELD name='Type' display='1' ucd='src.class'/><FIELD name='RAB2000' display='1' ucd='pos.eq.ra;meta.main'/><FIELD name='DEB2000' display='1' ucd='pos.eq.dec;meta.main'/><FIELD name='Source' display='1' ucd='meta.ref;pos.frame'/><FIELD name='Const' display='1' ucd='meta.id'/><FIELD name='l_size' display='1' ucd='meta.code.error;phys.angSize'/><FIELD name='size' display='1' ucd='phys.angSize'/><FIELD name='mag' display='1' ucd='phot.mag;em.opt'/><FIELD name='n_mag' display='1' ucd='meta.note'/><FIELD name='Desc' display='1' ucd='meta.note'/>    <INFO name="nrows" value="13226">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      The NGC 2000.0 Catalogue
+    </DESCRIPTION>
+  </TABLE>
+
+  <TABLE ID="yCat_7118_2" name="VII/118/names" type="meta" nrows="227">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='Object' display='1' ucd='meta.id;meta.main'/><FIELD name='Name' display='1' ucd='meta.id'/><FIELD name='Comment' display='1' ucd='meta.note'/>    <INFO name="nrows" value="227">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      Index of Messier and common names
+    </DESCRIPTION>
+  </TABLE>
+</RESOURCE>
+
+<RESOURCE ID="yCat_51402101" name="J/AJ/140/2101" type="meta">
+  <DESCRIPTION>NGC 5128 globular clusters photometry (Sinnott+, 2010)</DESCRIPTION>
+  <INFO name="ivoid" value="ivo://cds.vizier/j/aj/140/2101">    IVOID of underlying data collection  </INFO>
+  <INFO name="data_ivoid" value="ivo://cds.vizier/j/aj/140/2101">    IVOID of underlying data collection  </INFO>
+  <INFO name="creator" value="Sinnott B.">    First author or institution  </INFO>
+  <INFO name="cites" value="bibcode:2010AJ....140.2101S">    Article or Data origin sources  </INFO>
+  <INFO name="journal" value="AJ">    Journal name  </INFO>
+  <INFO name="original_date" value="2010">    Year of the article publication  </INFO>
+  <INFO name="reference_url" value="https://cdsarc.cds.unistra.fr/viz-bin/cat/J/AJ/140/2101">    Dataset landing page  </INFO>
+  <INFO name="citation" value="doi:10.26093/cds/vizier.51402101">    Dataset identifier that can be used for citation  </INFO>
+  <INFO name="rights_uri" value="https://cds.unistra.fr/vizier-org/licences_vizier.html">    Licence URI  </INFO>
+  <INFO name="ipopu" value="0.464840">popularity index</INFO>
+  <INFO name="cpopu" value="2108">number of calls</INFO>
+  <INFO name="-kw.Wavelength" value="optical"/>
+  <INFO name="-kw.Wavelength" value="IR"/>
+  <INFO name="-kw.Astronomy" value="Globular_Clusters"/>
+  <INFO name="-kw.Astronomy" value="Galaxies"/>
+  <INFO name="-kw.Astronomy" value="Photometry:wide-band"/>
+<INFO name="media" value="SED"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=J/AJ/140/2101"/>
+
+  <TABLE ID="yCat_51402101_1" name="J/AJ/140/2101/table1" type="meta" nrows="323">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='GC' display='1' ucd='meta.id;meta.main'/><FIELD name='Vmag' display='1' ucd='phot.mag;em.opt.V'/><FIELD name='g%27mag' display='1' ucd='phot.mag;em.opt.B'/><FIELD name='e_g%27mag' display='1' ucd='stat.error;phot.mag;em.opt.B'/><FIELD name='r%27mag' display='1' ucd='phot.mag;em.opt.R'/><FIELD name='e_r%27mag' display='1' ucd='stat.error;phot.mag;em.opt.R'/><FIELD name='i%27mag' display='1' ucd='phot.mag;em.opt.I'/><FIELD name='e_i%27mag' display='1' ucd='stat.error;phot.mag;em.opt.I'/><FIELD name='z%27mag' display='1' ucd='phot.mag;em.opt.I'/><FIELD name='e_z%27mag' display='1' ucd='stat.error;phot.mag;em.opt.I'/><FIELD name='P04' display='1' ucd='meta.ref.url'/><FIELD name='Simbad' display='1' ucd='(unassigned)'/><FIELD name='RAJ2000' display='1' ucd='pos.eq.ra;meta.main'/><FIELD name='DEJ2000' display='1' ucd='pos.eq.dec;meta.main'/>    <INFO name="nrows" value="323">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      g'r'i'z' photometry catalog of NGC 5128 GCs - corrected version from the author
+    </DESCRIPTION>
+  </TABLE>
+</RESOURCE>
+<INFO name="matches" value="10">matching records</INFO>
+</VOTABLE>

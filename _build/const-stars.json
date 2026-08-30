@@ -1,0 +1,142 @@
+{
+ "Merga": {
+  "ra": 222.32779,
+  "dec": 46.1162,
+  "q": "A",
+  "v": null,
+  "via": "Merga"
+ },
+ "Tianguan": {
+  "ra": 84.41119,
+  "dec": 21.14254,
+  "q": "A",
+  "v": null,
+  "via": "Tianguan"
+ },
+ "Zosma": {
+  "ra": 168.52709,
+  "dec": 20.52372,
+  "q": "A",
+  "v": null,
+  "via": "Zosma"
+ },
+ "Chertan": {
+  "ra": 168.56002,
+  "dec": 15.42957,
+  "q": "A",
+  "v": null,
+  "via": "Chertan"
+ },
+ "Adhafera": {
+  "ra": 154.17256,
+  "dec": 23.41732,
+  "q": "A",
+  "v": null,
+  "via": "Adhafera"
+ },
+ "Larawag": {
+  "ra": 252.54088,
+  "dec": -34.29323,
+  "q": "A",
+  "v": null,
+  "via": "Larawag"
+ },
+ "Lesath": {
+  "ra": 262.69099,
+  "dec": -37.29581,
+  "q": "A",
+  "v": null,
+  "via": "Lesath"
+ },
+ "Sargas": {
+  "ra": 264.32971,
+  "dec": -42.99783,
+  "q": "A",
+  "v": null,
+  "via": "Sargas"
+ },
+ "Shaula": {
+  "ra": 263.40217,
+  "dec": -37.10382,
+  "q": "A",
+  "v": null,
+  "via": "Shaula"
+ },
+ "Dschubba": {
+  "ra": 240.08336,
+  "dec": -22.62171,
+  "q": "A",
+  "v": null,
+  "via": "Dschubba"
+ },
+ "Hamal": {
+  "ra": 31.79336,
+  "dec": 23.46242,
+  "q": "A",
+  "v": null,
+  "via": "Hamal"
+ },
+ "Sheratan": {
+  "ra": 28.66005,
+  "dec": 20.80803,
+  "q": "A",
+  "v": null,
+  "via": "Sheratan"
+ },
+ "Mesarthim": {
+  "ra": 28.38256,
+  "dec": 19.29386,
+  "q": "A",
+  "v": null,
+  "via": "Mesarthim"
+ },
+ "Wasat": {
+  "ra": 110.03073,
+  "dec": 21.9823,
+  "q": "A",
+  "v": null,
+  "via": "Wasat"
+ },
+ "Heze": {
+  "ra": 203.6733,
+  "dec": -0.59582,
+  "q": "A",
+  "v": null,
+  "via": "Heze"
+ },
+ "Vindemiatrix": {
+  "ra": 195.54415,
+  "dec": 10.95915,
+  "q": "A",
+  "v": null,
+  "via": "Vindemiatrix"
+ },
+ "Spica": {
+  "ra": 201.29825,
+  "dec": -11.16132,
+  "q": "A",
+  "v": null,
+  "via": "Spica"
+ },
+ "Castor": {
+  "ra": 113.64947,
+  "dec": 31.88828,
+  "q": "A",
+  "v": null,
+  "via": "Castor"
+ },
+ "Pollux": {
+  "ra": 116.32896,
+  "dec": 28.0262,
+  "q": "A",
+  "v": null,
+  "via": "Pollux"
+ },
+ "Alhena": {
+  "ra": 99.42796,
+  "dec": 16.39928,
+  "q": "A",
+  "v": null,
+  "via": "Alhena"
+ }
+}

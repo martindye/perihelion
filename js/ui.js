@@ -45,6 +45,8 @@ P.ui = (function () {
     tog('orbits', 'ORBITS', true);
     tog('const', 'CONSTELLATIONS', true);
     tog('ecliptic', 'ECLIPTIC', true);
+    tog('wash', 'MILKY WAY', true);
+    tog('asterisms', 'ASTERISMS', true);
     tog('catalog', 'CATALOG', false);
     tog('hover', 'HOVER NAMES', true);
     const chk = el('label', 'chk', '', rc);
@@ -104,7 +106,7 @@ P.ui = (function () {
     const catSearch = el('input', null, null, catHead);
     catSearch.id = 'cat-search';
     catSearch.type = 'text';
-    catSearch.placeholder = 'search stars & bodies…';
+    catSearch.placeholder = 'search stars, galaxies & bodies…';
     catSearch.autocomplete = 'off';
     catSearch.spellcheck = false;
     el('div', 'cat-count', '', cat).id = 'cat-count';
@@ -129,7 +131,7 @@ P.ui = (function () {
       '<table>' +
       '<tr><td>drag</td><td>look around / orbit the camera</td></tr>' +
       '<tr><td>scroll</td><td>zoom — field of view (sky) or distance (solar)</td></tr>' +
-      '<tr><td>click</td><td>select a star, planet or the Sun</td></tr>' +
+      '<tr><td>click</td><td>select a star, galaxy, planet or the Sun</td></tr>' +
       '<tr><td>space</td><td>pause / resume time</td></tr>' +
       '<tr><td>[  /  ]</td><td>warp time slower / faster</td></tr>' +
       '<tr><td>1D 1W 1M 1Y</td><td>one-tap time warp (days…years per second)</td></tr>' +
@@ -137,6 +139,8 @@ P.ui = (function () {
       '<tr><td>M</td><td>toggle sky / solar-system mode</td></tr>' +
       '<tr><td>L / O / C / E</td><td>labels / orbits / constellations / ecliptic</td></tr>' +
       '<tr><td>T</td><td>hover names on / off</td></tr>' +
+      '<tr><td>W</td><td>milky way wash on / off</td></tr>' +
+      '<tr><td>A</td><td>asterisms on / off</td></tr>' +
       '<tr><td>K</td><td>catalog — search &amp; fly to any star or body</td></tr>' +
       '<tr><td>X</td><td>selection marker on / off</td></tr>' +
       '<tr><td>H</td><td>this help</td></tr>' +
@@ -182,7 +186,16 @@ P.ui = (function () {
       const ks = document.createElement('span');
       ks.textContent = k;
       const vs = document.createElement('b');
-      vs.textContent = v;
+      if (v && typeof v === 'object' && v.sw) {
+        /* colour swatch + text (B−V colour rows) */
+        const dot = document.createElement('i');
+        dot.className = 'ip-sw';
+        dot.style.background = v.sw;
+        vs.appendChild(dot);
+        vs.appendChild(document.createTextNode(v.text));
+      } else {
+        vs.textContent = v;
+      }
       tr.appendChild(ks); tr.appendChild(vs);
       rw.appendChild(tr);
     }
@@ -208,6 +221,8 @@ P.ui = (function () {
     $('#tg-orbits').onclick = () => app.toggleState('orbits');
     $('#tg-const').onclick = () => app.toggleState('constellations');
     $('#tg-ecliptic').onclick = () => app.toggleState('ecliptic');
+    $('#tg-wash').onclick = () => app.toggleState('galaxyWash');
+    $('#tg-asterisms').onclick = () => app.toggleState('asterisms');
     $('#btn-help').onclick = () => app.toggleHelp();
     $('#help-close').onclick = () => app.toggleHelp(false);
     $('#ip-close').onclick = () => { app.select(null); };

@@ -1,0 +1,552 @@
+[
+ {
+  "m": 1,
+  "ngc": "NGC 1952",
+  "common": "Crab Nebula"
+ },
+ {
+  "m": 2,
+  "ngc": "NGC 7089",
+  "common": "—"
+ },
+ {
+  "m": 3,
+  "ngc": "NGC 5272",
+  "common": "—"
+ },
+ {
+  "m": 4,
+  "ngc": "NGC 6121",
+  "common": "Spider Globular Cluster"
+ },
+ {
+  "m": 5,
+  "ngc": "NGC 5904",
+  "common": "Rose Cluster"
+ },
+ {
+  "m": 6,
+  "ngc": "NGC 6405",
+  "common": "Butterfly Cluster"
+ },
+ {
+  "m": 7,
+  "ngc": "NGC 6475",
+  "common": "Ptolemy's Cluster"
+ },
+ {
+  "m": 8,
+  "ngc": "NGC 6523",
+  "common": "Lagoon Nebula"
+ },
+ {
+  "m": 9,
+  "ngc": "NGC 6333",
+  "common": "—"
+ },
+ {
+  "m": 10,
+  "ngc": "NGC 6254",
+  "common": "—"
+ },
+ {
+  "m": 11,
+  "ngc": "NGC 6705",
+  "common": "Wild Duck Cluster"
+ },
+ {
+  "m": 12,
+  "ngc": "NGC 6218",
+  "common": "—"
+ },
+ {
+  "m": 13,
+  "ngc": "NGC 6205",
+  "common": "Great Hercules Cluster"
+ },
+ {
+  "m": 14,
+  "ngc": "NGC 6402",
+  "common": "—"
+ },
+ {
+  "m": 15,
+  "ngc": "NGC 7078",
+  "common": "Great Pegasus Cluster"
+ },
+ {
+  "m": 16,
+  "ngc": "NGC 6611",
+  "common": "Eagle Nebula"
+ },
+ {
+  "m": 17,
+  "ngc": "NGC 6618",
+  "common": "Omega , Swan , Horseshoe , Lobster , or Checkmark Nebula"
+ },
+ {
+  "m": 18,
+  "ngc": "NGC 6613",
+  "common": "Black Swan Cluster"
+ },
+ {
+  "m": 19,
+  "ngc": "NGC 6273",
+  "common": "—"
+ },
+ {
+  "m": 20,
+  "ngc": "NGC 6514",
+  "common": "Trifid Nebula"
+ },
+ {
+  "m": 21,
+  "ngc": "NGC 6531",
+  "common": "Webb's Cross Cluster"
+ },
+ {
+  "m": 22,
+  "ngc": "NGC 6656",
+  "common": "Great Sagittarius Cluster"
+ },
+ {
+  "m": 23,
+  "ngc": "NGC 6494",
+  "common": "—"
+ },
+ {
+  "m": 24,
+  "ngc": "IC 4715",
+  "common": "Small Sagittarius Star Cloud"
+ },
+ {
+  "m": 25,
+  "ngc": "IC 4725",
+  "common": "—"
+ },
+ {
+  "m": 26,
+  "ngc": "NGC 6694",
+  "common": "—"
+ },
+ {
+  "m": 27,
+  "ngc": "NGC 6853",
+  "common": "Dumbbell Nebula"
+ },
+ {
+  "m": 28,
+  "ngc": "NGC 6626",
+  "common": "—"
+ },
+ {
+  "m": 29,
+  "ngc": "NGC 6913",
+  "common": "Cooling Tower Cluster"
+ },
+ {
+  "m": 30,
+  "ngc": "NGC 7099",
+  "common": "Jellyfish Cluster"
+ },
+ {
+  "m": 31,
+  "ngc": "NGC 224",
+  "common": "Andromeda Galaxy"
+ },
+ {
+  "m": 32,
+  "ngc": "NGC 221",
+  "common": "Andromeda Satellite #1"
+ },
+ {
+  "m": 33,
+  "ngc": "NGC 598",
+  "common": "Triangulum / Pinwheel Galaxy"
+ },
+ {
+  "m": 34,
+  "ngc": "NGC 1039",
+  "common": "Spiral Cluster"
+ },
+ {
+  "m": 35,
+  "ngc": "NGC 2168",
+  "common": "Shoe-Buckle Cluster"
+ },
+ {
+  "m": 36,
+  "ngc": "NGC 1960",
+  "common": "Pinwheel Cluster"
+ },
+ {
+  "m": 37,
+  "ngc": "NGC 2099",
+  "common": "Salt and Pepper Cluster"
+ },
+ {
+  "m": 38,
+  "ngc": "NGC 1912",
+  "common": "Starfish Cluster"
+ },
+ {
+  "m": 39,
+  "ngc": "NGC 7092",
+  "common": "Pyramid Cluster"
+ },
+ {
+  "m": 40,
+  "ngc": "—",
+  "common": "Winnecke 4"
+ },
+ {
+  "m": 41,
+  "ngc": "NGC 2287",
+  "common": "Little Beehive Cluster"
+ },
+ {
+  "m": 42,
+  "ngc": "NGC 1976",
+  "common": "Great Orion Nebula"
+ },
+ {
+  "m": 43,
+  "ngc": "NGC 1982",
+  "common": "De Mairan's Nebula"
+ },
+ {
+  "m": 44,
+  "ngc": "NGC 2632",
+  "common": "Beehive Cluster or Praesepe"
+ },
+ {
+  "m": 45,
+  "ngc": "—",
+  "common": "Pleiades , Seven Sisters or Subaru"
+ },
+ {
+  "m": 46,
+  "ngc": "NGC 2437",
+  "common": "—"
+ },
+ {
+  "m": 47,
+  "ngc": "NGC 2422",
+  "common": "—"
+ },
+ {
+  "m": 48,
+  "ngc": "NGC 2548",
+  "common": "—"
+ },
+ {
+  "m": 49,
+  "ngc": "NGC 4472",
+  "common": "—"
+ },
+ {
+  "m": 50,
+  "ngc": "NGC 2323",
+  "common": "Heart-Shaped Cluster"
+ },
+ {
+  "m": 51,
+  "ngc": "NGC 5194, NGC 5195",
+  "common": "Whirlpool Galaxy"
+ },
+ {
+  "m": 52,
+  "ngc": "NGC 7654",
+  "common": "Scorpion Cluster"
+ },
+ {
+  "m": 53,
+  "ngc": "NGC 5024",
+  "common": "—"
+ },
+ {
+  "m": 54,
+  "ngc": "NGC 6715",
+  "common": "—"
+ },
+ {
+  "m": 55,
+  "ngc": "NGC 6809",
+  "common": "Specter Cluster"
+ },
+ {
+  "m": 56,
+  "ngc": "NGC 6779",
+  "common": "—"
+ },
+ {
+  "m": 57,
+  "ngc": "NGC 6720",
+  "common": "Ring Nebula"
+ },
+ {
+  "m": 58,
+  "ngc": "NGC 4579",
+  "common": "—"
+ },
+ {
+  "m": 59,
+  "ngc": "NGC 4621",
+  "common": "—"
+ },
+ {
+  "m": 60,
+  "ngc": "NGC 4649",
+  "common": "—"
+ },
+ {
+  "m": 61,
+  "ngc": "NGC 4303",
+  "common": "Swelling Spiral Galaxy"
+ },
+ {
+  "m": 62,
+  "ngc": "NGC 6266",
+  "common": "Flickering Globular"
+ },
+ {
+  "m": 63,
+  "ngc": "NGC 5055",
+  "common": "Sunflower Galaxy"
+ },
+ {
+  "m": 64,
+  "ngc": "NGC 4826",
+  "common": "Black Eye Galaxy"
+ },
+ {
+  "m": 65,
+  "ngc": "NGC 3623",
+  "common": "Leo Triplet"
+ },
+ {
+  "m": 66,
+  "ngc": "NGC 3627",
+  "common": "Leo Triplet"
+ },
+ {
+  "m": 67,
+  "ngc": "NGC 2682",
+  "common": "King Cobra or Golden Eye Cluster"
+ },
+ {
+  "m": 68,
+  "ngc": "NGC 4590",
+  "common": "—"
+ },
+ {
+  "m": 69,
+  "ngc": "NGC 6637",
+  "common": "—"
+ },
+ {
+  "m": 70,
+  "ngc": "NGC 6681",
+  "common": "—"
+ },
+ {
+  "m": 71,
+  "ngc": "NGC 6838",
+  "common": "Angelfish Cluster"
+ },
+ {
+  "m": 72,
+  "ngc": "NGC 6981",
+  "common": "—"
+ },
+ {
+  "m": 73,
+  "ngc": "NGC 6994",
+  "common": "—"
+ },
+ {
+  "m": 74,
+  "ngc": "NGC 628",
+  "common": "Phantom Galaxy [ 91 ]"
+ },
+ {
+  "m": 75,
+  "ngc": "NGC 6864",
+  "common": "—"
+ },
+ {
+  "m": 76,
+  "ngc": "NGC 650, NGC 651",
+  "common": "Little Dumbbell Nebula"
+ },
+ {
+  "m": 77,
+  "ngc": "NGC 1068",
+  "common": "Cetus A or Squid Galaxy"
+ },
+ {
+  "m": 78,
+  "ngc": "NGC 2068",
+  "common": "—"
+ },
+ {
+  "m": 79,
+  "ngc": "NGC 1904",
+  "common": "—"
+ },
+ {
+  "m": 80,
+  "ngc": "NGC 6093",
+  "common": "—"
+ },
+ {
+  "m": 81,
+  "ngc": "NGC 3031",
+  "common": "Bode's Galaxy"
+ },
+ {
+  "m": 82,
+  "ngc": "NGC 3034",
+  "common": "Cigar Galaxy"
+ },
+ {
+  "m": 83,
+  "ngc": "NGC 5236",
+  "common": "Southern Pinwheel Galaxy"
+ },
+ {
+  "m": 84,
+  "ngc": "NGC 4374",
+  "common": "—"
+ },
+ {
+  "m": 85,
+  "ngc": "NGC 4382",
+  "common": "—"
+ },
+ {
+  "m": 86,
+  "ngc": "NGC 4406",
+  "common": "—"
+ },
+ {
+  "m": 87,
+  "ngc": "NGC 4486",
+  "common": "Virgo A"
+ },
+ {
+  "m": 88,
+  "ngc": "NGC 4501",
+  "common": "—"
+ },
+ {
+  "m": 89,
+  "ngc": "NGC 4552",
+  "common": "—"
+ },
+ {
+  "m": 90,
+  "ngc": "NGC 4569",
+  "common": "Carabin Galaxy"
+ },
+ {
+  "m": 91,
+  "ngc": "NGC 4548",
+  "common": "—"
+ },
+ {
+  "m": 92,
+  "ngc": "NGC 6341",
+  "common": "—"
+ },
+ {
+  "m": 93,
+  "ngc": "NGC 2447",
+  "common": "Critter Cluster"
+ },
+ {
+  "m": 94,
+  "ngc": "NGC 4736",
+  "common": "Crocodile Eye or Cat's Eye Galaxy"
+ },
+ {
+  "m": 95,
+  "ngc": "NGC 3351",
+  "common": "—"
+ },
+ {
+  "m": 96,
+  "ngc": "NGC 3368",
+  "common": "—"
+ },
+ {
+  "m": 97,
+  "ngc": "NGC 3587",
+  "common": "Owl Nebula"
+ },
+ {
+  "m": 98,
+  "ngc": "NGC 4192",
+  "common": "—"
+ },
+ {
+  "m": 99,
+  "ngc": "NGC 4254",
+  "common": "St. Catherine's Wheel"
+ },
+ {
+  "m": 100,
+  "ngc": "NGC 4321",
+  "common": "Mirror Galaxy"
+ },
+ {
+  "m": 101,
+  "ngc": "NGC 5457",
+  "common": "Pinwheel Galaxy"
+ },
+ {
+  "m": 102,
+  "ngc": "NGC 5866",
+  "common": "Spindle Galaxy"
+ },
+ {
+  "m": 103,
+  "ngc": "NGC 581",
+  "common": "—"
+ },
+ {
+  "m": 104,
+  "ngc": "NGC 4594",
+  "common": "Sombrero Galaxy"
+ },
+ {
+  "m": 105,
+  "ngc": "NGC 3379",
+  "common": "—"
+ },
+ {
+  "m": 106,
+  "ngc": "NGC 4258",
+  "common": "—"
+ },
+ {
+  "m": 107,
+  "ngc": "NGC 6171",
+  "common": "Crucifix Cluster"
+ },
+ {
+  "m": 108,
+  "ngc": "NGC 3556",
+  "common": "Surfboard Galaxy"
+ },
+ {
+  "m": 109,
+  "ngc": "NGC 3992",
+  "common": "Vacuum Cleaner Galaxy"
+ },
+ {
+  "m": 110,
+  "ngc": "NGC 205",
+  "common": "Andromeda Satellite #2"
+ }
+]

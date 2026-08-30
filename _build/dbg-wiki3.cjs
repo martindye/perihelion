@@ -1,0 +1,10 @@
+const fs = require('fs');
+const html = fs.readFileSync('C:/Users/press/OneDrive/Projects/DSH_TESTS/planetarium/_build/messier.html', 'utf8');
+const blk = html.split(/<tr[ >]/).find(b => /<th[^>]*>.*?<a[^>]*>(M13)<\/a>/s.test(b));
+const di = blk.indexOf('"wt":"DEC"');
+console.log('M13 DEC context:');
+console.log(blk.slice(di - 60, di + 500).replace(/\n/g, ' '));
+console.log('\n--- M12 (failed) DEC context ---');
+const b12 = html.split(/<tr[ >]/).find(b => /<th[^>]*>.*?<a[^>]*>(M12)<\/a>/s.test(b));
+const d12 = b12.indexOf('"wt":"DEC"');
+console.log(b12.slice(d12 - 60, d12 + 500).replace(/\n/g, ' '));

@@ -192,7 +192,14 @@ body {
   font-size: 12px;
 }
 .ip-row span { color: var(--dim); letter-spacing: 0.04em; }
-.ip-row b { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.ip-row b {
+  font-weight: 600; text-align: right; font-variant-numeric: tabular-nums;
+  display: flex; align-items: center; gap: 7px; justify-content: flex-end;
+}
+.ip-sw {
+  flex: none; width: 11px; height: 11px; border-radius: 50%;
+  box-shadow: 0 0 7px 1px rgba(255, 255, 255, 0.25);
+}
 .ip-fun {
   margin-top: 10px; font-size: 12px; line-height: 1.5;
   color: #a9c2e8; font-style: italic;

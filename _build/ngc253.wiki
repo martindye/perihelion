@@ -1,0 +1,8 @@
+#REDIRECT [[Sculptor Galaxy]]
+
+{{Redirect category shell|1=
+{{R from systematic name}}
+}}
+
+{{DEFAULTSORT:NGC 0253}}
+[[Category:NGC objects|0253]]

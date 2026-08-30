@@ -61,6 +61,48 @@ P.astro = (function () {
     return perifocalToEcliptic(pl, r * Math.cos(nu), r * Math.sin(nu), out);
   }
 
+  /* Osculating Keplerian elements referenced to a custom epoch.
+   * el = {a, e, i, Omega, varpi, M0, n, t0} — M0 = mean anomaly at t0
+   * (t0 in days after J2000.0). Heliocentric ecliptic position [AU]. */
+  function oscEcl(el, d, out) {
+    const M = (el.M0 + el.n * (d - el.t0)) * DEG;
+    const E = keplerSolve(M, el.e);
+    const xp = el.a * (Math.cos(E) - el.e);
+    const yp = el.a * Math.sqrt(1 - el.e * el.e) * Math.sin(E);
+    return perifocalToEcliptic({ varpi: el.varpi, Omega: el.Omega, i: el.i }, xp, yp, out);
+  }
+
+  /* Orbit-line sampling for osculating elements (same convention as
+   * helioEclByTrueAnomaly). */
+  function oscEclByTrueAnomaly(el, nu, out) {
+    const r = el.a * (1 - el.e * el.e) / (1 + el.e * Math.cos(nu));
+    return perifocalToEcliptic({ varpi: el.varpi, Omega: el.Omega, i: el.i },
+      r * Math.cos(nu), r * Math.sin(nu), out);
+  }
+
+  /* Sanity-check the minor-planet / moon element sets at their reference
+   * epoch (n·period consistency, km↔AU consistency, sanity ranges). */
+  function minorsSelfTest() {
+    const m = (window.P && P.minors) ? P.minors : null;
+    if (!m) return false;
+    let ok = true, bad = [];
+    const all = m.planets.map(p => ({ n: p.name, e: p.e, n: p.n, per: 360 / p.n, a: p.a }))
+      .concat(m.moons.map(p => ({ n: p.name, e: p.e, n: p.n, per: 360 / p.n, a: p.aKm / 1.495978707e8, km: p.aKm, au: p.aAu })));
+    for (const b of all) {
+      if (b.e < 0 || b.e >= 1) { ok = false; bad.push(b.n + ':e'); }
+      if (Math.abs(360 - b.n * b.per) > 0.002) { ok = false; bad.push(b.n + ':n·P'); }
+      if (b.km != null && Math.abs(b.km / 1.495978707e8 - b.au) / b.au > 0.005) { ok = false; bad.push(b.n + ':au'); }
+      if (!(b.a > 0 && b.a < 1e4)) { ok = false; bad.push(b.n + ':a'); }
+    }
+    if (ok) {
+      console.info('[PERIHELION] minors self-test OK (' + m.planets.length + ' planets, '
+        + m.moons.length + ' moons; osculating at ' + m.t0Date + ')');
+    } else {
+      console.warn('[PERIHELION] minors self-test FAILED: ' + bad.join(', '));
+    }
+    return ok;
+  }
+
   /* Ecliptic (x,y,z) -> equatorial J2000 (X,Y,Z). */
   function ecl2equ(v, out) {
     out.set(v.x, cE * v.y - sE * v.z, sE * v.y + cE * v.z);
@@ -133,6 +175,6 @@ P.astro = (function () {
     return okSun && okMoon;
   }
 
-  return { DEG, TAU, keplerSolve, helioEcl, helioEclByTrueAnomaly, ecl2equ, moonEcl,
-           raDeg, decDeg, formatRA, formatDec, selfTest };
+  return { DEG, TAU, keplerSolve, helioEcl, helioEclByTrueAnomaly, oscEcl, oscEclByTrueAnomaly, ecl2equ, moonEcl,
+           raDeg, decDeg, formatRA, formatDec, selfTest, minorsSelfTest };
 })();

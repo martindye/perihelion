@@ -16,6 +16,8 @@ P.app = (function () {
     orbits: true,
     constellations: true,
     ecliptic: true,
+    galaxyWash: true,
+    asterisms: true,
     selected: null,            // label key
     hover: null,
     follow: 'Sun',             // solar-mode camera target
@@ -58,6 +60,7 @@ P.app = (function () {
   }
   const solar = P.solar.build(scene);
   P.astro.selfTest(P.planets, THREE.Vector3);
+  P.astro.minorsSelfTest();
 
   /* selection marker — a gentle reticle pinned to the selected object */
   const marker = (() => {
@@ -139,10 +142,17 @@ P.app = (function () {
     return { ec: new THREE.Vector3(), eq: new THREE.Vector3(), anchor: new THREE.Vector3() };
   }
   const eph = {};
-  for (const key of ['Sun', 'Moon', ...P.planets.map(p => p.name)]) eph[key] = rec();
+  const minorNames = P.minors ? P.minors.planets.map(m => m.name) : [];
+  for (const key of ['Sun', 'Moon', ...P.planets.map(p => p.name), ...minorNames]) eph[key] = rec();
   eph.Sun.distAU = 1; eph.Sun.ra = 0; eph.Sun.dec = 0;
   for (const pl of P.planets) { eph[pl.name].distAU = 1; eph[pl.name].helioAU = pl.au; eph[pl.name].ra = 0; eph[pl.name].dec = 0; }
   eph.Moon.distAU = 0;
+  for (const name of minorNames) { eph[name].distAU = 1; eph[name].helioAU = 0; eph[name].ra = 0; eph[name].dec = 0; }
+  /* osculating elements (T0-anchored) for the minor planets */
+  const mEls = P.minors
+    ? new Map(P.minors.planets.map(m => [m.name, { a: m.a, e: m.e, i: m.i, Omega: m.Omega,
+        varpi: m.varpi, M0: m.M0, n: m.n, t0: P.minors.t0 }]))
+    : null;
 
   const T = new THREE.Vector3();
   function computeBodies(d) {
@@ -157,6 +167,16 @@ P.app = (function () {
     for (const pl of P.planets) {
       const r = eph[pl.name];
       P.astro.helioEcl(pl, d, r.ec);
+      r.helioAU = r.ec.length();
+      T.copy(r.ec).sub(eph.Earth.ec);
+      r.distAU = T.length();
+      P.astro.ecl2equ(T, r.eq);
+      r.ra = P.astro.raDeg(r.eq); r.dec = P.astro.decDeg(r.eq);
+      r.anchor.set(r.eq.x, r.eq.z, -r.eq.y).normalize().multiplyScalar(sky.R - 0.5);
+    }
+    if (mEls) for (const [name, el] of mEls) {
+      const r = eph[name];
+      P.astro.oscEcl(el, d, r.ec);
       r.helioAU = r.ec.length();
       T.copy(r.ec).sub(eph.Earth.ec);
       r.distAU = T.length();
@@ -247,13 +267,15 @@ P.app = (function () {
     e.preventDefault();
     if (state.mode === 'sky') {
       state.fovSky = Math.max(8, Math.min(110, state.fovSky + e.deltaY * 0.02));
+      updateGalaxyScale();
     } else {
       cam.dist = Math.max(4, Math.min(4000, cam.dist * Math.exp(e.deltaY * 0.0011)));
     }
   }, { passive: false });
 
   /* ---------------------------------------------------- labels & picking - */
-  const BODY_NAMES = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
+  const BODY_NAMES = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune',
+                      ...(P.minors ? P.minors.planets.map(m => m.name) : [])];
   const entries = [];
 
   for (let k = 0; k < sky.named.length; k++) {
@@ -272,11 +294,50 @@ P.app = (function () {
       anchor: new THREE.Vector3(), visible: () => true
     });
   }
+  /* major moons — solar-system mode only (labels + picking) */
+  if (P.minors) for (const m of P.minors.moons) {
+    entries.push({
+      key: 'body:' + m.name, text: m.name, kind: 'body', body: m.name,
+      anchor: new THREE.Vector3(), visible: () => state.mode === 'solar'
+    });
+  }
   const starByKey = new Map(sky.named.map(s => ['star:' + s.name, s]));
+
+  /* deep-sky objects (js/dso.js): real galaxies — pickable + labelable */
+  function dsoEntry(i) {
+    const r = P.dso[i];
+    return {
+      key: 'dso:' + i, text: r[0], kind: 'dso', dso: i,
+      ra: r[1], dec: r[2], v: r[3],
+      anchor: starAnchor(r[1], r[2]),
+      visible: () => state.mode === 'sky',
+      label: r[3] < 8.7 || r[10] != null    // bright, or a curated object with a story
+    };
+  }
+  if (P.dso) for (let i = 0; i < P.dso.length; i++) entries.push(dsoEntry(i));
+
+  /* constellation figures — a name label at the figure's centroid */
+  {
+    const byName = new Map(sky.named.map(s => [s.name, s]));
+    for (const [cname, lines] of P.constellations) {
+      let sx = 0, sy = 0, sz = 0, n = 0;
+      for (const [a, b] of lines) for (const nm of [a, b]) {
+        const s = byName.get(nm);
+        if (!s) continue;
+        sx += s.world.x; sy += s.world.y; sz += s.world.z; n++;
+      }
+      if (n < 2) continue;
+      entries.push({
+        key: 'const:' + cname, text: cname.toUpperCase(), kind: 'const', constName: cname,
+        anchor: new THREE.Vector3(sx / n, sy / n, sz / n),
+        visible: () => state.mode === 'sky' && state.constellations
+      });
+    }
+  }
 
   const _pv = new THREE.Vector3();
   function anchorOf(e) {
-    if (e.kind === 'star' || e.kind === 'bufstar') return e.anchor || null;
+    if (e.kind === 'star' || e.kind === 'bufstar' || e.kind === 'dso' || e.kind === 'const') return e.anchor || null;
     const name = e.body;
     if (state.mode === 'sky') return eph[name].anchor;
     if (name === 'Sun') return _sunAnchor.set(0, 0, 0);
@@ -298,7 +359,7 @@ P.app = (function () {
       const y = (-_pv.y * 0.5 + 0.5) * H;
       if (x < -60 || x > W + 60 || y < -60 || y > H + 60) { e.scr = null; continue; }
       e.scr = { x, y };
-      if (state.labels) P.ui.placeLabel(e.key, e.text, x, y, true, state.selected === e.key);
+      if (state.labels && e.label !== false) P.ui.placeLabel(e.key, e.text, x, y, true, state.selected === e.key);
     }
   }
 
@@ -375,13 +436,45 @@ P.app = (function () {
   }
 
   /* ------------------------------------------------------------- info ---- */
+  /* B−V -> approximate effective temperature (K), main-sequence anchor points
+     (B0 … M6); then Wien's law for the peak wavelength. Shown as the Colour
+     row for stars and galaxies alike. */
+  const BV_T = [[-0.35, 33000], [-0.26, 26000], [-0.14, 19500], [-0.05, 15300],
+    [0.00, 9900], [0.20, 7800], [0.30, 7400], [0.44, 6450], [0.55, 5900],
+    [0.65, 5770], [0.78, 5450], [0.85, 5200], [1.00, 4850], [1.25, 4400],
+    [1.60, 3850], [1.85, 3650], [2.00, 3500], [2.30, 3150], [2.50, 2950]];
+  function bvTeff(bv) {
+    if (bv <= BV_T[0][0]) return BV_T[0][1];
+    for (let i = 0; i < BV_T.length - 1; i++) {
+      const a = BV_T[i], b = BV_T[i + 1];
+      if (bv <= b[0]) return a[1] + (b[1] - a[1]) * (bv - a[0]) / (b[0] - a[0]);
+    }
+    return BV_T[BV_T.length - 1][1];
+  }
+  function bvSwatch(bv) {
+    const c = P.sky.bvToColor(bv == null ? 0.8 : bv);
+    return 'rgb(' + ((c[0] * 255) | 0) + ',' + ((c[1] * 255) | 0) + ',' + ((c[2] * 255) | 0) + ')';
+  }
+  function bvColourRow(bv) {
+    if (bv == null) return null;
+    const T = bvTeff(bv);
+    const lam = 2.898e6 / T;                    /* Wien displacement, nm */
+    const band = lam < 380 ? 'peak in the ultraviolet'
+      : lam > 750 ? 'peak in the infrared'
+      : 'peak at ' + Math.round(lam) + ' nm';
+    return {
+      sw: bvSwatch(bv),
+      text: bv.toFixed(2) + ' · ' + Math.round(T).toLocaleString('en-US') + ' K · ' + band
+    };
+  }
   function starInfo(entry) {
     const s = entry.star;
     const rows = [
       ['Magnitude', s.mag.toFixed(2)],
-      ['B − V', s.bv.toFixed(2)],
       ['Distance', s.dist ? s.dist + ' ly' : '—']
     ];
+    const bv = bvColourRow(s.bv);
+    if (bv) rows.push(['Colour', bv]);
     if (entry.ref) rows.push(['ID', entry.ref.split(' · ').slice(0, 2).join(' · ')]);
     return { title: s.name, rows, fun: s.dist
       ? 'Light from this star is ' + s.dist + ' years old by the time it reaches your eyes.'
@@ -390,9 +483,10 @@ P.app = (function () {
   function bufStarInfo(e) {
     const rows = [
       ['Magnitude (V)', e.v.toFixed(2)],
-      ['B − V', e.bv.toFixed(2)],
       ['HIP', String(e.hip)]
     ];
+    const bv = bvColourRow(e.bv);
+    if (bv) rows.push(['Colour', bv]);
     if (e.hd) rows.push(['HD', String(e.hd)]);
     rows.push(['Position', P.astro.formatRA(e.ra) + '  ' + P.astro.formatDec(e.dec)]);
     const named = e.buf != null && namedBuf.get(e.buf);
@@ -403,6 +497,40 @@ P.app = (function () {
         : 'A star from the 116,547-star Hipparcos catalog. No common name — but every star has an address.'
     };
   }
+  function dsoInfo(e) {
+    const r = P.dso[e.dso];
+    const rows = [['Type', r[4] || 'Galaxy']];
+    rows.push(['Position', P.astro.formatRA(r[1]) + '  ' + P.astro.formatDec(r[2])]);
+    if (r[3] != null) rows.push(['Magnitude (V)', r[3].toFixed(2)]);
+    if (r[5] != null) {
+      const fm = x => (x >= 10 ? Math.round(x) : +x.toFixed(1)) + '′';
+      rows.push(['Size', fm(r[5]) + (r[6] != null ? ' × ' + fm(r[6]) : '')]);
+    }
+    if (r[7] != null) rows.push(['Distance', (+r[7]).toFixed(1) + ' million ly']);
+    const bv = bvColourRow(r[9]);
+    if (bv && /galax/i.test(r[4] || '')) rows.push(['Colour', bv]);
+    else if (r[9] != null) {
+      const word = { '0.45': 'blue-white', '0.7': 'white', '1.05': 'yellow', '1.5': 'orange-red' }[String(r[9])];
+      if (word) rows.push(['Colour', word]);
+    }
+    if (r[11] && r[11] !== r[0]) rows.push(['Catalog', r[11]]);
+    const common = dsoCommon(r[0]);
+    const t = String(r[4] || '').toLowerCase();
+    const funFallback = /galax/.test(t)
+      ? 'A galaxy outside the Milky Way — its light left it millions of years before you were born.'
+      : /globular/.test(t)
+        ? 'A globular cluster — hundreds of thousands of ancient stars bound together by gravity, most of them older than the Milky Way itself.'
+        : /open cluster/.test(t)
+          ? 'An open cluster — stars born from the same cloud, still drifting together through the galaxy.'
+          : /planetary nebula/.test(t)
+            ? 'A planetary nebula — the glowing shed envelope of a dying sun-like star, laced with the light of its hot white-dwarf heart.'
+            : 'A nebula — interstellar gas and dust, the raw material of the next generation of stars.';
+    return {
+      title: r[0] + (common ? ' · ' + common : (r[11] && r[11] !== r[0] ? ' · ' + r[11] : '')),
+      rows,
+      fun: r[10] || funFallback
+    };
+  }
   function bodyInfo(name) {
     const e = eph[name];
     if (name === 'Sun') {
@@ -411,6 +539,7 @@ P.app = (function () {
         rows: [
           ['Distance', e.distAU.toFixed(3) + ' AU'],
           ['Type', 'G2V main sequence'],
+          ['Colour', bvColourRow(0.65) || 'yellow-white'],
           ['Surface', '5,505 °C']
         ],
         fun: 'The star at the heart of everything you are looking at.'
@@ -427,7 +556,37 @@ P.app = (function () {
         fun: 'Tidally locked — the same face has watched Earth for four billion years.'
       };
     }
+    if (P.minors) {
+      const mn = P.minors.planets.find(p => p.name === name);
+      if (mn) {
+        return {
+          title: name,
+          rows: [
+            ['Distance from Sun', e.helioAU.toFixed(2) + ' AU'],
+            ['Distance from Earth', e.distAU.toFixed(2) + ' AU'],
+            ['Orbital period', mn.facts.period],
+            ['Diameter', mn.facts.diameter],
+            ['Moons', mn.facts.moons]
+          ],
+          fun: mn.facts.fun
+        };
+      }
+      const mm = P.minors.moons.find(m => m.name === name);
+      if (mm) {
+        return {
+          title: name,
+          rows: [
+            ['Moon of', mm.parent],
+            ['Mean distance from ' + mm.parent, (mm.aKm / 1000).toLocaleString('en-US') + ' km'],
+            ['Orbital period', mm.facts.period],
+            ['Diameter', mm.facts.diameter]
+          ],
+          fun: mm.facts.fun
+        };
+      }
+    }
     const pl = P.planets.find(p => p.name === name);
+    if (!pl) return { title: name, rows: [], fun: '' };
     return {
       title: name,
       rows: [
@@ -448,7 +607,12 @@ P.app = (function () {
     if (!entry) { P.ui.hideInfo(); if (state.catalogOpen) renderCatalog(); return; }
     const info = entry.kind === 'body'
       ? bodyInfo(entry.body)
-      : (entry.star ? starInfo(entry) : bufStarInfo(entry));
+      : entry.kind === 'dso'
+        ? dsoInfo(entry)
+        : entry.kind === 'const'
+          ? { title: entry.constName, rows: [['Type', 'constellation figure']],
+              fun: 'One of the 88 modern constellations, drawn here with its classic stick figure.' }
+          : (entry.star ? starInfo(entry) : bufStarInfo(entry));
     P.ui.showInfo(info.title, info.rows, info.fun);
     if (entry.kind === 'body' && state.mode === 'solar') state.follow = entry.body;
     if (state.catalogOpen) renderCatalog();
@@ -457,8 +621,46 @@ P.app = (function () {
   /* ------------------------------------------------- catalog & search ---- */
   const catalogList = [];
   for (const name of BODY_NAMES) catalogList.push({ kind: 'body', body: name, name, key: 'body:' + name });
+  if (P.minors) for (const m of P.minors.moons) {
+    catalogList.push({ kind: 'body', body: m.name, name: m.name, key: 'body:' + m.name, moon: m });
+  }
   sky.named.slice().sort((a, b) => a.mag - b.mag)
     .forEach(s => catalogList.push({ kind: 'star', star: s, name: s.name, key: 'star:' + s.name }));
+  /* galaxies: searchable by Messier/NGC/IC/UGC id, by common name, and by
+     cross-reference. Common names use established astronomical usage
+     ("Andromeda Galaxy" = M31, "Needle Galaxy" = NGC 4565, …), keyed by the
+     id exactly as stored in js/dso.js. */
+  const GALAXY_COMMON = {
+    'M31': 'Andromeda Galaxy',
+    'M33': 'Triangulum Galaxy',
+    'M51': 'Whirlpool Galaxy',
+    'M63': 'Sunflower Galaxy',
+    'M64': 'Black Eye Galaxy',
+    'M74': 'Photon Ring Galaxy',
+    'M81': 'Cigar Galaxy',
+    'M82': 'Cigar Galaxy',
+    'M83': 'Southern Pinwheel Galaxy',
+    'M87': 'Virgo A',
+    'M101': 'Pinwheel Galaxy',
+    'M104': 'Sombrero Galaxy',
+    'NGC 253': 'Sculptor Galaxy',
+    'NGC 1300': 'Grand Design Galaxy',
+    'NGC 4565': 'Needle Galaxy',
+    'NGC 4631': 'Face-on Andromeda'
+  };
+  const DSO2_COMMON = P.dso2Common || {};
+  const dsoCommon = id => GALAXY_COMMON[id] || DSO2_COMMON[id] || null;
+  const dsoKind = r => {
+    const c = dsoCommon(r[0]);
+    if (c) return c.toUpperCase();
+    return /galax/i.test(r[4] || '') ? 'GALAXY' : (r[4] || 'DEEP-SKY OBJECT').toUpperCase();
+  };
+  if (P.dso) {
+    for (let i = 0; i < P.dso.length; i++) {
+      const r = P.dso[i];
+      catalogList.push({ kind: 'dso', dso: i, name: r[0], common: dsoCommon(r[0]) || '', refs: r[11] || '', v: r[3], key: 'dso:' + i });
+    }
+  }
   /* IAU-named catalog stars (WGSN) */
   if (P.starNamed && N_BUF) {
     const w = P.starNamed.data.map(([i, name, refs]) => ({
@@ -492,8 +694,13 @@ P.app = (function () {
     const push = (sc, c) => { if (!seen.has(c.key)) { seen.add(c.key); res.push([sc, c]); } };
     for (const c of catalogList) {
       const n = c.name.toLowerCase().replace(/\s+/g, '');
-      const refs = (c.refs || '').toLowerCase();
+      const refs = (c.refs || '').toLowerCase().replace(/\s+/g, '');
       let sc = n === nq ? 0 : n.indexOf(nq) === 0 ? 1 : n.indexOf(nq) >= 0 ? 2 : -1;
+      /* common names ("Andromeda Galaxy") rank like the catalog id */
+      if (sc < 0 && c.common) {
+        const cn = c.common.toLowerCase().replace(/\s+/g, '');
+        sc = cn === nq ? 0 : cn.indexOf(nq) === 0 ? 1 : cn.indexOf(nq) >= 0 ? 2 : -1;
+      }
       if (sc < 0 && refs.indexOf(nq) >= 0) sc = 3;
       if (sc >= 0) push(sc, c);
     }
@@ -513,6 +720,14 @@ P.app = (function () {
   }
 
   function catalogSub(c) {
+    if (c.kind === 'dso') {
+      const r = P.dso[c.dso];
+      let s = dsoKind(r)
+        + ' · MAG ' + (c.v != null ? c.v.toFixed(1) : '?');
+      if (r[5] != null) s += ' · ' + (r[5] >= 10 ? Math.round(r[5]) : r[5].toFixed(1)) + '′';
+      if (r[7] != null) s += ' · ' + r[7] + ' MLY';
+      return s;
+    }
     if (c.kind === 'bufstar') {
       return 'V ' + c.v.toFixed(2) + ' · HIP ' + (c.hip != null ? c.hip : hip32[c.buf])
         + (c.hd ? ' · HD ' + c.hd : '');
@@ -525,6 +740,12 @@ P.app = (function () {
     if (n === 'Sun') return 'STAR · G2V · 1.00 AU';
     if (n === 'Moon') return 'MOON OF EARTH · 384,400 KM';
     if (n === 'Earth') return 'HOME · YOU ARE HERE';
+    if (P.minors) {
+      const mm = P.minors.moons.find(m => m.name === n);
+      if (mm) return 'MOON OF ' + mm.parent.toUpperCase() + ' · ' + (mm.aKm / 1000).toLocaleString('en-US') + ' KM';
+      const mp = P.minors.planets.find(m => m.name === n);
+      if (mp) return 'MINOR PLANET · ' + eph[n].distAU.toFixed(2) + ' AU FROM EARTH';
+    }
     return 'PLANET · ' + eph[n].distAU.toFixed(2) + ' AU FROM EARTH';
   }
 
@@ -556,7 +777,8 @@ P.app = (function () {
     P.ui.catalog.count.textContent = q
       ? list.length + ' MATCHES'
       : (P.stars.length + (P.starNamed ? P.starNamed.count : 0)) + ' NAMED · '
-        + N_BUF.toLocaleString('en-US') + ' IN CATALOG';
+        + N_BUF.toLocaleString('en-US') + ' IN CATALOG'
+        + (P.dso ? ' · ' + P.dso.length + ' DEEP-SKY OBJECTS' : '');
   }
 
   function toggleCatalog(force) {
@@ -569,6 +791,7 @@ P.app = (function () {
   function pickCatalog(c) {
     let entry;
     if (c.kind === 'body') entry = { key: 'body:' + c.name, text: c.name, kind: 'body', body: c.name };
+    else if (c.kind === 'dso') entry = dsoEntry(c.dso);
     else if (c.kind === 'star') {
       const k = sky.named.indexOf(c.star);
       entry = { key: 'star:' + c.name, text: c.name, kind: 'star', star: c.star,
@@ -599,7 +822,19 @@ P.app = (function () {
       rotateToVec(P.sky.raDecToVec3(c.ra, c.dec, new THREE.Vector3()));
       return;
     }
+    if (c.kind === 'dso') {
+      if (state.mode !== 'sky') setMode('sky');
+      const r = P.dso[c.dso];
+      rotateToVec(P.sky.raDecToVec3(r[1], r[2], new THREE.Vector3()));
+      return;
+    }
     const name = c.body;
+    if (P.minors && P.minors.moons.some(m => m.name === name) && state.mode !== 'solar') {
+      setMode('solar');
+      state.follow = name;
+      cam.dist = 14;
+      return;
+    }
     if (state.mode === 'solar') {
       if (name === 'Sun') { state.follow = 'Sun'; cam.dist = 90; }
       else if (name === 'Moon') { state.follow = 'Earth'; cam.dist = 9; }
@@ -626,10 +861,21 @@ P.app = (function () {
         sub = 'STAR · V ' + hit.v.toFixed(2) + (hit.hd ? ' · HD ' + hit.hd : '')
           + (named ? ' · ' + hit.refs.split(' · ').slice(2, 3).join('') : '');
       }
+    } else if (hit.kind === 'dso') {
+      const r = P.dso[hit.dso];
+      sub = dsoKind(r)
+        + ' · MAG ' + (r[3] != null ? r[3].toFixed(1) : '?')
+        + (r[11] ? ' · ' + r[11] : '');
+    } else if (hit.kind === 'const') {
+      sub = 'CONSTELLATION · FIGURE';
     } else {
       const n = hit.body;
+      const _mm = P.minors && P.minors.moons.find(m => m.name === n);
+      const _mp = P.minors && P.minors.planets.find(m => m.name === n);
       sub = n === 'Sun' ? 'STAR · G2V'
         : n === 'Moon' ? 'MOON OF EARTH'
+        : _mm ? 'MOON OF ' + _mm.parent.toUpperCase()
+        : _mp ? 'MINOR PLANET · ' + eph[n].distAU.toFixed(2) + ' AU FROM EARTH'
         : 'PLANET · ' + eph[n].distAU.toFixed(2) + ' AU FROM EARTH';
     }
     P.ui.tip(x, y, hit.text, sub);
@@ -690,6 +936,8 @@ P.app = (function () {
     sky.constellations.visible = state.constellations;
     /* the ecliptic is a line on the celestial dome - only meaningful in sky mode */
     sky.ecliptic.visible = state.ecliptic && state.mode === 'sky';
+    if (sky.galaxyWash) sky.galaxyWash.visible = state.galaxyWash && state.mode === 'sky';
+    if (sky.asterisms) sky.asterisms.visible = state.asterisms;
     solar.setOrbitsVisible(state.orbits);
   }
   function setMode(m) {
@@ -712,7 +960,7 @@ P.app = (function () {
   function toggleState(key) {
     state[key] = !state[key];
     applyVisibility();
-    const map = { labels: 'labels', orbits: 'orbits', constellations: 'const', ecliptic: 'ecliptic', hoverNames: 'hover' };
+    const map = { labels: 'labels', orbits: 'orbits', constellations: 'const', ecliptic: 'ecliptic', hoverNames: 'hover', galaxyWash: 'wash', asterisms: 'asterisms' };
     const btn = document.getElementById('tg-' + map[key]);
     if (btn) btn.classList.toggle('on', state[key]);
   }
@@ -728,6 +976,8 @@ P.app = (function () {
       case 'o': case 'O': toggleState('orbits'); break;
       case 'c': case 'C': toggleState('constellations'); break;
       case 'e': case 'E': toggleState('ecliptic'); break;
+      case 'w': case 'W': toggleState('galaxyWash'); break;
+      case 'a': case 'A': toggleState('asterisms'); break;
       case 't': case 'T': toggleState('hoverNames'); break;
       case 'k': case 'K': toggleCatalog(); break;
       case 'x': case 'X': {
@@ -756,11 +1006,19 @@ P.app = (function () {
   }
 
   /* ------------------------------------------------------------- resize -- */
+  /* device pixels per arcminute of sky — keeps the 18k faint-galaxy points
+     the same apparent size when the window or the field of view changes */
+  function updateGalaxyScale() {
+    if (sky.setGalaxyScale) {
+      sky.setGalaxyScale((innerHeight * renderer.getPixelRatio()) / (state.fovSky * 60));
+    }
+  }
   function onResize() {
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
     sky.setPixelRatio(CAPTURE_MODE && innerWidth >= 3000 ? 2 : renderer.getPixelRatio());
+    updateGalaxyScale();
   }
   window.addEventListener('resize', onResize);
   onResize();
@@ -784,6 +1042,15 @@ P.app = (function () {
     goNow,
     togglePause
   };
+  /* Debug handle — exposed only when the page is loaded with ?dbg=1
+     (used by the _qa/ regression scripts; hidden in normal use). */
+  if (/[?&]dbg=1\b/.test(location.search)) {
+    P.app._dbg = {
+      get sky() { return sky; }, get scene() { return scene; }, get camera() { return camera; },
+      get renderer() { return renderer; }, get solar() { return solar; },
+      get state() { return state; }, get cam() { return cam; }
+    };
+  }
   P.ui.wire(P.app);
   syncSpeedUI();
   P.ui.syncPlay();
@@ -889,7 +1156,7 @@ P.app = (function () {
       marker.visible = on;
     }
     updateLabels();
-    sky.setBodies(key => (key === 'Sun' || key === 'Moon' || key === 'Mercury' || key === 'Venus' || key === 'Mars' || key === 'Jupiter' || key === 'Saturn' || key === 'Uranus' || key === 'Neptune') ? eph[key] : null);
+    sky.setBodies(key => eph[key] || null);
     sky.mat.uniforms.uTime.value = now / 1000;
 
     renderer.render(scene, camera);

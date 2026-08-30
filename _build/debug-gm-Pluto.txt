@@ -1,0 +1,22 @@
+*******************************************************************************
+ Revised: Apr 03, 2024              134340 Pluto                            999
+ 
+ Pre-computed solution PLU060/DE440. Fit to post New Horizons encounter and
+ Gaia data through 2023. For discussion, see ...
+
+ M. Brozovic, R. A. Jacobson (2024) "Post-New Horizons orbits and masses
+ for the satellites of Pluto". AJ (in press)
+
+ PHYSICAL DATA (updated 2021-Jun-07; Mc= Charon mass, radius is IAU 2015):
+  Mass x10^22 (kg)      = 1.307+-0.018    Volume, 10^10 km^3    = 0.697
+  GM (planet) km^3/s^2  = 869.326         Density (R=1195 km)   = 1.86 g/cm^3
+  GM 1-sigma, km^3/s^2  = 0.4             Surface gravity       = 0.611 m/s^2 
+  Vol. mean radius (km) = 1188.3+-1.6     Mass ratio (Mc/Mp)    = 0.122
+  Sidereal rot. period  = 153.29335198 h  Sid. rot. rat, rad/s  = 0.0000113856
+  Mean solar day, h     = 153.2820        Mean orbit velocity   = 4.67 km/s
+  Sidereal orbit period = 249.58932 yr    Escape speed, km/s    = 1.21            
+                                 Perihelion  Aphelion    Mean
+  Solar Constant (W/m^2)         1.56        0.56        0.88
+  Maximum Planetary IR (W/m^2)   0.8         0.3         0.5
+  Minimum Planetary IR (W/m^2)   0.8         0.3         0.5
+*******************************************************************************

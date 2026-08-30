@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+  xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/v1.3">
+ <DESCRIPTION>
+   VizieR Astronomical Server vizier.cds.unistra.fr
+    Date: 2026-08-29T17:03:18 [V7.6]
+   Explanations and Statistics of UCDs:			See LINK below
+   In case of problem, please report to:	cds-question@unistra.fr
+ </DESCRIPTION>
+<!-- VOTable description at http://www.ivoa.net/Documents/latest/VOT.html -->
+<INFO name="service_protocol" value="ASU">  IVOID of the protocol through which the data was retrieved</INFO>
+<INFO name="request_date" value="2026-08-29T17:03:18">  Query execution date</INFO>
+<INFO name="request" value="https://vizier.cds.unistra.fr/viz-bin/votable?-source=NGC&amp;-meta=ap">  Full request URL</INFO>
+<INFO name="contact" value="cds-question@unistra.fr">  Email or URL to contact publisher</INFO>
+<INFO name="server_software" value="VizieR/7.6">  Software version</INFO>
+<INFO name="publisher" value="CDS">  Data centre that produced the VOTable</INFO>
+<INFO name="MaxTuples" value="50000" />
+
+<RESOURCE ID="yCat_7001" name="VII/1B" type="meta">
+  <DESCRIPTION>Revised New General Catalogue (Sulentic+, 1973)</DESCRIPTION>
+  <INFO name="ivoid" value="ivo://cds.vizier/vii/1b">    IVOID of underlying data collection  </INFO>
+  <INFO name="data_ivoid" value="ivo://cds.vizier/vii/1b">    IVOID of underlying data collection  </INFO>
+  <INFO name="creator" value="Sulentic J.W.">    First author or institution  </INFO>
+  <INFO name="cites" value="1973rncn.book.....S">    Article or Data origin sources  </INFO>
+  <INFO name="reference_url" value="https://cdsarc.cds.unistra.fr/viz-bin/cat/VII/1B">    Dataset landing page  </INFO>
+  <INFO name="rights_uri" value="https://cds.unistra.fr/vizier-org/licences_vizier.html">    Licence URI  </INFO>
+  <INFO name="ipopu" value="0.734367">popularity index</INFO>
+  <INFO name="cpopu" value="178431">number of calls</INFO>
+  <INFO name="-kw.Astronomy" value="Galaxies"/>
+  <INFO name="-kw.Astronomy" value="Nonstellar"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=VII/1B"/>
+
+  <TABLE ID="yCat_7001_1" name="VII/1B/catalog" type="meta" nrows="8163">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='NGC' display='1' ucd='meta.id;meta.main'/><FIELD name='m_NGC' display='1' ucd='meta.code.multip'/><FIELD name='Type' display='1' ucd='src.class'/><FIELD name='RA1975' display='1' ucd='pos.eq.ra;meta.main'/><FIELD name='DE1975' display='1' ucd='pos.eq.dec;meta.main'/><FIELD name='Xpos' display='1' ucd='pos.cartesian.x;instr.plate'/><FIELD name='Ypos' display='1' ucd='pos.cartesian.y;instr.plate'/><FIELD name='Mag' display='1' ucd='phot.mag'/><FIELD name='r_Mag' display='1' ucd='meta.ref'/><FIELD name='OldDesc' display='0' ucd='src.morph.type'/><FIELD name='NewDesc' display='0' ucd='meta.note'/><FIELD name='Notes' display='1' ucd='meta.note'/><FIELD name='_RA.icrs' display='1' ucd='pos.eq.ra'/><FIELD name='_DE.icrs' display='1' ucd='pos.eq.dec'/>    <INFO name="nrows" value="8163">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      The Revised NGC Catalog
+    </DESCRIPTION>
+  </TABLE>
+</RESOURCE>
+
+<RESOURCE ID="yCat_7118" name="VII/118" type="meta">
+  <DESCRIPTION>NGC 2000.0 (Sky Publishing, ed. Sinnott 1988)</DESCRIPTION>
+  <INFO name="ivoid" value="ivo://cds.vizier/vii/118">    IVOID of underlying data collection  </INFO>
+  <INFO name="data_ivoid" value="ivo://cds.vizier/vii/118">    IVOID of underlying data collection  </INFO>
+  <INFO name="creator" value="Sinnott">    First author or institution  </INFO>
+  <INFO name="cites" value="1988cngc.book.....S">    Article or Data origin sources  </INFO>
+  <INFO name="reference_url" value="https://cdsarc.cds.unistra.fr/viz-bin/cat/VII/118">    Dataset landing page  </INFO>
+  <INFO name="rights_uri" value="https://cds.unistra.fr/vizier-org/licences_vizier.html">    Licence URI  </INFO>
+  <INFO name="ipopu" value="0.689853">popularity index</INFO>
+  <INFO name="cpopu" value="85733">number of calls</INFO>
+  <INFO name="-kw.Astronomy" value="Galaxies"/>
+  <INFO name="-kw.Astronomy" value="Nonstellar"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=VII/118"/>
+
+  <TABLE ID="yCat_7118_1" name="VII/118/ngc2000" type="meta" nrows="13226">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='Name' display='1' ucd='meta.id;meta.main'/><FIELD name='Type' display='1' ucd='src.class'/><FIELD name='RAB2000' display='1' ucd='pos.eq.ra;meta.main'/><FIELD name='DEB2000' display='1' ucd='pos.eq.dec;meta.main'/><FIELD name='Source' display='1' ucd='meta.ref;pos.frame'/><FIELD name='Const' display='1' ucd='meta.id'/><FIELD name='l_size' display='1' ucd='meta.code.error;phys.angSize'/><FIELD name='size' display='1' ucd='phys.angSize'/><FIELD name='mag' display='1' ucd='phot.mag;em.opt'/><FIELD name='n_mag' display='1' ucd='meta.note'/><FIELD name='Desc' display='1' ucd='meta.note'/>    <INFO name="nrows" value="13226">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      The NGC 2000.0 Catalogue
+    </DESCRIPTION>
+  </TABLE>
+
+  <TABLE ID="yCat_7118_2" name="VII/118/names" type="meta" nrows="227">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='Object' display='1' ucd='meta.id;meta.main'/><FIELD name='Name' display='1' ucd='meta.id'/><FIELD name='Comment' display='1' ucd='meta.note'/>    <INFO name="nrows" value="227">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      Index of Messier and common names
+    </DESCRIPTION>
+  </TABLE>
+</RESOURCE>
+
+<RESOURCE ID="yCat_7239" name="VII/239A" type="meta">
+  <DESCRIPTION>History and Accurate Positions for the NGC/IC Objects (Corwin, 2004)</DESCRIPTION>
+  <INFO name="ivoid" value="ivo://cds.vizier/vii/239a">    IVOID of underlying data collection  </INFO>
+  <INFO name="data_ivoid" value="ivo://cds.vizier/vii/239a">    IVOID of underlying data collection  </INFO>
+  <INFO name="creator" value="Corwin H. G. Jr">    First author or institution  </INFO>
+  <INFO name="cites" value="bibcode:2004yCat.7239....0C">    Bibcode of the dataset  </INFO>
+  <INFO name="journal" value="yCat">    Journal name  </INFO>
+  <INFO name="original_date" value="2004">    Year of the article publication  </INFO>
+  <INFO name="reference_url" value="https://cdsarc.cds.unistra.fr/viz-bin/cat/VII/239A">    Dataset landing page  </INFO>
+  <INFO name="rights_uri" value="https://cds.unistra.fr/vizier-org/licences_vizier.html">    Licence URI  </INFO>
+  <INFO name="ipopu" value="0.695758">popularity index</INFO>
+  <INFO name="cpopu" value="94487">number of calls</INFO>
+  <INFO name="-kw.Astronomy" value="Stars"/>
+  <INFO name="-kw.Astronomy" value="Galaxies"/>
+  <INFO name="-kw.Astronomy" value="Nonstellar"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=VII/239A"/>
+
+  <TABLE ID="yCat_7239_1" name="VII/239A/icpos" type="meta" nrows="15517">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='Note' display='1' ucd='meta.code'/><FIELD name='Cat' display='1' ucd='meta.note'/><FIELD name='NGC/IC' display='1' ucd='meta.id;meta.main'/><FIELD name='n_NGC/IC' display='1' ucd='meta.note'/><FIELD name='RAJ2000' display='1' ucd='pos.eq.ra;meta.main'/><FIELD name='DEJ2000' display='1' ucd='pos.eq.dec;meta.main'/><FIELD name='qPos' display='1' ucd='meta.code.qual'/><FIELD name='N' display='1' ucd='meta.number'/><FIELD name='e_RAJ2000' display='1' ucd='stat.error;pos.eq.ra'/><FIELD name='e_DEJ2000' display='1' ucd='stat.error;pos.eq.dec'/><FIELD name='Refs' display='0' ucd='meta.ref;pos.frame'/><FIELD name='Simbad' display='0' ucd='meta.ref.url'/><FIELD name='NED' display='0' ucd='meta.ref.url'/>    <INFO name="nrows" value="15517">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      IC positions (mean values)
+    </DESCRIPTION>
+
+<!-- NGC/IC positions (mean values) -->
+  </TABLE>
+
+  <TABLE ID="yCat_7239_2" name="VII/239A/icdata" type="meta" nrows="55179">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='Cat' display='1' ucd='meta.note'/><FIELD name='NGC/IC' display='1' ucd='meta.id;meta.main'/><FIELD name='n_NGC/IC' display='1' ucd='meta.note'/><FIELD name='RAB1950' display='1' ucd='pos.eq.ra;meta.main'/><FIELD name='DEB1950' display='1' ucd='pos.eq.dec;meta.main'/><FIELD name='qPos' display='1' ucd='meta.code.qual'/><FIELD name='f_Pos' display='1' ucd='meta.code'/><FIELD name='r_Pos' display='1' ucd='meta.ref;pos.frame'/><FIELD name='N' display='1' ucd='meta.number'/><FIELD name='Comm' display='1' ucd='meta.note'/><FIELD name='Simbad' display='1' ucd='meta.ref.url'/><FIELD name='NED' display='1' ucd='meta.ref.url'/><FIELD name='_RA.icrs' display='1' ucd='pos.eq.ra'/><FIELD name='_DE.icrs' display='1' ucd='pos.eq.dec'/>    <INFO name="nrows" value="55179">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      IC referenced positions and notes
+    </DESCRIPTION>
+
+<!-- NGC/IC referenced positions and notes -->
+  </TABLE>
+
+  <TABLE ID="yCat_7239_5" name="VII/239A/refs" type="meta" nrows="2365">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='Ref' display='1' ucd='meta.note'/><FIELD name='n_Text' display='1' ucd='meta.note'/><FIELD name='Text' display='1' ucd='meta.note'/>    <INFO name="nrows" value="2365">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      References of positions
+    </DESCRIPTION>
+  </TABLE>
+</RESOURCE>
+<INFO name="matches" value="6">matching records</INFO>
+</VOTABLE>

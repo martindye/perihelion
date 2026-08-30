@@ -1,0 +1,11 @@
+*******************************************************************************
+ Multiple major-bodies match string "ERIS*"
+
+  ID#      Name                               Designation  IAU/aliases/other   
+  -------  ---------------------------------- -----------  ------------------- 
+ 20136199  Eris (system barycenter)                                             
+920136199  Eris (primary body)                                                  
+120136199  Dysnomia                                        Eris I               
+ 
+   Number of matches =           3 . Use ID# to make unique selection.
+*******************************************************************************

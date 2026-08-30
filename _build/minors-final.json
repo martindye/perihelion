@@ -1,0 +1,352 @@
+{
+ "meta": {
+  "fetchedAt": "2026-08-30T05:08:03.977Z",
+  "epochT0": {
+   "jd": 2461283,
+   "date": "2026-08-30T12:00TDB",
+   "d_since_J2000": 9738
+  },
+  "source": "JPL Horizons API (DE440-class ephemerides), osculating elements at T0"
+ },
+ "minorPlanets": {
+  "Ceres": {
+   "cmd": "Ceres",
+   "elements": {
+    "a": 2.7658247,
+    "e": 0.079735,
+    "i_deg": 10.5877,
+    "Omega_deg": 80.249,
+    "w_deg": 73.23,
+    "M0_at_T0": 292.165,
+    "varpi_deg": 153.4789,
+    "period_days": 1680.10101,
+    "n_deg_day": 0.214272831,
+    "L0_J2000ref": 159.0551,
+    "roundtrip_err_AU": 0.0000205
+   }
+  },
+  "Vesta": {
+   "cmd": "Vesta",
+   "elements": {
+    "a": 2.3612802,
+    "e": 0.090225,
+    "i_deg": 7.1439,
+    "Omega_deg": 103.7001,
+    "w_deg": 151.4466,
+    "M0_at_T0": 103.621,
+    "varpi_deg": 255.1467,
+    "period_days": 1325.31682,
+    "n_deg_day": 0.271633163,
+    "L0_J2000ref": 233.604,
+    "roundtrip_err_AU": 0.0000114
+   }
+  },
+  "Pallas": {
+   "cmd": "Pallas",
+   "elements": {
+    "a": 2.7694175,
+    "e": 0.230703,
+    "i_deg": 34.9336,
+    "Omega_deg": 172.8868,
+    "w_deg": 310.9829,
+    "M0_at_T0": 271.877,
+    "varpi_deg": 123.8697,
+    "period_days": 1683.37582,
+    "n_deg_day": 0.213855989,
+    "L0_J2000ref": 113.2171,
+    "roundtrip_err_AU": 0.0000104
+   }
+  },
+  "Hygiea": {
+   "cmd": "Hygiea",
+   "elements": {
+    "a": 3.1509325,
+    "e": 0.106227,
+    "i_deg": 3.8269,
+    "Omega_deg": 283.1051,
+    "w_deg": 312.4954,
+    "M0_at_T0": 266.458,
+    "varpi_deg": 235.6005,
+    "period_days": 2042.94691,
+    "n_deg_day": 0.176216033,
+    "L0_J2000ref": 226.0668,
+    "roundtrip_err_AU": 0.00000862
+   }
+  },
+  "Pluto": {
+   "cmd": "999",
+   "elements": {
+    "a": 39.1509636,
+    "e": 0.244823,
+    "i_deg": 16.9558,
+    "Omega_deg": 110.1433,
+    "w_deg": 112.5481,
+    "M0_at_T0": 55.158,
+    "varpi_deg": 222.6914,
+    "period_days": 89477.14341,
+    "n_deg_day": 0.004023374,
+    "L0_J2000ref": 238.6698,
+    "roundtrip_err_AU": 0.000226
+   }
+  },
+  "Eris": {
+   "cmd": "920136199",
+   "elements": {
+    "a": 67.913718,
+    "e": 0.43861,
+    "i_deg": 43.9458,
+    "Omega_deg": 35.997,
+    "w_deg": 150.8253,
+    "M0_at_T0": 211.887,
+    "varpi_deg": 186.8223,
+    "period_days": 204425.32063,
+    "n_deg_day": 0.001761034,
+    "L0_J2000ref": 21.5604,
+    "roundtrip_err_AU": 0.00029
+   }
+  },
+  "Haumea": {
+   "cmd": "920136108",
+   "elements": {
+    "a": 43.0827122,
+    "e": 0.193996,
+    "i_deg": 28.2085,
+    "Omega_deg": 121.7867,
+    "w_deg": 240.5748,
+    "M0_at_T0": 223.621,
+    "varpi_deg": 2.3615,
+    "period_days": 103288.74017,
+    "n_deg_day": 0.003485375,
+    "L0_J2000ref": 192.0419,
+    "roundtrip_err_AU": 0.0000939
+   }
+  },
+  "Makemake": {
+   "cmd": "Makemake",
+   "elements": {
+    "a": 45.5890218,
+    "e": 0.158416,
+    "i_deg": 29.0257,
+    "Omega_deg": 79.3073,
+    "w_deg": 297.0665,
+    "M0_at_T0": 170.231,
+    "varpi_deg": 16.3738,
+    "period_days": 112431.71568,
+    "n_deg_day": 0.003201943,
+    "L0_J2000ref": 155.4243,
+    "roundtrip_err_AU": 0.000151
+   }
+  }
+ },
+ "moons": {
+  "Io": {
+   "cmd": "501",
+   "cmdUsed": "501",
+   "elements": {
+    "e": 0.004024,
+    "i_deg": 2.2252,
+    "Omega_deg": 338.4313,
+    "w_deg": 76.0208,
+    "M0_at_T0": 99.202,
+    "varpi_deg": 54.4521,
+    "period_days": 1.77148,
+    "n_deg_day": 203.219427192,
+    "a_km": 422046,
+    "a_au": 0.0028212,
+    "roundtrip_err_AU": 1.58e-8,
+    "parent": "Jupiter",
+    "parentGM_km3s2": 126686531.9
+   }
+  },
+  "Europa": {
+   "cmd": "502",
+   "cmdUsed": "502",
+   "elements": {
+    "e": 0.009544,
+    "i_deg": 2.0867,
+    "Omega_deg": 326.1574,
+    "w_deg": 261.0802,
+    "M0_at_T0": 52.443,
+    "varpi_deg": 227.2376,
+    "period_days": 3.55318,
+    "n_deg_day": 101.317601329,
+    "a_km": 671246,
+    "a_au": 0.004487,
+    "roundtrip_err_AU": 4.51e-8,
+    "parent": "Jupiter",
+    "parentGM_km3s2": 126686531.9
+   }
+  },
+  "Ganymede": {
+   "cmd": "Ganymede",
+   "cmdUsed": "Ganymede",
+   "elements": {
+    "e": 0.002366,
+    "i_deg": 2.343,
+    "Omega_deg": 339.0867,
+    "w_deg": 1.2376,
+    "M0_at_T0": 272.56,
+    "varpi_deg": 340.3243,
+    "period_days": 7.15951,
+    "n_deg_day": 50.282758317,
+    "a_km": 1070837,
+    "a_au": 0.0071581,
+    "roundtrip_err_AU": 3.12e-8,
+    "parent": "Jupiter",
+    "parentGM_km3s2": 126686531.9
+   }
+  },
+  "Callisto": {
+   "cmd": "Callisto",
+   "cmdUsed": "Callisto",
+   "elements": {
+    "e": 0.007004,
+    "i_deg": 1.9525,
+    "Omega_deg": 336.7371,
+    "w_deg": 30.7857,
+    "M0_at_T0": 250.746,
+    "varpi_deg": 7.5228,
+    "period_days": 16.70426,
+    "n_deg_day": 21.551391917,
+    "a_km": 1883721,
+    "a_au": 0.0125919,
+    "roundtrip_err_AU": 2.98e-8,
+    "parent": "Jupiter",
+    "parentGM_km3s2": 126686531.9
+   }
+  },
+  "Phobos": {
+   "cmd": "Phobos",
+   "cmdUsed": "Phobos",
+   "elements": {
+    "e": 0.015496,
+    "i_deg": 25.738,
+    "Omega_deg": 81.8032,
+    "w_deg": 263.7085,
+    "M0_at_T0": 2.738,
+    "varpi_deg": 345.5117,
+    "period_days": 0.3192,
+    "n_deg_day": 1127.804627617,
+    "a_km": 9380,
+    "a_au": 0.0000627,
+    "roundtrip_err_AU": 2.01e-9,
+    "parent": "Mars",
+    "parentGM_km3s2": 42828.375662
+   }
+  },
+  "Deimos": {
+   "cmd": "Deimos",
+   "cmdUsed": "Deimos",
+   "elements": {
+    "e": 0.000335,
+    "i_deg": 24.1275,
+    "Omega_deg": 81.4613,
+    "w_deg": 47.2445,
+    "M0_at_T0": 38.297,
+    "varpi_deg": 128.7058,
+    "period_days": 1.26253,
+    "n_deg_day": 285.1427184,
+    "a_km": 23457,
+    "a_au": 0.0001568,
+    "roundtrip_err_AU": 7.82e-9,
+    "parent": "Mars",
+    "parentGM_km3s2": 42828.375662
+   }
+  },
+  "Titan": {
+   "cmd": "606",
+   "cmdUsed": "606",
+   "elements": {
+    "e": 0.028971,
+    "i_deg": 27.7061,
+    "Omega_deg": 169.0803,
+    "w_deg": 178.8018,
+    "M0_at_T0": 43.786,
+    "varpi_deg": 347.8822,
+    "period_days": 15.95591,
+    "n_deg_day": 22.562168231,
+    "a_km": 1222274,
+    "a_au": 0.0081704,
+    "roundtrip_err_AU": 7.52e-8,
+    "parent": "Saturn",
+    "parentGM_km3s2": 37931206.234
+   }
+  },
+  "Rhea": {
+   "cmd": "Rhea",
+   "cmdUsed": "Rhea",
+   "elements": {
+    "e": 0.001321,
+    "i_deg": 28.2698,
+    "Omega_deg": 169.9784,
+    "w_deg": 187.2808,
+    "M0_at_T0": 46.196,
+    "varpi_deg": 357.2592,
+    "period_days": 4.52094,
+    "n_deg_day": 79.629458775,
+    "a_km": 527273,
+    "a_au": 0.0035246,
+    "roundtrip_err_AU": 4.84e-8,
+    "parent": "Saturn",
+    "parentGM_km3s2": 37931206.234
+   }
+  },
+  "Iapetus": {
+   "cmd": "Iapetus",
+   "cmdUsed": "Iapetus",
+   "elements": {
+    "e": 0.029015,
+    "i_deg": 16.9743,
+    "Omega_deg": 138.8737,
+    "w_deg": 232.5682,
+    "M0_at_T0": 116.464,
+    "varpi_deg": 11.4419,
+    "period_days": 79.3486,
+    "n_deg_day": 4.536942333,
+    "a_km": 3561073,
+    "a_au": 0.0238043,
+    "roundtrip_err_AU": 2.34e-8,
+    "parent": "Saturn",
+    "parentGM_km3s2": 37931206.234
+   }
+  },
+  "Triton": {
+   "cmd": "Triton",
+   "cmdUsed": "Triton",
+   "elements": {
+    "e": 0.000345,
+    "i_deg": 129.13,
+    "Omega_deg": 222.8363,
+    "w_deg": 92.9264,
+    "M0_at_T0": 350.486,
+    "varpi_deg": 315.7627,
+    "period_days": 5.87951,
+    "n_deg_day": 61.229602535,
+    "a_km": 354846,
+    "a_au": 0.002372,
+    "roundtrip_err_AU": 4.78e-8,
+    "parent": "Neptune",
+    "parentGM_km3s2": 6835099.97
+   }
+  },
+  "Charon": {
+   "cmd": "901",
+   "cmdUsed": "901",
+   "elements": {
+    "e": 0.000205,
+    "i_deg": 112.8878,
+    "Omega_deg": 227.3931,
+    "w_deg": 174.2028,
+    "M0_at_T0": 5.371,
+    "varpi_deg": 41.5959,
+    "period_days": 6.38779,
+    "n_deg_day": 56.357506477,
+    "a_km": 19597,
+    "a_au": 0.000131,
+    "roundtrip_err_AU": 4.6e-9,
+    "parent": "Pluto",
+    "parentGM_km3s2": 975.3837720000001
+   }
+  }
+ }
+}

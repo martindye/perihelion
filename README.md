@@ -28,30 +28,42 @@ planetarium/index.html#solar    → solar-system mode
 - **Every star has an address**: all 116,547 carry their HIP number, ~98,700
   also an HD number. Hover any star to see its identity; search the catalog
   by number.
-- **580 IAU-named stars** — 83 hand-curated bright stars (Sirius →
+- **580 IAU-named stars** — 105 hand-curated bright stars (Sirius →
   Ras Algethi) with constellation figures, distances and facts, plus 497
   official names from the IAU Working Group on Star Names (Acamar, Alrakis,
   Gnomon, Naledi, …).
-- 17 constellation figures, the **ecliptic**, and the Sun, Moon and all 8
+- **19 constellation figures** (stick figures with name labels), 6 classic
+  **asterisms** (Summer Triangle, Big/Little Dipper, Teapot, Keystone,
+  Northern Crown — `A`), the **ecliptic**, and the Sun, Moon and all 8
   planets in their *actual current positions* (Keplerian ephemeris computed
   in-page — no online data).
-- Click any star or planet for details (magnitude, B−V color index, distance,
-  live RA/Dec and Earth-distance for planets).
+- **945 pickable deep-sky objects** — 624 galaxies (Messier + NGC), 321 open
+  clusters, globular clusters, nebulae and planetary nebulae, plus ~18,400
+  faint background galaxies — all real J2000 catalog data (see `SOURCES.md`).
+- **Milky Way wash** (`W`): a soft, toggleable wash of the galactic plane.
+- Click any star, planet or DSO for details (magnitude, B−V color index,
+  distance, live RA/Dec and Earth-distance for planets).
 
 **SOLAR SYSTEM mode** (`M` or the button)
 - The Sun, 8 planets, the Moon, Saturn's rings and full orbit paths on a
   compressed radial scale (planets are not to scale with distance, or nothing
   would be visible).
+- **8 minor planets / dwarf planets** (Ceres, Vesta, Pallas, Hygiea, Pluto,
+  Eris, Haumea, Makemake) on real osculating orbits (JPL Horizons,
+  DE440-class, epoch 2026-08-30), and **11 major moons** (Io…Callisto,
+  Phobos, Deimos, Titan, Rhea, Iapetus, Triton, Charon) orbiting their
+  parents with labels, orbits and catalog entries.
 - Free orbit camera — click a planet to make the camera follow it.
 
 **In both modes**
 - **Catalog** (`K`): searchable drawer over the whole 116,547-star Hipparcos
-  catalog plus the Sun, Moon and 8 planets. Search by proper name, Bayer
-  designation, **HIP** number or **HD** number (e.g. `sirius`, `acamar`,
-  `60718`, `18622`) — the results show the star's ID and magnitude, and
-  clicking one selects it, highlights the row, and smoothly flies the camera
-  to it (in solar mode the camera follows the planet instead). The catalog
-  is also openable via URL: `index.html#q=sirius`.
+  catalog, the 945 deep-sky objects, and the Sun, Moon, 8 planets, 8 minor
+  planets and 11 major moons. Search by proper name, Bayer designation,
+  **HIP** number or **HD** number (e.g. `sirius`, `acamar`, `60718`,
+  `18622`, `m31`, `ceres`, `triton`) — the results show the object's ID and
+  magnitude/distance, and clicking one selects it, highlights the row, and
+  smoothly flies the camera to it (in solar mode the camera follows the
+  body instead). The catalog is also openable via URL: `index.html#q=sirius`.
 - **Selection marker** (checkbox in the right column, or `X`): a gently
   pulsing gold reticle stays pinned to whatever you select — a star, a planet,
   or the Moon, in which case it *tracks it as it moves* across the sky.
@@ -81,7 +93,9 @@ planetarium/index.html#solar    → solar-system mode
 | `M` | sky ↔ solar-system mode |
 | `L` / `O` / `C` / `E` | labels / orbits / constellations / ecliptic |
 | `T` | hover names on / off |
-| `K` | catalog — search & fly to any star or body |
+| `W` | milky way wash on / off |
+| `A` | asterisms on / off |
+| `K` | catalog — search & fly to any star, DSO, minor planet or moon |
 | `X` | selection marker on / off (checkbox in the right column) |
 | `H` or `?` | help |
 | `Esc` | deselect |
@@ -120,13 +134,23 @@ scripts in `_build/` from the official Hipparcos main catalog:
 index.html          page shell
 css/style.css        HUD styling
 js/three.min.js     Three.js r128 (local copy)
-js/data.js          orbital elements, 83 curated named stars, constellations
+js/data.js          orbital elements, 105 curated named stars, 19 constellation figures
 js/stars-hip.js     116,547 Hipparcos stars (position, magnitude, color)
 js/stars-named.js   HIP/HD IDs for every star + 497 IAU-named stars (generated, see _build/)
+js/dso.js           624 bright galaxies + 18,304 faint background galaxies (NGC/UGC/Corwin)
+js/dso2.js          321 clusters/nebulae + 138 faint (SIMBAD J2000)
+js/minors.js        8 minor planets + 11 major moons, osculating at 2026-08-30 (JPL Horizons)
+js/asterisms.js     6 classic asterisms (Dipper, Teapot, Triangle, …)
 js/astro.js         Kepler solver, ephemeris, coordinate transforms
-js/sky.js           celestial dome: starfield, lines, body sprites
-js/solar.js         solar-system scene
+js/sky.js           celestial dome: starfield, lines, body sprites, DSOs, milky-way wash
+js/solar.js         solar-system scene (planets, moons, minor planets)
 js/ui.js            HUD, labels, info panel, help
 js/app.js           renderer, camera, main loop
+SOURCES.md          every data source + files you may need to download
+plan-probes.md      plan for the next phase (probes, JWST model, planet close-ups)
 _build/             data pipeline: converters + tests (hip_main.csv not committed)
+_qa/                headless-browser regression suite (Chromium + Playwright)
 ```
+
+**Where the data came from — and what you may need to download yourself** —
+is documented in [SOURCES.md](SOURCES.md).

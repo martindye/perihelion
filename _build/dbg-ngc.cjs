@@ -1,0 +1,13 @@
+const fs = require('fs');
+const nx = fs.readFileSync('C:/Users/press/OneDrive/Projects/DSH_TESTS/planetarium/_build/ngc-vii118.xml', 'utf8');
+console.log('file len:', nx.length);
+console.log('<TABLEDATA> idx:', nx.indexOf('<TABLEDATA>'));
+console.log('<DATA> idx:', nx.indexOf('<DATA>'));
+console.log('</TABLEDATA> idx:', nx.indexOf('</TABLEDATA>'));
+console.log('<TR> count in file:', (nx.match(/<TR>/g) || []).length);
+console.log('<TR> count with attrs:', (nx.match(/<TR /g) || []).length);
+const i = nx.indexOf('<TD> 1976</TD>');
+console.log('M42 row idx:', i);
+if (i > 0) console.log(JSON.stringify(nx.slice(i - 20, i + 200)));
+const j = nx.indexOf('<TR><TD>3116</TD>');
+console.log('exact <TR><TD>3116</TD> idx:', j);

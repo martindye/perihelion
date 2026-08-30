@@ -1,0 +1,10 @@
+*******************************************************************************
+ Multiple major-bodies match string "PLUTO*"
+
+  ID#      Name                               Designation  IAU/aliases/other   
+  -------  ---------------------------------- -----------  ------------------- 
+        9  Pluto Barycenter                                                     
+      999  Pluto                              134340                            
+ 
+   Number of matches =           2 . Use ID# to make unique selection.
+*******************************************************************************

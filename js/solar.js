@@ -100,6 +100,48 @@ P.solar = (function () {
       group.add(line);
     }
 
+    /* Minor planets & dwarf planets (js/minors.js) — osculating Kepler
+     * elements at T0 2026-08-30T12:00TDB (JPL Horizons, DE440-class). */
+    const elOf = m => ({ a: m.a, e: m.e, i: m.i, Omega: m.Omega, varpi: m.varpi,
+                         M0: m.M0, n: m.n, t0: P.minors.t0 });
+    const mEl = {};
+    if (P.minors) for (const m of P.minors.planets) {
+      mEl[m.name] = elOf(m);
+      const mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(m.size, 40, 24),
+        new THREE.MeshLambertMaterial({ color: m.color })
+      );
+      group.add(mesh);
+      meshes[m.name] = mesh;
+
+      const pts = new Float32Array(721 * 3);
+      const o2 = new THREE.Vector3();
+      for (let i = 0; i <= 720; i++) {
+        P.astro.oscEclByTrueAnomaly(mEl[m.name], i / 720 * TAU, eclTmp);
+        posFromEcl(eclTmp, o2);
+        pts[i * 3] = o2.x; pts[i * 3 + 1] = o2.y; pts[i * 3 + 2] = o2.z;
+      }
+      const og = new THREE.BufferGeometry();
+      og.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+      const line = new THREE.LineLoop(og, new THREE.LineBasicMaterial({
+        color: 0x3d5a80, transparent: true, opacity: 0.4, depthWrite: false
+      }));
+      group.add(line);
+    }
+
+    /* Major moons (solar mode only; true direction, exaggerated distance). */
+    const moonMinor = [];
+    if (P.minors) for (const m of P.minors.moons) {
+      const mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(m.size, 20, 12),
+        new THREE.MeshLambertMaterial({ color: m.color })
+      );
+      group.add(mesh);
+      meshes[m.name] = mesh;
+      moonMinor.push({ el: elOf({ a: m.aAu, e: m.e, i: m.i, Omega: m.Omega, varpi: m.varpi, M0: m.M0, n: m.n }),
+                       parent: m.parent, dist: m.dist, mesh });
+    }
+
     /* Moon (geocentric) */
     const moonMesh = new THREE.Mesh(
       new THREE.SphereGeometry(0.3, 24, 12),
@@ -130,6 +172,22 @@ P.solar = (function () {
         _earth.y + wy / wl * MOON_DIST,
         _earth.z + wz / wl * MOON_DIST
       );
+      /* minor planets — osculating elements at T0 (JPL Horizons) */
+      for (const name in mEl) {
+        P.astro.oscEcl(mEl[name], d, eclTmp);
+        posFromEcl(eclTmp, _v1);
+        meshes[name].position.copy(_v1);
+        meshes[name].rotation.y = (d * 0.4) % TAU;
+      }
+      /* major moons — true parent-relative direction, exaggerated distance */
+      for (const mm of moonMinor) {
+        P.astro.oscEcl(mm.el, d, eclTmp);
+        P.astro.ecl2equ(eclTmp, _v2);
+        const mwx = _v2.x, mwy = _v2.z, mwz = -_v2.y;
+        const mwl = Math.hypot(mwx, mwy, mwz) || 1;
+        const p = meshes[mm.parent].position;
+        mm.mesh.position.set(p.x + mwx / mwl * mm.dist, p.y + mwy / mwl * mm.dist, p.z + mwz / mwl * mm.dist);
+      }
     }
 
     const _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3(), _earth = new THREE.Vector3(1e9, 0, 0);

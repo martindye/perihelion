@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+  xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/v1.3">
+ <DESCRIPTION>
+   VizieR Astronomical Server vizier.cds.unistra.fr
+    Date: 2026-08-29T17:12:40 [V7.6]
+   Explanations and Statistics of UCDs:			See LINK below
+   In case of problem, please report to:	cds-question@unistra.fr
+ </DESCRIPTION>
+<!-- VOTable description at http://www.ivoa.net/Documents/latest/VOT.html -->
+<INFO name="service_protocol" value="ASU">  IVOID of the protocol through which the data was retrieved</INFO>
+<INFO name="request_date" value="2026-08-29T17:12:41">  Query execution date</INFO>
+<INFO name="request" value="https://vizier.cds.unistra.fr/viz-bin/votable?-source=2000.0&amp;-meta=ap">  Full request URL</INFO>
+<INFO name="contact" value="cds-question@unistra.fr">  Email or URL to contact publisher</INFO>
+<INFO name="server_software" value="VizieR/7.6">  Software version</INFO>
+<INFO name="publisher" value="CDS">  Data centre that produced the VOTable</INFO>
+<INFO name="MaxTuples" value="50000" />
+
+<RESOURCE ID="yCat_1212" name="I/212" type="meta">
+  <DESCRIPTION>Proper motions in NGC 3680 (Kozhurina-Platais+, 1995)</DESCRIPTION>
+  <INFO name="ivoid" value="ivo://cds.vizier/i/212">    IVOID of underlying data collection  </INFO>
+  <INFO name="data_ivoid" value="ivo://cds.vizier/i/212">    IVOID of underlying data collection  </INFO>
+  <INFO name="creator" value="Kozhurina-Platais V.">    First author or institution  </INFO>
+  <INFO name="cites" value="bibcode:1995BICDS..46....9K">    Article or Data origin sources  </INFO>
+  <INFO name="journal" value="BICD">    Journal name  </INFO>
+  <INFO name="original_date" value="1995">    Year of the article publication  </INFO>
+  <INFO name="reference_url" value="https://cdsarc.cds.unistra.fr/viz-bin/cat/I/212">    Dataset landing page  </INFO>
+  <INFO name="rights_uri" value="https://cds.unistra.fr/vizier-org/licences_vizier.html">    Licence URI  </INFO>
+  <INFO name="ipopu" value="0.509722">popularity index</INFO>
+  <INFO name="cpopu" value="4415">number of calls</INFO>
+  <INFO name="-kw.Wavelength" value="optical"/>
+  <INFO name="-kw.Astronomy" value="Positional_Data"/>
+  <INFO name="-kw.Astronomy" value="Open_Clusters"/>
+  <INFO name="-kw.Astronomy" value="Proper_Motions"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=I/212"/>
+
+  <TABLE ID="yCat_1212_1" name="I/212/ngc3680" type="meta" nrows="2711">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='No' display='1' ucd='meta.id;meta.main'/><FIELD name='Vmag' display='1' ucd='phot.mag;em.opt.V'/><FIELD name='B-V' display='1' ucd='phot.color;em.opt.B;em.opt.V'/><FIELD name='RAJ2000' display='1' ucd='pos.eq.ra;meta.main'/><FIELD name='DEJ2000' display='1' ucd='pos.eq.dec;meta.main'/><FIELD name='nPlates' display='1' ucd='meta.number'/><FIELD name='pmX' display='1' ucd='pos.pm'/><FIELD name='pmY' display='1' ucd='pos.pm'/><FIELD name='e_pmX' display='0' ucd='stat.error'/><FIELD name='e_pmY' display='0' ucd='stat.error'/><FIELD name='Pr%28pm%29' display='0' ucd='stat.fit.goodness'/><FIELD name='Pr%28pm,r%29' display='0' ucd='stat.fit.goodness'/><FIELD name='Pr%28S%29' display='0' ucd='stat.fit.goodness'/><FIELD name='X' display='0' ucd='pos.cartesian.x;instr.det'/><FIELD name='Y' display='0' ucd='pos.cartesian.y;instr.det'/><FIELD name='e_X' display='0' ucd='stat.error'/><FIELD name='e_Y' display='0' ucd='stat.error'/>    <INFO name="nrows" value="2711">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      The catalogue of stars in NGC 3680
+    </DESCRIPTION>
+  </TABLE>
+
+  <TABLE ID="yCat_1212_2" name="I/212/xid" type="meta" nrows="427">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='No' display='1' ucd='meta.id;meta.main'/><FIELD name='Ant-Twa' display='1' ucd='meta.id.cross'/><FIELD name='Eggen' display='1' ucd='meta.id'/>    <INFO name="nrows" value="427">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      Cross-identifications with previous work
+    </DESCRIPTION>
+  </TABLE>
+</RESOURCE>
+
+<RESOURCE ID="yCat_7118" name="VII/118" type="meta">
+  <DESCRIPTION>NGC 2000.0 (Sky Publishing, ed. Sinnott 1988)</DESCRIPTION>
+  <INFO name="ivoid" value="ivo://cds.vizier/vii/118">    IVOID of underlying data collection  </INFO>
+  <INFO name="data_ivoid" value="ivo://cds.vizier/vii/118">    IVOID of underlying data collection  </INFO>
+  <INFO name="creator" value="Sinnott">    First author or institution  </INFO>
+  <INFO name="cites" value="1988cngc.book.....S">    Article or Data origin sources  </INFO>
+  <INFO name="reference_url" value="https://cdsarc.cds.unistra.fr/viz-bin/cat/VII/118">    Dataset landing page  </INFO>
+  <INFO name="rights_uri" value="https://cds.unistra.fr/vizier-org/licences_vizier.html">    Licence URI  </INFO>
+  <INFO name="ipopu" value="0.689853">popularity index</INFO>
+  <INFO name="cpopu" value="85733">number of calls</INFO>
+  <INFO name="-kw.Astronomy" value="Galaxies"/>
+  <INFO name="-kw.Astronomy" value="Nonstellar"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=VII/118"/>
+
+  <TABLE ID="yCat_7118_1" name="VII/118/ngc2000" type="meta" nrows="13226">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='Name' display='1' ucd='meta.id;meta.main'/><FIELD name='Type' display='1' ucd='src.class'/><FIELD name='RAB2000' display='1' ucd='pos.eq.ra;meta.main'/><FIELD name='DEB2000' display='1' ucd='pos.eq.dec;meta.main'/><FIELD name='Source' display='1' ucd='meta.ref;pos.frame'/><FIELD name='Const' display='1' ucd='meta.id'/><FIELD name='l_size' display='1' ucd='meta.code.error;phys.angSize'/><FIELD name='size' display='1' ucd='phys.angSize'/><FIELD name='mag' display='1' ucd='phot.mag;em.opt'/><FIELD name='n_mag' display='1' ucd='meta.note'/><FIELD name='Desc' display='1' ucd='meta.note'/>    <INFO name="nrows" value="13226">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      The NGC 2000.0 Catalogue
+    </DESCRIPTION>
+  </TABLE>
+
+  <TABLE ID="yCat_7118_2" name="VII/118/names" type="meta" nrows="227">
+<FIELD name='recno' display='0' ucd='meta.record'/><FIELD name='Object' display='1' ucd='meta.id;meta.main'/><FIELD name='Name' display='1' ucd='meta.id'/><FIELD name='Comment' display='1' ucd='meta.note'/>    <INFO name="nrows" value="227">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      Index of Messier and common names
+    </DESCRIPTION>
+  </TABLE>
+</RESOURCE>
+<INFO name="matches" value="4">matching records</INFO>
+</VOTABLE>

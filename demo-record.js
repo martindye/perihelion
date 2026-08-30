@@ -109,6 +109,19 @@
   function pressKey(k) {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true }));
   }
+  /* wheel zoom: app maps deltaY*0.02 to fov (120 units = 2.4 deg) */
+  function wheel(deltaY) {
+    cv.dispatchEvent(new WheelEvent('wheel', {
+      deltaY: deltaY, clientX: innerWidth / 2, clientY: innerHeight / 2,
+      bubbles: true, cancelable: true
+    }));
+  }
+  async function zoomIn(steps, ms) {
+    for (var i = 0; i < steps; i++) { wheel(-120); await sleep(ms / steps); }
+  }
+  async function zoomOut(steps, ms) {
+    for (var i = 0; i < steps; i++) { wheel(120); await sleep(ms / steps); }
+  }
   function clickName(name) {
     var rows = document.querySelectorAll('.cat-row');
     for (var i = 0; i < rows.length; i++) {
@@ -294,6 +307,49 @@
         fade.style.opacity = '1';
       });
       await at(21);
+      document.title = 'PERIHELION DONE';
+      return;
+    }
+
+    if (/demo=galaxies/.test(location.hash)) {
+      /* ---- 100 s galaxy take ------------------------------------------ */
+      card('PERIHELION', 'a real-sky planetarium', 0.4, 4.5);
+      fire(at(1.5).then(function () { return drag(166, 0, 12500); }));   /* slow 40° pan */
+      lowerThird('116,547 real stars · 18,928 real galaxies', 5, 11);
+
+      /* the search: "andromeda" finds M31 by its common name */
+      at(14).then(function () { pressKey('k'); });
+      at(15).then(function () { return typeSearch('andromeda'); });
+      lowerThird('Search by name — “andromeda” finds the Andromeda Galaxy', 16.5, 22.5);
+      at(19).then(function () { clickName('M31'); });
+      /* close the catalog once M31 is locked — a clean stage for the hero */
+      at(23).then(function () { pressKey('k'); });
+      lowerThird('M31 — the Andromeda Galaxy · 2.5 million light-years away', 23.5, 29.5);
+
+      /* hero shot: deep zoom to 8° */
+      fire(at(30).then(function () { return zoomIn(20, 16000); }));
+      lowerThird('Colour from its real B−V index · 4,873 K · peaks at 595 nm', 47, 53);
+
+      /* second galaxy: the Whirlpool */
+      at(54).then(function () { pressKey('k'); });   /* reopen catalog */
+      at(54.5).then(async function () {
+        await clearSearch();
+        at(55.5).then(function () { return typeSearch('whirlpool'); });
+      });
+      at(57.5).then(function () { clickName('M51'); });
+      lowerThird('M51 — the Whirlpool Galaxy · 23 million light-years', 60, 65.5);
+      fire(at(67).then(function () { return zoomOut(12, 8000); }));
+
+      /* the wide field: every faint smudge is a real galaxy */
+      at(78).then(function () { pressKey('k'); P.app.select(null); });
+      fire(at(80).then(function () { return drag(-190, 0, 12000); }));
+      lowerThird('Every faint smudge is real — NGC 2000.0 + UGC 1973', 82, 89);
+      card('PERIHELION', '18,928 galaxies · 116,547 stars · runs offline', 90, 99);
+      at(99.5).then(function () {
+        fade.style.transition = 'opacity .6s';
+        fade.style.opacity = '1';
+      });
+      await at(101.5);
       document.title = 'PERIHELION DONE';
       return;
     }
