@@ -327,6 +327,7 @@ P.app = (function () {
   if (P.dso) for (let i = 0; i < P.dso.length; i++) entries.push(dsoEntry(i));
 
   /* constellation figures — a name label at the figure's centroid */
+  const constAnchors = new Map(); // name -> centroid world vector (catalog fly-to)
   {
     const byName = new Map(sky.named.map(s => [s.name, s]));
     for (const [cname, lines] of P.constellations) {
@@ -338,15 +339,18 @@ P.app = (function () {
       }
       if (n < 2) continue;
       const isZodiac = ZODIAC_NAMES.has(cname);
+      const anchor = new THREE.Vector3(sx / n, sy / n, sz / n);
+      constAnchors.set(cname, anchor);
       entries.push({
         key: 'const:' + cname, text: cname.toUpperCase(), kind: 'const', constName: cname,
-        anchor: new THREE.Vector3(sx / n, sy / n, sz / n),
+        anchor,
         /* zodiac figures additionally follow the ZODIAC toggle (key Z) */
         visible: () => state.mode === 'sky' && state.constellations &&
           (!isZodiac || state.zodiac)
       });
     }
   }
+  function constCentroid(name) { return constAnchors.get(name) || null; }
 
   const _pv = new THREE.Vector3();
   function anchorOf(e) {
@@ -614,6 +618,21 @@ P.app = (function () {
     };
   }
 
+  /* zodiac signs — Sun dates (tropical), glyph, and the figure's anchor star */
+  const ZODIAC_INFO = {
+    Aries:       ['Mar 21 – Apr 19', '♈', 'Hamal (α Ari)'],
+    Taurus:      ['Apr 20 – May 20', '♉', 'Aldebaran (α Tau)'],
+    Gemini:      ['May 21 – Jun 20', '♊', 'Pollux (β Gem)'],
+    Cancer:      ['Jun 21 – Jul 22', '♋', 'Acubens (α Cnc)'],
+    Leo:         ['Jul 23 – Aug 22', '♌', 'Regulus (α Leo)'],
+    Virgo:       ['Aug 23 – Sep 22', '♍', 'Spica (α Vir)'],
+    Libra:       ['Sep 23 – Oct 22', '♎', 'Zubenelgenubi (α Lib)'],
+    Scorpius:    ['Oct 23 – Nov 21', '♏', 'Antares (α Sco)'],
+    Sagittarius: ['Nov 22 – Dec 21', '♐', 'Kaus Australis (σ Sgr)'],
+    Capricornus: ['Dec 22 – Jan 19', '♑', 'Deneb Algedi (α Cap)'],
+    Aquarius:    ['Jan 20 – Feb 18', '♒', 'Sadalmelik (β Aqr)'],
+    Pisces:      ['Feb 19 – Mar 20', '♓', 'Alrescha (α Psc)']
+  };
   function select(entry) {
     state.selected = entry ? entry.key : null;
     state.selectedEntry = entry || null;
@@ -623,8 +642,15 @@ P.app = (function () {
       : entry.kind === 'dso'
         ? dsoInfo(entry)
         : entry.kind === 'const'
-          ? { title: entry.constName, rows: [['Type', 'constellation figure']],
-              fun: 'One of the 88 modern constellations, drawn here with its classic stick figure.' }
+          ? (ZODIAC_INFO[entry.constName]
+              ? { title: entry.constName,
+                  rows: [['Type', 'zodiac constellation (sign)'],
+                         ['Sun in this sign', ZODIAC_INFO[entry.constName][0]],
+                         ['Symbol', ZODIAC_INFO[entry.constName][1]],
+                         ['Anchor star', ZODIAC_INFO[entry.constName][2]]],
+                  fun: 'One of the 12 zodiac signs — the constellations the Sun passes through in a year. Toggle the 12 zodiac figures with the ZODIAC switch.' }
+              : { title: entry.constName, rows: [['Type', 'constellation figure']],
+                  fun: 'Drawn here with its classic stick figure among the ' + P.constellations.length + ' figures of the sky.' })
           : (entry.star ? starInfo(entry) : bufStarInfo(entry));
     P.ui.showInfo(info.title, info.rows, info.fun);
     if (entry.kind === 'body' && state.mode === 'solar') state.follow = entry.body;
@@ -636,6 +662,13 @@ P.app = (function () {
   for (const name of BODY_NAMES) catalogList.push({ kind: 'body', body: name, name, key: 'body:' + name });
   if (P.minors) for (const m of P.minors.moons) {
     catalogList.push({ kind: 'body', body: m.name, name: m.name, key: 'body:' + m.name, moon: m });
+  }
+  /* constellation figures — searchable by name (e.g. "libra", "orion");
+     typing "zodiac" matches all 12 signs via the common field */
+  for (const [cname] of P.constellations) {
+    const z = ZODIAC_NAMES.has(cname);
+    catalogList.push({ kind: 'const', constName: cname, name: cname,
+      key: 'const:' + cname, isZodiac: z, common: z ? 'ZODIAC SIGN' : null });
   }
   sky.named.slice().sort((a, b) => a.mag - b.mag)
     .forEach(s => catalogList.push({ kind: 'star', star: s, name: s.name, key: 'star:' + s.name }));
@@ -701,9 +734,13 @@ P.app = (function () {
 
   function catalogSearch(qRaw) {
     const nq = String(qRaw || '').trim().toLowerCase().replace(/\s+/g, '');
-    /* MINORS toggle: dwarf planets & major moons disappear from the catalog */
-    const src = state.minors ? catalogList
-      : catalogList.filter(c => !(c.kind === 'body' && isMinor(c.body)));
+    /* toggles: MINORS hides dwarf planets & moons; the constellation toggles
+       hide their figures (zodiac figures additionally follow the ZODIAC key) */
+    const src = catalogList.filter(c => {
+      if (c.kind === 'body' && isMinor(c.body) && !state.minors) return false;
+      if (c.kind === 'const' && (!state.constellations || (c.isZodiac && !state.zodiac))) return false;
+      return true;
+    });
     if (!nq) return src;
     const res = [];
     const seen = new Set();
@@ -736,6 +773,9 @@ P.app = (function () {
   }
 
   function catalogSub(c) {
+    if (c.kind === 'const') {
+      return c.isZodiac ? 'ZODIAC SIGN · FIGURE' : 'CONSTELLATION · FIGURE';
+    }
     if (c.kind === 'dso') {
       const r = P.dso[c.dso];
       let s = dsoKind(r)
@@ -808,6 +848,10 @@ P.app = (function () {
     let entry;
     if (c.kind === 'body') entry = { key: 'body:' + c.name, text: c.name, kind: 'body', body: c.name };
     else if (c.kind === 'dso') entry = dsoEntry(c.dso);
+    else if (c.kind === 'const') {
+      entry = { key: 'const:' + c.constName, text: c.constName.toUpperCase(),
+                kind: 'const', constName: c.constName, anchor: constCentroid(c.constName) };
+    }
     else if (c.kind === 'star') {
       const k = sky.named.indexOf(c.star);
       entry = { key: 'star:' + c.name, text: c.name, kind: 'star', star: c.star,
@@ -828,6 +872,12 @@ P.app = (function () {
   }
 
   function pointAt(c) {
+    if (c.kind === 'const') {
+      if (state.mode !== 'sky') setMode('sky');
+      const a = constCentroid(c.constName);
+      if (a) rotateToVec(a);
+      return;
+    }
     if (c.kind === 'star') {
       if (state.mode !== 'sky') setMode('sky');
       rotateToVec(c.star.world);
