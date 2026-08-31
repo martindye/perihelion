@@ -1,0 +1,200 @@
+*******************************************************************************
+ Revised: Feb 14, 2026         Parker Solar Probe / Sun                    -96
+                         http://parkersolarprobe.jhuapl.edu/ 
+
+ BACKGROUND:
+  The Parker Solar Probe Mission will use seven Venus gravity assist flybys 
+  over nearly seven years to gradually bring the spacecraft's trajectory closer
+  to the Sun, which it will orbit at least 24 times with a final solar orbit
+  period of 88 days.
+
+  The spacecraft will fly through the Sun's outer corona, 5.9 million km from 
+  the surface (8.5 solar radii).
+
+  The orbit will be highly elliptical to minimize the time spent closest
+  to the Sun, where incident solar radiation will be approximately 520 times 
+  the intensity at Earth and temperatures near 2500 deg. F (1377 C).
+ 
+ LAUNCH
+  Date:           2018-Aug-12 07:31 UTC from NASA Kennedy Space Center
+                  Complex 37
+  Launch vehicle: Delta IV Heavy with Upper Stage
+
+ EVENTS
+  2018
+    2018-Oct-03: Venus Flyby #1 @ 8:44 UTC
+    2018-Nov-06: Perihelion #1 @ 03:27 UTC
+  2019
+    2019-Jan-19: Aphelion #1
+    2019-Jan-20: Second orbit begins
+    2019-Apr-04: Perihelion #2
+    2019-Sep-01: Perihelion #3
+    2019-Dec-26: Venus flyby #2
+  2020
+    2020-Jan-29: Perihelion #4
+    2020-Jun-07: Perihelion #5
+    2020-Jul-11: Venus flyby #3
+    2020-Sep-27: Perihelion #6 
+  2021
+    2021-Jan-17: Perihelion #7
+    2021-Feb-20: Venus flyby #4
+    2021-Apr-29: Perihelion #8
+    2021-Aug-09: Perihelion #9 
+    2021-Oct-16: Venus flyby #5
+    2021-Nov-21: Perihelion #10
+  2022
+    2022-Feb-25: Perihelion #11
+    2022-Jun-01: Perihelion #12
+    2022-Sep-06: Perihelion #13
+    2022-Dec-11: Perihelion #14
+  2023
+    2023-Mar-17: Perihelion #15
+    2023-Jun-22: Perihelion #16
+    2023-Aug-21: Venus flyby #6
+    2023-Sep-27: Perihelion #17
+    2023-Dec-29: Perihelion #18
+  2024
+    2024-Mar-30: Perihelion #19
+    2024-Jun-30: Perihelion #20
+    2024-Sep-30: Perihelion #21
+    2024-Nov-06: Venus flyby #7 (last one)
+    2024-Dec-24: Perihelion #22 (first close approach)
+  2025
+    2025-Mar-22: Perihelion #23
+    2025-Jun-19: Perihelion #24
+
+ GOALS
+  * Determine the structure and dynamics of the magnetic fields at the 
+     sources of solar wind.
+  * Trace the flow of energy that heats the corona and accelerates the solar 
+     wind.
+  * Determine what mechanisms accelerate and transport energetic particles.
+  * Explore dusty plasma near the Sun and its influence on solar wind and 
+     solar energetic particles formation.
+
+ SPACECRAFT TRAJECTORY 
+  Fit to post-launch tracking data through 2026-Jan-27. Reference planning 
+  trajectory for subsequent times.
+
+  Name                                      Start (TDB)         End (TDB) 
+  ---------------------------------------  -----------------  -----------------
+  spp_nom_20180812_20251001_v041_RO8       2018-Aug-12 08:17  2025-Jun-25 06:00
+  spp_pred_20250625_20251030_od242_V0.2    2025-Jun-25 06:00  2025-Oct-08 12:00
+  spp_pred_20251008_20251231_od247_V0.1    2025-Oct-08 12:00  2025-Nov-24 18:00
+  spp_pred_20251124_20260526_od254_V0.1    2025-Nov-24 18:00  2026-Jan-15 00:00
+  spp_pred_20260115_20260409_od257_V0.1    2026-Jan-15 00:00  2026-Jan-28 16:44
+  spp_pred_20260128_20260617_od258_V0.1    2026-Jan-28 16:44  2026-Jun-17 00:00
+  spp_nom_20180812_20300101_v044_PostV7    2026-Jun-17 00:00  2030-Jan-01 00:00
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Sun Aug 30 18:43:22 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: Parker Solar Probe (spacecraft) (-96) {source: psp_merged}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2026-Aug-30 12:00:00.0000 TDB
+Stop  time      : A.D. 2026-Aug-30 12:01:00.0000 TDB
+Step-size       : 1 minutes
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Keplerian GM    : 1.3271244004127939E+11 km^3/s^2
+Output units    : KM-S, deg, Julian Day Number (Tp)
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC osculating elements
+Output format   : 10
+Reference frame : Ecliptic of J2000.0
+*******************************************************************************
+JDTDB
+   EC    QR   IN
+   OM    W    Tp
+   N     MA   TA
+   A     AD   PR
+*******************************************************************************
+$$SOE
+2461283.000000000 = A.D. 2026-Aug-30 12:00:00.0000 TDB 
+ EC= 8.820258199985832E-01 QR= 6.855221806993186E+06 IN= 3.391138187440116E+00
+ OM= 7.648340377596784E+01 W = 6.863913843620222E+01 Tp=  2461288.107000223361
+ N = 4.712231667723623E-05 MA= 3.392075218936862E+02 TA= 2.211016862555209E+02
+ A = 5.810781483635542E+07 AD= 1.093604078657176E+08 PR= 7.639692302605067E+06
+2461283.000694444 = A.D. 2026-Aug-30 12:01:00.0000 TDB 
+ EC= 8.820258196548360E-01 QR= 6.855221807242578E+06 IN= 3.391138187487285E+00
+ OM= 7.648340377374588E+01 W = 6.863913846886129E+01 Tp=  2461288.107000225689
+ N = 4.712231688061877E-05 MA= 3.392103491319399E+02 TA= 2.211047257638385E+02
+ A = 5.810781466915771E+07 AD= 1.093604075310728E+08 PR= 7.639692269631729E+06
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+  Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
+continuous coordinate time is equivalent to the relativistic proper time
+of a clock at rest in a reference frame co-moving with the solar system
+barycenter but outside the system's gravity well. It is the independent
+variable in the solar system relativistic equations of motion.
+
+  TDB runs at a uniform rate of one SI second per second and is independent
+of irregularities in Earth's rotation.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  Ecliptic at the standard reference epoch
+
+    Reference epoch: J2000.0
+    X-Y plane: adopted Earth orbital plane at the reference epoch
+               Note: IAU76 obliquity of 84381.448 arcseconds wrt ICRF X-Y plane
+    X-axis   : ICRF
+    Z-axis   : perpendicular to the X-Y plane in the directional (+ or -) sense
+               of Earth's north pole at the reference epoch.
+
+  Symbol meaning:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      EC     Eccentricity, e
+      QR     Periapsis distance, q (km)
+      IN     Inclination w.r.t X-Y plane, i (degrees)
+      OM     Longitude of Ascending Node, OMEGA, (degrees)
+      W      Argument of Perifocus, w (degrees)
+      Tp     Time of periapsis (Julian Day Number)
+      N      Mean motion, n (degrees/sec)
+      MA     Mean anomaly, M (degrees)
+      TA     True anomaly, nu (degrees)
+      A      Semi-major axis, a (km)
+      AD     Apoapsis distance (km)
+      PR     Sidereal orbit period (sec)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric osculating elements have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

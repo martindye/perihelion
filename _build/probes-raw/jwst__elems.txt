@@ -1,0 +1,174 @@
+*******************************************************************************
+ Revised: Aug 25, 2026     James Webb Space Telescope / (E-S L2)           -170
+                           https://www.jwst.nasa.gov/index.html
+                        https://www.youtube.com/watch?v=bTxLAGchWnA
+
+ The James Webb Space Telescope ("JWST" or "Webb") is a space-based infrared 
+ observatory and NASA's successor to the Hubble Space Telescope. 
+
+ Launched by Ariane 5 booster on 2021-Dec-25 @ 12:20 UTC from the ELA-3 
+ launch complex near Korou, French Guiana. 
+
+ After launch, the telescope deployed during its 30-day, 1.5 million km 
+ journey to halo orbit at the second Earth-Sun Lagrange point (E-S L2). 
+ Mission duration is nominally 5-10 years.
+
+ GOALS
+  - Search for the first galaxies or luminous objects formed after the Big Bang
+  - Determine how galaxies evolved from their formation until now
+  - Observe the formation of stars from the first stages to the formation of 
+     planetary systems
+  - Measure the physical and chemical properties of planetary systems, 
+     including our own Solar System, investigating the potential for life 
+     in those systems.
+
+ TELESCOPE
+  * total launch mass : ~6200 kg (observatory, fuel, launch adaptor)
+  * primary mirror    : 25 m^2 
+             mass     : 705 kg
+         material     : beryllium coated w/48.25 grams gold (golf-ball size)
+      segment mass    : 20.1 kg, 39.48 kg for entire segment assembly
+      No. of segments : 18
+  * focal length      : 131.4 meters
+  * optical resolution: 0.1 arcseconds
+  * wavelength        : 0.6 - 28.5 microns
+  * size of sun shield: 21.197 m x 14.162 m
+  * Sun shield layers : 1: Max temp 283K, 231 deg. F.
+                        5: Max temp 221K,  -80 F 
+                           Min temp 36K,  -394 F 
+  * Operating temp    : < 50K (-370 deg. F)
+
+ INSTRUMENTS
+  - Near Infrared Camera (NIRCam)
+  - Near Infrared Spectrograph (NIRSpec)
+  - Mid Infrared Instrument (MIRI)
+  - Fine Guidance Sensors/Near Infrared Imager & Slitless Spectrograph 
+     (FGS/NIRISS)
+
+ TRAJECTORY
+ MCC1A (65-minute engine burn) began 2021-Dec-26 12:50 UTC, completed 01:55 UTC.
+ MCC1B (09:27 engine burn) began 2021-Dec-28 00:20 UTC, completed 00:29:27 UTC.
+ MCC2  (04:57 engine burn) began 2022-Jan-24 19:00 UTC, completed 19:04:57 UTC.
+
+ Concatenation of reconstructed trajectory solutions (as-flown) from Goddard 
+ Flight Dynamics Facility (FDF), based on tracking data through August 23, with 
+ prediction thereafter. 
+
+ Trajectory files                             Start (TDB)         End (TDB) 
+ ----------------------------------------  -----------------  -----------------
+ DEFINITIVE_EPHEMERIS_202135913-2026228    2021-Dec-25 13:01  2026-Aug-24 00:01
+ 28D_NOBURN_PREDICT_SK_2026236000000_03U   2026-Aug-24 00:01  2026-Sep-21 00:01
+ 5Y_SCHEDULE_2026236000000_03U.V0.1        2026-Sep-21 00:01  2031-Aug-23 23:59
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Sun Aug 30 18:43:19 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: James Webb Space Telescope (spacecraft) (-170) {source: JWST_merged}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2026-Aug-30 12:00:00.0000 TDB
+Stop  time      : A.D. 2026-Aug-30 12:01:00.0000 TDB
+Step-size       : 1 minutes
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Keplerian GM    : 1.3271244004127939E+11 km^3/s^2
+Output units    : KM-S, deg, Julian Day Number (Tp)
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC osculating elements
+Output format   : 10
+Reference frame : Ecliptic of J2000.0
+*******************************************************************************
+JDTDB
+   EC    QR   IN
+   OM    W    Tp
+   N     MA   TA
+   A     AD   PR
+*******************************************************************************
+$$SOE
+2461283.000000000 = A.D. 2026-Aug-30 12:00:00.0000 TDB 
+ EC= 3.669550917644000E-02 QR= 1.517943542954330E+08 IN= 1.818596225023561E-01
+ OM= 3.099312356845315E+02 W = 5.040843311229003E+01 Tp=  2461307.218748917803
+ N = 1.055213644466812E-05 MA= 3.379196554763839E+02 TA= 3.362691622650251E+02
+ A = 1.575767119757317E+08 AD= 1.633590696560304E+08 PR= 3.411631396994532E+07
+2461283.000694444 = A.D. 2026-Aug-30 12:01:00.0000 TDB 
+ EC= 3.669599713298242E-02 QR= 1.517943314793221E+08 IN= 1.818556046823455E-01
+ OM= 3.099305996299944E+02 W = 5.040951751439402E+01 Tp=  2461307.219197778497
+ N = 1.055213080610574E-05 MA= 3.379198911743742E+02 TA= 3.362693916626091E+02
+ A = 1.575767681101155E+08 AD= 1.633592047409089E+08 PR= 3.411633220009883E+07
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+  Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
+continuous coordinate time is equivalent to the relativistic proper time
+of a clock at rest in a reference frame co-moving with the solar system
+barycenter but outside the system's gravity well. It is the independent
+variable in the solar system relativistic equations of motion.
+
+  TDB runs at a uniform rate of one SI second per second and is independent
+of irregularities in Earth's rotation.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  Ecliptic at the standard reference epoch
+
+    Reference epoch: J2000.0
+    X-Y plane: adopted Earth orbital plane at the reference epoch
+               Note: IAU76 obliquity of 84381.448 arcseconds wrt ICRF X-Y plane
+    X-axis   : ICRF
+    Z-axis   : perpendicular to the X-Y plane in the directional (+ or -) sense
+               of Earth's north pole at the reference epoch.
+
+  Symbol meaning:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      EC     Eccentricity, e
+      QR     Periapsis distance, q (km)
+      IN     Inclination w.r.t X-Y plane, i (degrees)
+      OM     Longitude of Ascending Node, OMEGA, (degrees)
+      W      Argument of Perifocus, w (degrees)
+      Tp     Time of periapsis (Julian Day Number)
+      N      Mean motion, n (degrees/sec)
+      MA     Mean anomaly, M (degrees)
+      TA     True anomaly, nu (degrees)
+      A      Semi-major axis, a (km)
+      AD     Apoapsis distance (km)
+      PR     Sidereal orbit period (sec)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric osculating elements have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

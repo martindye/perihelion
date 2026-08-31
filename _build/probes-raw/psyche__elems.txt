@@ -1,0 +1,200 @@
+*******************************************************************************
+ Revised: Aug 05, 2026            Psyche Spacecraft / Sun                  -255
+                                https://www.nasa.gov/psyche
+                                  https://psyche.asu.edu/
+ BACKGROUND:
+  Psyche is a NASA Discovery-class mission to map the surface and characterize
+  the composition of '16 Psyche', an elongated 280-km diameter metal-rich 
+  asteroid located in the main asteroid belt between Mars and Jupiter. This 
+  is the first mission to a metal-rich asteroid.
+
+  Psyche was launched Oct 13, 2023 @ 14:19:43 UTC on a SpaceX Falcon Heavy 
+  from Kennedy Space Center, LC-39A.  Stage separation occurred 62 minutes
+  after launch at 15:21 UTC.
+
+  A gravity-assist flyby of Mars will nominally occur May 15, 2026 @ 
+  19:28:03 UTC at an altitude 4618 km above the surface (8008.4 km from 
+  Mars center), over 252.368 W, 41.032 N
+
+  The asteroid's gravity will capture the spacecraft into orbit in late July 
+  2029 and the two-year prime mission will begin in August. Psyche will 
+  successively lower its orbit over the span of a year, eventually coming 
+  as close as 75-km from the asteroid's surface. 
+
+  Staging orbits around 16 Psyche:
+
+    Orbit A: Characterization 
+     first ~46 days, 41 orbits (700 km alt., period 32.8 h, 90 deg. inclination)
+
+    Orbit B (B1,B2): Topography & magnetic field
+     B1: 92 days (190 orbits)  (303 km, 11.6 h,  90 deg.)
+     B2: 100 days (206 orbits) (303 km, 11.6 h,  90 deg.)
+
+    Orbit C: Gravity science & magnetic field
+     100 days (333 orbits)     (190 km,  7.2 h,  90 deg.)
+
+    Orbit D: Elemental mapping
+     100 days (666 orbits)     ( 75 km,  3.6 h,  160 deg.)
+
+ SPACECRAFT PHYSICAL CHARACTERISTICS:
+  Dimensions (w/solar panels extended): 24.76 m long, 7.34 m wide
+  Bus dimensions: 3.1 m x 2.4 m
+  Thrusters: solar-electric ion (Xenon) propulsion, 
+             Four SPT-140 Hall thrusters (900 W operation, 4.5 kW capacity)
+  Solar panels: 20 kW at Earth, 2.3 kW at 16 Psyche
+  Science payload: 30 kg
+
+ SCIENCE INSTRUMENTS:
+  - Psyche Multispectral Imager (2) 
+     optical navigation, geologic, compositional, and topographic data
+  - Psyche Gamma-ray and Neutron Spectrometer (boom mounted)
+     detect, measure, and map Psyche's elemental composition
+  - Psyche Magnetometer (boom mounted)
+     detect and measure magnetic field
+  - X-band Radio Science (2-m antenna system)
+     measure Psyche's gravity field to high precision.
+  - Deep Space Optical Communication (DSOC)
+     test new laser communication technology for higher data rates than radio 
+     receiver is at Palomar Observatory
+     transmitter is at JPL Table Mountain
+
+ TRAJECTORY: 
+  For trajectories of (or relative to) the official flight-project target
+  trajectory, set target as "2000016" or observing site as @2000016.
+
+  To instead use the latest JPL asteroid solution, request target using a 
+   semi-colon: "16;" or "DES= 2000016;" or "Psyche;"  or "DES= A852 FA;"
+
+  Post-launch spacecraft trajectory from JPL navigation. Data through 
+  July 13, prediction thereafter. 
+
+ Name                                             Start (TDB)       Stop (TDB)
+ ------------------------------------------------ ----------------- -----------
+ psyche_rec_231013-231018_v1                      2023-Oct-13 15:21 2023-Oct-16
+ psyche_rec_231016-231210_231220_v1               2023-Oct-16 11:59 2023-Dec-07
+ psyche_rec_231207-240304_240321_v1               2023-Dec-07 02:58 2024-Mar-01
+ psyche_rec_240301-240514_240530_v1               2024-Mar-01 00:00 2024-May-12
+ psyche_rec_240512-240806_240826_v1               2024-May-12 13:00 2024-Aug-06
+ psyche_rec_240805-241203_241210_v1               2024-Aug-05 16:45 2024-Nov-25
+ psyche_rec_241125-250225_250319_v2               2024-Nov-25 15:58 2025-Feb-25
+ psyche_rec_250225-250617_250624_v1               2025-Feb-25 00:00 2025-Jun-16
+ psyche_rec_250616-250812_250909_v1               2025-Jun-16 19:00 2025-Aug-12
+ psyche_rec_250812-251006_251119_v1               2025-Aug-12 05:59 2025-Oct-05
+ psyche_rec_251005-260223_260309_v1               2025-Oct-05 00:00 2026-Feb-23
+ psyche_rec_260223-260502_260601_v1               2025-Feb-23 20:30 2026-May-01
+ psyche_rec_260501-260713_260804_v1               2026-May-01 23:59 2026-Jul-13
+ psyche_sc-eph_260517-261101_260630_v1            2026-Jul-13 22:40 2026-Nov-01
+ psyche_ref_260904-290211_260805_v1               2026-Nov-01 12:00 2029-Feb-11
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Sun Aug 30 18:43:34 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: Psyche (spacecraft) (-255)      {source: psyche_merged}
+Center body name: Sun (10)                        {source: psyche_merged}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2026-Aug-30 12:00:00.0000 TDB
+Stop  time      : A.D. 2026-Aug-30 12:01:00.0000 TDB
+Step-size       : 1 minutes
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Keplerian GM    : 1.3271244004127939E+11 km^3/s^2
+Output units    : KM-S, deg, Julian Day Number (Tp)
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC osculating elements
+Output format   : 10
+Reference frame : Ecliptic of J2000.0
+*******************************************************************************
+JDTDB
+   EC    QR   IN
+   OM    W    Tp
+   N     MA   TA
+   A     AD   PR
+*******************************************************************************
+$$SOE
+2461283.000000000 = A.D. 2026-Aug-30 12:00:00.0000 TDB 
+ EC= 3.318510246504881E-01 QR= 2.077435644381568E+08 IN= 2.623610617927800E+00
+ OM= 1.600786273856046E+02 W = 2.218962342916773E+02 Tp=  2461196.611252469476
+ N = 3.807124166155180E-06 MA= 2.841632827833130E+01 TA= 5.547252285861909E+01
+ A = 3.109240185985246E+08 AD= 4.141044727588924E+08 PR= 9.455956367285088E+07
+2461283.000694444 = A.D. 2026-Aug-30 12:01:00.0000 TDB 
+ EC= 3.318510251389528E-01 QR= 2.077435644528400E+08 IN= 2.623610618221563E+00
+ OM= 1.600786273359806E+02 W = 2.218962343921438E+02 Tp=  2461196.611252560280
+ N = 3.807124161576631E-06 MA= 2.841655664179846E+01 TA= 5.547290691763985E+01
+ A = 3.109240188478083E+08 AD= 4.141044732427766E+08 PR= 9.455956378657073E+07
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+  Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
+continuous coordinate time is equivalent to the relativistic proper time
+of a clock at rest in a reference frame co-moving with the solar system
+barycenter but outside the system's gravity well. It is the independent
+variable in the solar system relativistic equations of motion.
+
+  TDB runs at a uniform rate of one SI second per second and is independent
+of irregularities in Earth's rotation.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  Ecliptic at the standard reference epoch
+
+    Reference epoch: J2000.0
+    X-Y plane: adopted Earth orbital plane at the reference epoch
+               Note: IAU76 obliquity of 84381.448 arcseconds wrt ICRF X-Y plane
+    X-axis   : ICRF
+    Z-axis   : perpendicular to the X-Y plane in the directional (+ or -) sense
+               of Earth's north pole at the reference epoch.
+
+  Symbol meaning:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      EC     Eccentricity, e
+      QR     Periapsis distance, q (km)
+      IN     Inclination w.r.t X-Y plane, i (degrees)
+      OM     Longitude of Ascending Node, OMEGA, (degrees)
+      W      Argument of Perifocus, w (degrees)
+      Tp     Time of periapsis (Julian Day Number)
+      N      Mean motion, n (degrees/sec)
+      MA     Mean anomaly, M (degrees)
+      TA     True anomaly, nu (degrees)
+      A      Semi-major axis, a (km)
+      AD     Apoapsis distance (km)
+      PR     Sidereal orbit period (sec)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric osculating elements have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

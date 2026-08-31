@@ -1,0 +1,194 @@
+*******************************************************************************
+ Revised: Jun 30, 2026     JUICE Spacecraft / Sun-Jupiter-Ganymede          -28
+                              https://sci.esa.int/web/juice 
+
+ The Jupiter Icy moons Explorer ("JUICE") is an ESA mission launched April 14,
+ 2023 @ 12:14 UTC from French Guiana (ELA-3) on an Ariane 5. Its period and 
+ area of operations will overlap with NASA's Europa Clipper mission launching
+ in 2024.
+
+ PURPOSE
+  The JUICE orbiter will investigate Ganymede and evaluate its potential to 
+  support life. Investigations of Europa and Callisto will compare these 
+  Galilean moons.  The three moons are thought to have internal liquid water
+  oceans, and are thought key to understanding the habitability of icy worlds.
+
+  Main science objectives for Ganymede (and Callisto to lesser extent):
+
+  * Characterize ocean layers & detect detect any subsurface water reservoirs
+  * Topographical, geological and compositional mapping of surface
+  * Study the physical properties of the icy crusts 
+  * Characterisation of internal mass distribution and dynamics
+  * Investigate Ganymede's tenuous atmosphere
+  * Study Ganymede's magnetic field and interactions with Jovian magnetosphere
+
+  For Europa, the focus is on the chemistry essential to life. JUICE will also 
+  provide the first subsurface sounding of the moon, and determination of icy 
+  crust thickness over the most recently active regions.
+
+ TRAJECTORY OVERVIEW:
+  JUICE will have four gravity assist flybys of Venus and Earth and pass 
+  through the asteroid Main-Belt twice before arriving at Jupiter in July, 2031.
+  There will be a Ganymede flyby 7.5 hours prior to Jupiter orbit insertion.
+
+  The first Europa flyby will be in July 2032. The spacecraft will be placed
+  in a high inclination orbit to allow exploration of Jupiter's polar regions 
+  and to study Jupiter's magnetosphere.
+
+  In December 2034, the spacecraft will enter orbit around Ganymede, becoming 
+  the first spacecraft to orbit a moon other than Earth's.
+
+ FLYBYS:
+  2024 Aug: Earth-Moon system (gravity-assist)
+  2025 Aug: Venus (gravity assist)
+  2026 Sep: Earth #2 (gravity assist)
+  2029 Jan: Earth #3 (gravity assist)
+  2029 Oct: Asteroid 223 Rosa [PROPOSED]
+  2031+   : more then 25 gravity assists, two Europa flybys
+
+ PHYSICAL CHARACTERISTICS:
+  * 3-axis stabilized
+  * Power: solar panels, 85 m^2, 820W (EOM)
+  * High-gain antenna: 2.5 m, body fixed
+  * X- and Ka bands, downlink > 1.4 Gbit/day
+  * Propulsion: bi-propellant main engine plus 10 thrusters
+     Delta-V capability (2700 m/s, ~3000 kg of chemical propellant)
+  * Radiation level: 240 krad /10 mm Al solid sphere
+  * Dry mass at launch: ~1800 kg
+  * Deployable appendages: 
+     10.6 meter boom for JMAG and RPWI
+     16-meter antenna for radar
+     Steerable medium gain antenna for comm and radio science
+
+ SCIENCE INSTRUMENTS (11):
+  * Jovis, Amorum ac Natorum Undique Scrutator (JANUS, camera system)
+  * Moons and Jupiter Imaging Spectrometer (MAJIS, VIS/IR imaging spectrograph)
+  * UV Imaging Spectrograph (UVS, UV imaging spectrograph)
+  * Sub-millimeter Wave Instrument (SWI, spectrometer)
+  * Ganymede Laser Altimeter (GALA)
+  * Radar for Icy Moons Exploration (RIME, ice-penetrating 9 GHz, w/16m antenna)
+  * JUICE-Magnetometer (J-MAG)
+  * Particle Environment Package (PEP, suite of six sensors)
+  * Radio and Plasma Wave Investigation (RPWI)
+  * Gravity and Geophysics of Jupiter and Galilean Moons (3GM, Ka transponder)
+  * Planetary Radio Interferometer and Doppler Experiment (PRIDE)
+
+ TRAJECTORY: Post-launch trajectory from ESA based on tracking data through
+  June 16, prediction after that.
+
+ Name                                                Start (TDB)   Stop (TDB)
+ --------------------------------------------------  -----------   -----------
+ juice_orbc_000107_230414_310721_v01                 2023-Apr-14   2031-Jul-21
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Sun Aug 30 18:43:40 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: JUICE (spacecraft) (-28)        {source: JUICE_merged}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2026-Aug-30 12:00:00.0000 TDB
+Stop  time      : A.D. 2026-Aug-30 12:01:00.0000 TDB
+Step-size       : 1 minutes
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Keplerian GM    : 1.3271244004127939E+11 km^3/s^2
+Output units    : KM-S, deg, Julian Day Number (Tp)
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC osculating elements
+Output format   : 10
+Reference frame : Ecliptic of J2000.0
+*******************************************************************************
+JDTDB
+   EC    QR   IN
+   OM    W    Tp
+   N     MA   TA
+   A     AD   PR
+*******************************************************************************
+$$SOE
+2461283.000000000 = A.D. 2026-Aug-30 12:00:00.0000 TDB 
+ EC= 3.792129500402481E-01 QR= 1.060650096623202E+08 IN= 1.583882373262160E-01
+ OM= 5.253812936755372E+00 W = 9.340977264909733E+01 Tp=  2461374.636984080542
+ N = 9.346181673321840E-06 MA= 2.860022101352482E+02 TA= 2.426085664474163E+02
+ A = 1.708557059448917E+08 AD= 2.356464022274633E+08 PR= 3.851840383411336E+07
+2461283.000694444 = A.D. 2026-Aug-30 12:01:00.0000 TDB 
+ EC= 3.792129510310054E-01 QR= 1.060650094673300E+08 IN= 1.583882375335902E-01
+ OM= 5.253812903385067E+00 W = 9.340977276224908E+01 Tp=  2461374.636984007433
+ N = 9.346181676720576E-06 MA= 2.860027709383294E+02 TA= 2.426090487580657E+02
+ A = 1.708557059034706E+08 AD= 2.356464023396113E+08 PR= 3.851840382010616E+07
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+  Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
+continuous coordinate time is equivalent to the relativistic proper time
+of a clock at rest in a reference frame co-moving with the solar system
+barycenter but outside the system's gravity well. It is the independent
+variable in the solar system relativistic equations of motion.
+
+  TDB runs at a uniform rate of one SI second per second and is independent
+of irregularities in Earth's rotation.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  Ecliptic at the standard reference epoch
+
+    Reference epoch: J2000.0
+    X-Y plane: adopted Earth orbital plane at the reference epoch
+               Note: IAU76 obliquity of 84381.448 arcseconds wrt ICRF X-Y plane
+    X-axis   : ICRF
+    Z-axis   : perpendicular to the X-Y plane in the directional (+ or -) sense
+               of Earth's north pole at the reference epoch.
+
+  Symbol meaning:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      EC     Eccentricity, e
+      QR     Periapsis distance, q (km)
+      IN     Inclination w.r.t X-Y plane, i (degrees)
+      OM     Longitude of Ascending Node, OMEGA, (degrees)
+      W      Argument of Perifocus, w (degrees)
+      Tp     Time of periapsis (Julian Day Number)
+      N      Mean motion, n (degrees/sec)
+      MA     Mean anomaly, M (degrees)
+      TA     True anomaly, nu (degrees)
+      A      Semi-major axis, a (km)
+      AD     Apoapsis distance (km)
+      PR     Sidereal orbit period (sec)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric osculating elements have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

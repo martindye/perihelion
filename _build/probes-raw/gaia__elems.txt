@@ -1,0 +1,169 @@
+*******************************************************************************
+ Revised: May 16, 2025             Gaia Observatory                     -139479
+                               http://sci.esa.int/gaia/
+                   https://www.cosmos.esa.int/web/gaia/iow_20250327
+                     https://www.youtube.com/watch?v=8RznHsG12t0
+
+ NOTE: Science observations ended 2025-Jan-25 due to decreasing attitude 
+  control propellant. On March 28, 2025, after engineering tests, Gaia left 
+  its orbit around Earth-Sun L2 and was placed in a heliocentric disposal orbit.
+  It will return to the Earth's vicinity every 14 years, but at a distance of
+  ~10 million km.
+
+ BACKGROUND:
+  Gaia is designed and operated by the European Space Agency. It launched
+  December 19, 2013 @ 09:12 UTC on a Soyuz launcher from Kourou, French Guiana.
+
+  On 2014-Jan-08, it arrived at its operational Lissajous orbit around the 
+  gravitationally stable Earth-Sun Lagrange-point L2, roughly 1.5 million km 
+  from Earth in the direction opposite the Sun.  The orbit is not shadowed by 
+  Earth eclipses. The orbit period is about 180 days; the size of the orbit 
+  is typically 340,000 x 90,000 km. 
+ 
+ MISSION:
+  Gaia's 5-year primary mission is to ... 
+
+    * Measure the positions of ~1 billion stars both in our Galaxy and other 
+       members of the Local Group, with an accuracy down to 24 uas 
+    * Perform spectral and photometric measurements of all objects 
+    * Derive space velocities of the Galaxy's constituent stars using the 
+       stellar distances and motions
+    * Create a three-dimensional structural map of the Galaxy
+
+  Additional expected results include extrasolar planet detection, brown dwarf 
+  detection, solar system asteroid discoveries, supernova early detection, and 
+  testing of Einstein's general relativity.
+ 
+ GAIA SPACECRAFT: 
+  Spacecraft dry mass total       1392 kg
+  Propellant                       237 kg
+  Total launch mass               2029 kg
+  Power: 12.8 m^2 solar array provides up to 1910 Watts
+
+ SCIENCE INSTRUMENTS:
+  Single integrated instrument that comprises three major functions: 
+  astrometry, photometry (320-1000 nm) and spectrometry (846-874 nm). 
+
+  The three functions use two common telescopes and a shared focal plane, 
+  with each function having a dedicated area on the large 0.5m x 1m CCD 
+  detector array.
+
+ SPACECRAFT TRAJECTORY (From ESOC 2025-Apr-14 16:41. Final reconstruction
+  through 2025-Mar-28 end-of-mission, with 100 year prediction):
+
+  Trajectory name                                    Start         Stop
+  --------------------------------------------    -----------   -----------
+  ORB1_20250414_000001                            2013-Dec-19   2125-Mar-28 
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Sun Aug 30 18:43:43 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: Gaia (spacecraft) (-139479)     {source: gaia_merged}
+Center body name: Sun (10)                        {source: gaia_merged}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2026-Aug-30 12:00:00.0000 TDB
+Stop  time      : A.D. 2026-Aug-30 12:01:00.0000 TDB
+Step-size       : 1 minutes
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Keplerian GM    : 1.3271244004127939E+11 km^3/s^2
+Output units    : KM-S, deg, Julian Day Number (Tp)
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC osculating elements
+Output format   : 10
+Reference frame : Ecliptic of J2000.0
+*******************************************************************************
+JDTDB
+   EC    QR   IN
+   OM    W    Tp
+   N     MA   TA
+   A     AD   PR
+*******************************************************************************
+$$SOE
+2461283.000000000 = A.D. 2026-Aug-30 12:00:00.0000 TDB 
+ EC= 2.551365202600345E-02 QR= 1.530114640682458E+08 IN= 7.857487205092070E-02
+ OM= 1.005168891584469E+02 W = 8.791107449788032E+01 Tp=  2461155.847750319634
+ N = 1.060855255927782E-05 MA= 1.165450743733585E+02 TA= 1.191228796591560E+02
+ A = 1.570175553370900E+08 AD= 1.610236466059343E+08 PR= 3.393488395220876E+07
+2461283.000694444 = A.D. 2026-Aug-30 12:01:00.0000 TDB 
+ EC= 2.551365206185137E-02 QR= 1.530114640913628E+08 IN= 7.857487330872580E-02
+ OM= 1.005168896264590E+02 W = 8.791107454702222E+01 Tp=  2461155.847750865389
+ N = 1.060855255628833E-05 MA= 1.165457103531342E+02 TA= 1.191235005525171E+02
+ A = 1.570175553665884E+08 AD= 1.610236466418141E+08 PR= 3.393488396177161E+07
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+  Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
+continuous coordinate time is equivalent to the relativistic proper time
+of a clock at rest in a reference frame co-moving with the solar system
+barycenter but outside the system's gravity well. It is the independent
+variable in the solar system relativistic equations of motion.
+
+  TDB runs at a uniform rate of one SI second per second and is independent
+of irregularities in Earth's rotation.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  Ecliptic at the standard reference epoch
+
+    Reference epoch: J2000.0
+    X-Y plane: adopted Earth orbital plane at the reference epoch
+               Note: IAU76 obliquity of 84381.448 arcseconds wrt ICRF X-Y plane
+    X-axis   : ICRF
+    Z-axis   : perpendicular to the X-Y plane in the directional (+ or -) sense
+               of Earth's north pole at the reference epoch.
+
+  Symbol meaning:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      EC     Eccentricity, e
+      QR     Periapsis distance, q (km)
+      IN     Inclination w.r.t X-Y plane, i (degrees)
+      OM     Longitude of Ascending Node, OMEGA, (degrees)
+      W      Argument of Perifocus, w (degrees)
+      Tp     Time of periapsis (Julian Day Number)
+      N      Mean motion, n (degrees/sec)
+      MA     Mean anomaly, M (degrees)
+      TA     True anomaly, nu (degrees)
+      A      Semi-major axis, a (km)
+      AD     Apoapsis distance (km)
+      PR     Sidereal orbit period (sec)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric osculating elements have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

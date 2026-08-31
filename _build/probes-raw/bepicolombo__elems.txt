@@ -1,0 +1,196 @@
+*******************************************************************************
+ Revised: Aug 05, 2026              BepiColombo / (Sun)                    -121
+                            http://sci.esa.int/bepicolombo/ 
+ 
+ LAUNCH DATE:                                            MERCURY ARRIVAL DATE:
+  2018-Oct-20 01:45 UTC                                      2026-Nov         
+
+  Earth flyby: 2020-Apr-10, 04:24:58 UTC @ 19066 km, 352.85 deg E,-19.70 deg S
+
+ LAUNCH VEHICLE:                                         LAUNCH SITE:
+  Ariane 5                                                Kourou, French Guiana
+
+ Note (2024-Sep-02): Due to unexpected electric currents between MTM's solar 
+  arrays and the power extraction and distribution unit, electric propulsion 
+  is reduced, requiring a one-year delay in Mercury arrival, to November 2026. 
+
+ BACKGROUND:
+  ESA's BepiColombo mission to orbit Mercury for one Earth year (four Mercury
+  years) is composed of two spacecraft: the ESA Mercury Planetary Orbiter (MPO)
+  and the ISAS/JAXA Mercury Magnetospheric Orbiter (MMO).
+
+  MMO will be released once the MMO orbit is reached. MPO will be inserted 
+  using chemical propulsion.
+
+   1) MPO will study the surface and internal composition of Mercury 
+   2) MMO will study the region around the planet influenced by its 
+      magnetic field
+
+  For the 8.2 year launch & cruise phases, MPO and MMO will be carried as part 
+  of the Mercury Composite Spacecraft and released on arrival at Mercury. 
+
+  There will be nine gravity assists during the cruise phase: 
+
+   2020-Apr-10: Earth flyby
+   2020-Oct-15: Venus flyby
+   2021-Aug-11: Venus Flyby
+   2021-Oct-01: First Mercury flyby
+   2022-Jun-23: 2nd Mercury flyby
+   2023-Jun-20: 3rd Mercury flyby
+   2024-Sep-04: 4th Mercury flyby
+   2024-Dec-01: 5th Mercury flyby
+   2025-Jan-08: 6th Mercury flyby
+   ....
+   2026-Nov   : Mercury orbit insertion
+   2028-Apr   : End of nominal mission
+   2029-Apr   : End of extended mission
+
+ OBJECTIVES:
+  Study and understand the composition, geophysics, atmosphere, magnetosphere 
+  and history of Mercury with following science objectives:
+
+   * Investigate origin and evolution of a planet close to the parent star
+   * Study Mercury form, interior structure, geology, composition and craters
+   * Examine composition and dynamics of Mercury's vestigial atmosphere
+   * Probe Mercury's magnetized envelope; structure and dynamics
+   * Determine the origin of Mercury's magnetic field
+   * Investigate polar deposits: their composition and origin
+   * Perform a test of Einstein's theory of general relativity
+ 
+ SPACECRAFT PHYSICAL PROPERTIES:
+  Total launch mass  = 4100 kg
+
+                         MPO                 MMO
+  In Mercury orbit     1150 kg             275 kg  
+  Payload mass           80 kg              45 kg
+  Payload power        100-150 W            90 W
+  Data volume          1550 Gbits/year     160 Gbits/year
+  Average data rate    50 kbits/s            5 kbits/s
+  Antenna              1-m X/Ka-band       0.8 m X-band
+  Orientation          Nadir pointing      Spin axis at 90 deg. to Sun
+  Stabilisation        3-axis stabilized   15-rpm spin-stabilised 
+
+ BASIC ORBIT PARAMETERS AT MERCURY:
+                       MPO (polar)        MMO (polar)
+  peri/apo apses      480 x 1500 km      590 x 11640 km
+  period                 2.3 hr            9.3 hr
+
+ SPACECRAFT TRAJECTORY: 
+  Trajectory from ESA. Data fit through 2026-Aug-03, prediction thereafter.
+
+   Name                                    Start (TDB)          Stop (TDB)
+   --------------------------------------  -----------------  -----------------
+   bc_mpo_fcp_00229_20181020_20270411_v01  2018-Oct-20 02:14  2027-Apr-10 23:59
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Sun Aug 30 18:43:31 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: BepiColombo (Spacecraft) (-121) {source: BepiColombo_ESA}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2026-Aug-30 12:00:00.0000 TDB
+Stop  time      : A.D. 2026-Aug-30 12:01:00.0000 TDB
+Step-size       : 1 minutes
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Keplerian GM    : 1.3271244004127939E+11 km^3/s^2
+Output units    : KM-S, deg, Julian Day Number (Tp)
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC osculating elements
+Output format   : 10
+Reference frame : Ecliptic of J2000.0
+*******************************************************************************
+JDTDB
+   EC    QR   IN
+   OM    W    Tp
+   N     MA   TA
+   A     AD   PR
+*******************************************************************************
+$$SOE
+2461283.000000000 = A.D. 2026-Aug-30 12:00:00.0000 TDB 
+ EC= 1.960877566895475E-01 QR= 4.732917540078520E+07 IN= 6.981467841190601E+00
+ OM= 4.835856763555893E+01 W = 2.683230389372964E+01 Tp=  2461264.875675526448
+ N = 4.620596095907713E-05 MA= 7.235583802780685E+01 TA= 9.488167274307874E+01
+ A = 5.887355963865793E+07 AD= 7.041794387653065E+07 PR= 7.791202531613582E+06
+2461283.000694444 = A.D. 2026-Aug-30 12:01:00.0000 TDB 
+ EC= 1.960877560407655E-01 QR= 4.732917528535452E+07 IN= 6.981467841229997E+00
+ OM= 4.835856763503441E+01 W = 2.683230301835192E+01 Tp=  2461264.875675382093
+ N = 4.620596118404851E-05 MA= 7.235861131411338E+01 TA= 9.488451658228058E+01
+ A = 5.887355944755898E+07 AD= 7.041794360976343E+07 PR= 7.791202493679134E+06
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+  Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
+continuous coordinate time is equivalent to the relativistic proper time
+of a clock at rest in a reference frame co-moving with the solar system
+barycenter but outside the system's gravity well. It is the independent
+variable in the solar system relativistic equations of motion.
+
+  TDB runs at a uniform rate of one SI second per second and is independent
+of irregularities in Earth's rotation.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  Ecliptic at the standard reference epoch
+
+    Reference epoch: J2000.0
+    X-Y plane: adopted Earth orbital plane at the reference epoch
+               Note: IAU76 obliquity of 84381.448 arcseconds wrt ICRF X-Y plane
+    X-axis   : ICRF
+    Z-axis   : perpendicular to the X-Y plane in the directional (+ or -) sense
+               of Earth's north pole at the reference epoch.
+
+  Symbol meaning:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      EC     Eccentricity, e
+      QR     Periapsis distance, q (km)
+      IN     Inclination w.r.t X-Y plane, i (degrees)
+      OM     Longitude of Ascending Node, OMEGA, (degrees)
+      W      Argument of Perifocus, w (degrees)
+      Tp     Time of periapsis (Julian Day Number)
+      N      Mean motion, n (degrees/sec)
+      MA     Mean anomaly, M (degrees)
+      TA     True anomaly, nu (degrees)
+      A      Semi-major axis, a (km)
+      AD     Apoapsis distance (km)
+      PR     Sidereal orbit period (sec)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric osculating elements have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************
