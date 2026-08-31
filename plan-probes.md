@@ -35,8 +35,32 @@ per-probe START/STOP now bracket each file (notes in `_build/fetch-probes.mjs`).
 - three r128 note: `Vector3.array` does not exist in this build — engine writes via
   `.set()` only.
 
-Remaining: **5** planet close-up textures + chase for planets · **6** catalog/detail
-pane overlap fix · **7** full regression.
+**Phase 5 — planet photo close-ups (2026-08-31).** 2048×1024 equirectangular
+mosaics for all 8 planets + Moon (Solar System Scope set — mosaics of
+NASA/JPL/USGS public-domain imagery; `_build/fetch-textures.mjs` records the
+source URLs). Key gotcha: a `file://` page **cannot** upload a loose
+`<img>` file to WebGL (opaque origin → `texImage2D` SecurityError), so the
+maps are re-encoded at q0.72 and **embedded as data-URLs in
+`js/planets-textures.js`** (2.15 MB; `_qa/embed-textures.mjs` regenerates).
+`loadTextures()` (lazy, first solar entry) swaps each planet/moon to
+`MeshPhongMaterial{map}`; flat colour stays as fallback. Close-up: catalog
+select dollies to ~5× radius (wheel dollies back out); chase camera
+unchanged. QA `qa-planetzoom.mjs`: texture applied (phong + 2048-px map),
+chase offset 0.000, no WebGL SecurityErrors.
+
+**Phase 6 — layout (2026-08-31).** Detail pane moved to its own top-right
+corner (`top:64 right:16`, `max-height: calc(100vh-184px)` + scroll,
+z-index 16); catalog keeps the bottom-left column. Diagonally separated →
+they can never paint over each other; verified at 1280×800-class and
+1920×1080 (rects disjoint in QA). The optional "collapse results to a bar"
+idea from the plan was dropped in favour of the corner separation (keeps
+results browsable while the card is open).
+
+**Phase 7 — final regression (2026-08-31).** Full maintained suite green:
+qa-toggles, qa-constsearch, qa-minors/2/3, qa-asterisms, qa-dso2,
+qa-constfigs, verify-named-exclusion, verify-probes, qa-probes (22 checks),
+qa-planetzoom (9 checks). All console self-tests OK (ephemeris, minors,
+probes). Plan complete.
 
 ---
 

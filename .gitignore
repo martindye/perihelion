@@ -11,3 +11,7 @@ video/
 
 # QA dependencies (install with: npm i playwright-core in _qa/)
 node_modules/
+
+# Raw planet maps — embedded (re-encoded) in js/planets-textures.js;
+# regenerate with _build/fetch-textures.mjs + _qa/embed-textures.mjs
+textures/

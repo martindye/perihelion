@@ -162,18 +162,27 @@ body {
 #date-main { font-size: 13px; letter-spacing: 0.05em; font-variant-numeric: tabular-nums; }
 #date-off { font-size: 10px; color: var(--dim); letter-spacing: 0.08em; min-height: 12px; }
 
-/* ---------------- info panel ---------------- */
+/* ---------------- info panel ----------------
+   Top-RIGHT corner: the catalog drawer owns the left column, so the two
+   can never paint over each other (plan §8). Height-capped + scrollable
+   so long cards (probes) never reach the bottom time bar. */
 .infopanel {
   position: fixed;
-  top: 64px; left: 16px;
+  top: 64px; right: 16px;
   width: 272px;
+  max-height: calc(100vh - 184px);
+  overflow-y: auto;
   background: var(--panel);
   border: 1px solid var(--line);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 14px;
   padding: 16px 18px 14px;
-  z-index: 12;
+  z-index: 16;
+}
+.infopanel::-webkit-scrollbar { width: 8px; }
+.infopanel::-webkit-scrollbar-thumb {
+  background: rgba(111, 214, 255, 0.25); border-radius: 4px;
 }
 .infopanel .ip-close {
   position: absolute; top: 8px; right: 10px;

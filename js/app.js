@@ -989,7 +989,9 @@ P.app = (function () {
       else {
         state.follow = name;
         const pl = P.planets.find(p => p.name === name);
-        cam.dist = Math.max(7, (pl ? pl.size : 1) * 11);
+        /* close-up that fills the frame with the (photo) surface; the
+           wheel dollies between a few radii and back out to system view */
+        cam.dist = Math.max(4, (pl ? pl.size : 1) * 5);
       }
     } else if (eph[name]) {
       rotateToVec(eph[name].anchor);
@@ -1100,6 +1102,7 @@ P.app = (function () {
     if (m === 'solar') {
       cam.dist = 150; cam.pitch = 0.85;
       state.follow = 'Sun';
+      solar.loadTextures();           /* lazy: photo maps on first entry */
       /* whole system visibly in motion: Moon ~1 s/orbit, Earth 12 s,
        * Mars 23 s, Jupiter 2.4 min, outer giants drift steadily */
       state.speed = 2629800;           // 1 month / s

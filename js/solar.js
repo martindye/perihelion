@@ -59,12 +59,14 @@ P.solar = (function () {
     group.add(light);
     group.add(new THREE.AmbientLight(0x2a3550, 0.55));
 
-    /* planets */
+    /* planets — a flat colour is the placeholder; photo maps (textures/*.jpg,
+       equirectangular 2048×1024) are lazy-loaded via <img> on first use and
+       swap in a Phong material when they arrive (see loadTextures). */
     const meshes = {};
     const eclTmp = new THREE.Vector3();
     for (const pl of P.planets) {
       const mesh = new THREE.Mesh(
-        new THREE.SphereGeometry(pl.size, 40, 24),
+        new THREE.SphereGeometry(pl.size, 48, 28),
         new THREE.MeshLambertMaterial({ color: pl.color })
       );
       group.add(mesh);
@@ -270,9 +272,44 @@ P.solar = (function () {
 
     const _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3(), _earth = new THREE.Vector3(1e9, 0, 0);
 
+    /* photo surface maps — embedded data-URLs in js/planets-textures.js
+       (public-domain mosaics, 2048x1024). Embedded rather than fetched: a
+       file:// page cannot upload a loose <img file> to WebGL (opaque-origin
+       SecurityError), while data-URL images are same-origin and clean.
+       Applied lazily on first solar-mode entry; the flat colour stays as
+       the fallback if a map is missing. */
+    const TEXNAME = { Mercury: 'mercury', Venus: 'venus', Earth: 'earth',
+                      Mars: 'mars', Jupiter: 'jupiter', Saturn: 'saturn',
+                      Uranus: 'uranus', Neptune: 'neptune', Moon: 'moon' };
+    let texStarted = false;
+    function loadTextures() {
+      if (texStarted) return;
+      texStarted = true;
+      const pool = (P.planetTex) || {};
+      const apply = (mesh, key) => {
+        const src = pool[key];
+        if (!src) return;
+        const img = new Image();
+        img.onload = () => {
+          const tex = new THREE.Texture(img);
+          tex.needsUpdate = true;
+          const mat = new THREE.MeshPhongMaterial({ map: tex, shininess: 6, specular: 0x1a1a1a });
+          mesh.material.dispose();
+          mesh.material = mat;
+        };
+        img.onerror = () => { /* keep the procedural colour */ };
+        img.src = src;
+      };
+      for (const name of Object.keys(TEXNAME)) {
+        const m = name === 'Moon' ? moonMesh : meshes[name];
+        if (m) apply(m, TEXNAME[name]);
+      }
+    }
+
     return {
       group, sun, moonMesh,
       meshes,
+      loadTextures,
       setOrbitsVisible(v) {
         for (const child of group.children) if (child.isLine) child.visible = v;
         for (const l of minorOrbitLines) l.visible = v;   /* nested in minorsGroup */

@@ -49,6 +49,15 @@ planetarium/index.html#solar    → solar-system mode
 - The Sun, 8 planets, the Moon, Saturn's rings and full orbit paths on a
   compressed radial scale (planets are not to scale with distance, or nothing
   would be visible).
+- **Photo close-ups**: the planets (and the Moon) wear real 2048-px surface
+  maps (public-domain NASA/JPL/USGS mosaics); click one to ride the camera
+  up to the surface, then wheel back out to the system.
+- **13 active space probes** on real JPL Horizons ephemerides — JWST, Parker
+  Solar Probe, Juno, Solar Orbiter, BepiColombo, Psyche, Lucy, JUICE, Gaia,
+  Euclid, Voyager 1 & 2, New Horizons — as procedural models at their true
+  positions, searchable in the catalog (`webb`, `voyager`, `parker`), with a
+  live telemetry card (Sun/Earth distance, velocity, light time). Warp the
+  clock a decade out and watch them fly.
 - **9 minor planets / dwarf planets** (Ceres, Vesta, Pallas, Hygiea, Pluto,
   Eris, Haumea, Makemake, and the dwarf-planet candidate 28978 Ixion) on real
   osculating orbits (JPL Horizons, DE440-class, epoch 2026-08-30; moons
@@ -60,13 +69,14 @@ planetarium/index.html#solar    → solar-system mode
 
 **In both modes**
 - **Catalog** (`K`): searchable drawer over the whole 116,508-star Hipparcos
-  catalog, the 945 deep-sky objects, and the Sun, Moon, 8 planets, 9 minor
-  planets and 11 major moons. Search by proper name, Bayer designation,
-  **HIP** number or **HD** number (e.g. `sirius`, `acamar`, `60718`,
-  `18622`, `m31`, `ceres`, `triton`) — the results show the object's ID and
-  magnitude/distance, and clicking one selects it, highlights the row, and
-  smoothly flies the camera to it (in solar mode the camera follows the
-  body instead). The catalog is also openable via URL: `index.html#q=sirius`.
+  catalog, the 945 deep-sky objects, the Sun, Moon, 8 planets, 9 minor
+  planets, 11 major moons, and the 13 probes. Search by proper name, Bayer
+  designation, **HIP** number or **HD** number (e.g. `sirius`, `acamar`,
+  `60718`, `18622`, `m31`, `ceres`, `triton`, `webb`, `voyager`) — the
+  results show the object's ID and magnitude/distance, and clicking one
+  selects it, highlights the row, and smoothly flies the camera to it (in
+  solar mode the camera follows the body instead). The catalog is also
+  openable via URL: `index.html#q=sirius`.
 - **Selection marker** (checkbox in the right column, or `X`): a gently
   pulsing gold reticle stays pinned to whatever you select — a star, a planet,
   or the Moon, in which case it *tracks it as it moves* across the sky.
@@ -145,6 +155,8 @@ js/stars-named.js   HIP/HD IDs for every star + 458 IAU-named stars (generated, 
 js/dso.js           624 bright galaxies + 18,304 faint background galaxies (NGC/UGC/Corwin)
 js/dso2.js          321 clusters/nebulae + 138 faint (SIMBAD J2000)
 js/minors.js        9 minor planets + 11 major moons, osculating at 2026-08-30 (JPL Horizons)
+js/probes.js        13 active probes: Horizons state vectors + T0 elements (JPL, 2026-08-31)
+js/planets-textures.js  embedded 2K photo maps for 8 planets + Moon (NASA/JPL/USGS PD mosaics)
 js/asterisms.js     6 classic asterisms (Dipper, Teapot, Triangle, …)
 js/astro.js         Kepler solver, ephemeris, coordinate transforms
 js/sky.js           celestial dome: starfield, lines, body sprites, DSOs, milky-way wash
