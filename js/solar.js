@@ -309,6 +309,10 @@ P.solar = (function () {
 
     const EARTH = P.planets.find(p => p.name === 'Earth');
     function update(d) {
+      /* Sun: steady Carrington-ish spin (25.4 d, equatorial). The map is a
+         static SDO-style composite, so this reads as the photosphere turning
+         rather than the true differential rotation. */
+      sun.rotation.y = (d / 25.38) * TAU % TAU;
       for (const pl of P.planets) {
         const mesh = meshes[pl.name];
         P.astro.helioEcl(pl, d, eclTmp);
@@ -435,6 +439,19 @@ P.solar = (function () {
         if (m) apply(m, TEXNAME[name]);
       }
       for (const name in ringMeshes) applyRing(ringMeshes[name]);
+      /* Sun: Basic (self-lit) with the photo map; flat colour until it lands */
+      const sunSrc = pool.sun;
+      if (sunSrc) {
+        const img = new Image();
+        img.onload = () => {
+          const tex = new THREE.Texture(img);
+          tex.needsUpdate = true;
+          sun.material.dispose();
+          sun.material = new THREE.MeshBasicMaterial({ map: tex });
+        };
+        img.onerror = () => { /* keep the flat colour */ };
+        img.src = sunSrc;
+      }
     }
 
     return {

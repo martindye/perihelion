@@ -19,7 +19,7 @@ import path from 'path';
 
 const ROOT = 'C:/Users/press/OneDrive/Projects/DSH_TESTS/planetarium/';
 const EXE = 'C:\\Users\\press\\AppData\\Local\\ms-playwright\\chromium-1223\\chrome-win64\\chrome.exe';
-const names = ['earth', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+const names = ['sun', 'earth', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
 
 const browser = await chromium.launch({ executablePath: EXE, headless: true, args: ['--enable-unsafe-swiftshader'] });
 const page = await browser.newPage();
@@ -54,6 +54,9 @@ let js = '/* ===================================================================
 js += ' * Equirectangular 2048x1024 JPEG data-URLs (q0.72). Imagery: Solar System\n';
 js += ' * Scope texture set (mosaics of NASA/JPL/USGS public-domain data), fetched\n';
 js += ' * via _build/fetch-textures.mjs, re-encoded + embedded by _qa/embed-textures.mjs.\n';
+js += ' * saturnRings: the SST 2k_saturn_ring_alpha strip (2048x125, CC-BY-4.0 SST,\n';
+js += ' * NASA/JPL-derived) embedded VERBATIM as PNG — its alpha carries the ring\n';
+js += ' * structure (Cassini division etc), so it must not be re-encoded to JPEG.\n';
 js += ' * Embedded (not fetched) because file:// pages cannot upload loose-file\n';
 js += ' * images to WebGL (opaque-origin SecurityError).\n';
 js += ' * ==========================================================================*/\n';
