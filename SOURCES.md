@@ -83,6 +83,7 @@ yourself, here are the exact locations:
 | Mercury (MESSENGER mosaic) | NASA PDS / MESSENGER | `textures/mercury.jpg` |
 | Venus (Magellan-derived enhanced) | NASA PDS | `textures/venus.jpg` |
 | Uranus, Neptune (Voyager 2 mosaics) | NASA PDS / Voyager archive | `textures/uranus.jpg`, `textures/neptune.jpg` |
+| Sun (2K equirect, SDO-derived) | **done**: SST `2k_sun.jpg`, [Solar System Scope](https://www.solarsystemscope.com/textures/), CC-BY-4.0 | `textures/sun.jpg` — embedded as `sun` in `js/planets-textures.js` |
 
 All NASA material is public domain (US Government work); license the model files
 with their source where indicated.
