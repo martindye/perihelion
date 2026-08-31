@@ -304,7 +304,10 @@ P.app = (function () {
   }, { passive: false });
 
   /* ---------------------------------------------------- labels & picking - */
-  const BODY_NAMES = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune',
+  /* Earth was missing here — the planet you stand on was neither in the
+     catalog nor label/pick-able. It has no position on the sky dome (you are
+     it), so its label is solar-mode only (see the visible() below). */
+  const BODY_NAMES = ['Sun', 'Moon', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune',
                       ...(P.minors ? P.minors.planets.map(m => m.name) : [])];
   /* name sets for the MINORS toggle (dwarf planets + their major moons) and
      the ZODIAC toggle (the 12 zodiac figures) */
@@ -328,8 +331,12 @@ P.app = (function () {
     entries.push({
       key: 'body:' + name, text: name, kind: 'body', body: name,
       anchor: new THREE.Vector3(),
-      /* dwarf planets follow the MINORS toggle; the major planets always label */
-      visible: () => MINOR_NAMES.has(name) ? state.minors : true
+      /* dwarf planets follow the MINORS toggle; the major planets always label.
+         Earth is the observer in sky mode (it has no sky position), so its
+         label only exists in solar mode. */
+      visible: () => MINOR_NAMES.has(name) ? state.minors
+        : name === 'Earth' ? state.mode === 'solar'
+        : true
     });
   }
   /* major moons — solar-system mode only (labels + picking), MINORS-gated */
@@ -982,6 +989,14 @@ P.app = (function () {
       cam.dist = 14;
       return;
     }
+    if (name === 'Earth' && state.mode !== 'solar') {
+      /* Earth has no spot on the sky dome — it IS the observer — so a
+         catalog pick from sky mode switches to the system view */
+      setMode('solar');
+      state.follow = 'Earth';
+      cam.dist = 9;
+      return;
+    }
     if (state.mode === 'solar') {
       if (name === 'Sun') { state.follow = 'Sun'; cam.dist = 90; }
       else if (name === 'Moon') { state.follow = 'Earth'; cam.dist = 9; }
@@ -1024,6 +1039,7 @@ P.app = (function () {
       const _mm = P.minors && P.minors.moons.find(m => m.name === n);
       const _mp = P.minors && P.minors.planets.find(m => m.name === n);
       sub = n === 'Sun' ? 'STAR · G2V'
+        : n === 'Earth' ? 'HOME · YOU ARE HERE'
         : n === 'Moon' ? 'MOON OF EARTH'
         : _mm ? 'MOON OF ' + _mm.parent.toUpperCase()
         : _mp ? 'MINOR PLANET · ' + eph[n].distAU.toFixed(2) + ' AU FROM EARTH'
