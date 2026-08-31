@@ -176,11 +176,12 @@ P.solar = (function () {
       const add = (m) => { g.add(m); return m; };
 
       if (p.model === 'jwst') {
-        /* five-layer gold sunshield: much wider than the mirror (like the
-           real ~21 m kite), tapered, visibly staggered stack */
+        /* five-layer gold sunshield: wider than the mirror (like the real
+           ~21 m kite), tapered, visibly staggered stack. Kept modest so the
+           whole spacecraft stays visibly smaller than the Earth it orbits. */
         for (let i = 0; i < 5; i++) {
           const layer = add(new THREE.Mesh(
-            new THREE.CylinderGeometry((1.7 - i * 0.11) * s, (1.7 - i * 0.11) * s, 0.04 * s, 6),
+            new THREE.CylinderGeometry((1.15 - i * 0.08) * s, (1.15 - i * 0.08) * s, 0.04 * s, 6),
             i % 2 ? gold2 : gold));
           layer.position.y = -0.16 * s - i * 0.12 * s;
         }
@@ -343,7 +344,9 @@ P.solar = (function () {
           const pp = meshes[pl.name].position;
           const dx = _v1.x - pp.x, dy = _v1.y - pp.y, dz = _v1.z - pp.z;
           const L2 = Math.hypot(dx, dy, dz);
-          const minR = pl.size + half * 1.05;
+          /* park the probe clearly outside the planet's disc — ~1.5 radii
+             from centre for L2-type company — not just non-intersecting */
+          const minR = pl.size * 1.5 + half * 1.1;
           if (L2 > 1e-9 && L2 < minR) {
             const k = minR / L2;
             _v1.x = pp.x + dx * k;

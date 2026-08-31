@@ -1098,6 +1098,13 @@ P.app = (function () {
   /* ------------------------------------------------------------- modes --- */
   function applyVisibility() {
     sky.dome.visible = true;
+    /* In solar mode the celestial dome is pushed to (visual) infinity:
+       50× its radius (5000, inside the 6000 far plane, outside the 4000
+       max camera distance) so it surrounds the WHOLE system — probes and
+       dwarf planets included — instead of forming a visible ball inside it.
+       Star point sizes are in pixels, so nothing changes visually except
+       that the sky is now a proper infinite background. */
+    sky.dome.scale.setScalar(state.mode === 'solar' ? 50 : 1);
     sky.bodies.visible = state.mode === 'sky';
     solar.group.visible = state.mode === 'solar';
     sky.constellations.visible = state.constellations;

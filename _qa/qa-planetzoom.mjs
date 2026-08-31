@@ -80,6 +80,29 @@ const gaps = await page.evaluate(() => {
 });
 ok(gaps.su > 30 && gaps.un > 30, `Saturn/Uranus/Neptune well separated (gaps ${Math.round(gaps.su)}/${Math.round(gaps.un)} scene units)`);
 
+/* star dome = infinite sky in solar mode (50x radius: 5000 > max cam 4000),
+   unit scale in sky mode */
+const domeSolar = await page.evaluate(() => P.app._dbg.sky.dome.scale.x);
+ok(Math.abs(domeSolar - 50) < 1e-6, `solar: star dome at 50x (infinity) — got ${domeSolar}`);
+await page.evaluate(() => P.app.setMode('sky'));
+await page.waitForTimeout(300);
+const domeSky = await page.evaluate(() => P.app._dbg.sky.dome.scale.x);
+ok(Math.abs(domeSky - 1) < 1e-6, `sky: star dome back to 1x — got ${domeSky}`);
+await page.evaluate(() => P.app.setMode('solar'));
+await page.waitForTimeout(300);
+
+/* JWST (L2, hugging Earth's orbit) must sit clearly outside the Earth mesh:
+   >2.0 scene units from Earth's centre and smaller than the planet */
+const jwst = await page.evaluate(() => {
+  const s = P.app._dbg.solar;
+  const e = s.meshes['Earth'].position, j = s.meshes['JWST'].position;
+  const d = Math.hypot(j.x - e.x, j.y - e.y, j.z - e.z);
+  const sz = P.probes.probes.find(p => p.name === 'JWST').size;
+  return { dist: Math.round(d * 100) / 100, earthD: 2 * 0.9, jwstW: 2 * 1.15 * sz * 2.5 };
+});
+ok(jwst.dist > 1.9, `JWST clearly outside Earth (centre distance ${jwst.dist} > 1.9, Earth radius 0.9)`);
+ok(jwst.jwstW < jwst.earthD, `JWST smaller than Earth (w ${jwst.jwstW.toFixed(2)} < ${jwst.earthD})`);
+
 /* ---- Phase 6: catalog vs detail pane never overlap ------------------------ */
 await page.click('#tg-catalog'); await page.waitForTimeout(250);
 /* open a selection so the detail pane is visible */
