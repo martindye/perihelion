@@ -901,6 +901,15 @@ P.sky = (function () {
       bodyRecords[m.name] = { holder };
       minorHolders[m.name] = holder;
     }
+    /* space probes (js/probes.js) — small discs on the dome. The tier-2
+       interplanetary probes (hundreds of AU out) rely on this sky view;
+       in the solar-system scene they sit far out on the compressed scale. */
+    if (P.probes) for (const p of P.probes.probes) {
+      const holder = new THREE.Group();
+      holder.add(sprite(planetDiscTexture(p.color), p.tier === 2 ? 0.3 : 0.2, 1, THREE.NormalBlending));
+      bodies.add(holder);
+      bodyRecords[p.name] = { holder };
+    }
 
     return {
       dome, bodies, mat, named, bodyRecords, R,

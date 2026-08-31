@@ -9,6 +9,7 @@ P.solar = (function () {
   const DIST_K = 26, DIST_P = 0.62;          // compressed radial scale
   const SUN_R = 3.2;
   const MOON_DIST = 2.2;
+  const TIER2_RIM = 44;                       // rim radius for interplanetary probes
 
   function distScale(rAu) { return DIST_K * Math.pow(Math.max(rAu, 1e-6), DIST_P); }
 
@@ -149,6 +150,63 @@ P.solar = (function () {
                        parent: m.parent, dist: m.dist, mesh });
     }
 
+    /* ---- space probes (js/probes.js) ----------------------------------
+     * Tier 1: small procedural spacecraft at their true (compressed)
+     * heliocentric position. Tier 2 (Voyager 1/2, New Horizons) ride the
+     * same true position hundreds of units out — their "rim icon" — so the
+     * model is enlarged to stay visible from an overview camera. */
+    function probeModel(p) {
+      const g = new THREE.Group();
+      const s = p.tier === 2 ? p.size * 8 : p.size;
+      const body = new THREE.MeshLambertMaterial({ color: 0x9aa2b1 });
+      const gold = new THREE.MeshLambertMaterial({ color: 0xd9b34a, emissive: 0x2a1d05 });
+      const panel = new THREE.MeshLambertMaterial({ color: 0x27406e, emissive: 0x0a1420 });
+      const add = (m) => { g.add(m); return m; };
+      if (p.model === 'jwst') {
+        const shield = add(new THREE.Mesh(new THREE.CylinderGeometry(0.95 * s, 1.15 * s, 0.05, 6), panel));
+        shield.rotation.z = 0.18;
+        const mirror = add(new THREE.Mesh(new THREE.CylinderGeometry(0.42 * s, 0.42 * s, 0.12, 6), gold));
+        mirror.position.y = 0.5 * s;
+        mirror.rotation.x = Math.PI / 2;
+      } else if (p.model === 'parker') {
+        const shield = add(new THREE.Mesh(new THREE.CylinderGeometry(0.75 * s, 0.75 * s, 0.07, 8), gold));
+        shield.rotation.z = Math.PI / 2;
+        const bus = add(new THREE.Mesh(new THREE.BoxGeometry(0.5 * s, 0.4 * s, 0.4 * s), body));
+        bus.position.x = 0.55 * s;
+      } else if (p.model === 'juno') {
+        const bus = add(new THREE.Mesh(new THREE.BoxGeometry(0.5 * s, 0.5 * s, 0.5 * s), body));
+        for (let k = 0; k < 3; k++) {
+          const wing = add(new THREE.Mesh(new THREE.BoxGeometry(1.5 * s, 0.04 * s, 0.34 * s), panel));
+          const a = k * (Math.PI * 2 / 3);
+          wing.position.set(Math.cos(a) * 1.0 * s, 0, Math.sin(a) * 1.0 * s);
+          wing.rotation.y = -a;
+        }
+      } else if (p.model === 'voyager' || p.model === 'nh') {
+        const bus = add(new THREE.Mesh(new THREE.CylinderGeometry(0.28 * s, 0.34 * s, 0.5 * s, 8), body));
+        const dish = add(new THREE.Mesh(new THREE.ConeGeometry(0.55 * s, 0.22 * s, 12, 1, true), body));
+        dish.position.y = 0.4 * s;
+        dish.rotation.x = Math.PI;
+        dish.material = gold;
+        const rtg = add(new THREE.Mesh(new THREE.BoxGeometry(0.06 * s, 0.06 * s, 0.9 * s), gold));
+        rtg.position.set(0.6 * s, -0.1 * s, 0);
+      } else { /* generic bus + panels */
+        const bus = add(new THREE.Mesh(new THREE.BoxGeometry(0.45 * s, 0.45 * s, 0.45 * s), body));
+        for (const side of [-1, 1]) {
+          const wing = add(new THREE.Mesh(new THREE.BoxGeometry(0.9 * s, 0.04 * s, 0.3 * s), panel));
+          wing.position.x = side * 0.7 * s;
+        }
+      }
+      return g;
+    }
+    const probeKeys = [];
+    if (P.probes) for (const p of P.probes.probes) {
+      const mesh = probeModel(p);
+      mesh.position.set(1e9, 0, 0);
+      group.add(mesh);
+      meshes[p.name] = mesh;
+      probeKeys.push(p.name);
+    }
+
     /* Moon (geocentric) */
     const moonMesh = new THREE.Mesh(
       new THREE.SphereGeometry(0.3, 24, 12),
@@ -194,6 +252,19 @@ P.solar = (function () {
         const mwl = Math.hypot(mwx, mwy, mwz) || 1;
         const p = meshes[mm.parent].position;
         mm.mesh.position.set(p.x + mwx / mwl * mm.dist, p.y + mwy / mwl * mm.dist, p.z + mwz / mwl * mm.dist);
+      }
+      /* probes — true (compressed) heliocentric position from Horizons data.
+         Tier-2 (interplanetary) probes compress to the Sun's glow at this
+         scene's scale, so they are pushed to the scene rim along their
+         true direction — a visible "rim icon" instead of a lost speck. */
+      if (P.probes) for (const p of P.probes.probes) {
+        P.astro.probeHeliocEcl(p.pb, d, eclTmp);
+        posFromEcl(eclTmp, _v1);
+        if (p.tier === 2) {
+          const L = _v1.length();
+          if (L > 1e-6 && L < TIER2_RIM) _v1.multiplyScalar(TIER2_RIM / L);
+        }
+        meshes[p.name].position.copy(_v1);
       }
     }
 

@@ -150,6 +150,24 @@ P.app = (function () {
   for (const pl of P.planets) { eph[pl.name].distAU = 1; eph[pl.name].helioAU = pl.au; eph[pl.name].ra = 0; eph[pl.name].dec = 0; }
   eph.Moon.distAU = 0;
   for (const name of minorNames) { eph[name].distAU = 1; eph[name].helioAU = 0; eph[name].ra = 0; eph[name].dec = 0; }
+  /* space probes (js/probes.js): decode the base64 state vectors once,
+     register an ephemeris record per probe, and keep a decoded handle
+     (pb) for P.astro.probeHeliocEcl. */
+  const probeList = P.probes ? P.probes.probes : [];
+  const probeNames = new Set(probeList.map(p => p.name));
+  const probeBy = new Map(probeList.map(p => [p.name, p]));
+  for (const p of probeList) {
+    const u8 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+    const eu = u8(p.ep), su = u8(p.st);
+    p._ep = new Int32Array(eu.buffer, eu.byteOffset, p.n);
+    p._st = new Float32Array(su.buffer, su.byteOffset, p.n * 6);
+    p._n = p.n;
+    p.pb = { ep: p._ep, st: p._st, n: p.n, el: p.el };
+    eph[p.name] = rec();
+    eph[p.name].vel = new THREE.Vector3();
+    eph[p.name].distAU = 1; eph[p.name].helioAU = 1;
+  }
+  if (probeList.length) P.astro.probesSelfTest(THREE.Vector3);
   /* osculating elements (T0-anchored) for the minor planets */
   const mEls = P.minors
     ? new Map(P.minors.planets.map(m => [m.name, { a: m.a, e: m.e, i: m.i, Omega: m.Omega,
@@ -179,6 +197,16 @@ P.app = (function () {
     if (mEls) for (const [name, el] of mEls) {
       const r = eph[name];
       P.astro.oscEcl(el, d, r.ec);
+      r.helioAU = r.ec.length();
+      T.copy(r.ec).sub(eph.Earth.ec);
+      r.distAU = T.length();
+      P.astro.ecl2equ(T, r.eq);
+      r.ra = P.astro.raDeg(r.eq); r.dec = P.astro.decDeg(r.eq);
+      r.anchor.set(r.eq.x, r.eq.z, -r.eq.y).normalize().multiplyScalar(sky.R - 0.5);
+    }
+    for (const p of probeList) {
+      const r = eph[p.name];
+      P.astro.probeHeliocEcl(p.pb, d, r.ec, r.vel);
       r.helioAU = r.ec.length();
       T.copy(r.ec).sub(eph.Earth.ec);
       r.distAU = T.length();
@@ -311,6 +339,14 @@ P.app = (function () {
       anchor: new THREE.Vector3(), visible: () => state.mode === 'solar' && state.minors
     });
   }
+  /* space probes — labels + picking in both modes (sky: dome anchor,
+     solar: the mesh position via anchorOf) */
+  for (const p of probeList) {
+    entries.push({
+      key: 'probe:' + p.name, text: p.name, kind: 'probe', body: p.name,
+      anchor: new THREE.Vector3(), visible: () => true
+    });
+  }
   const starByKey = new Map(sky.named.map(s => ['star:' + s.name, s]));
 
   /* deep-sky objects (js/dso.js): real galaxies — pickable + labelable */
@@ -359,7 +395,8 @@ P.app = (function () {
     if (state.mode === 'sky') return eph[name].anchor;
     if (name === 'Sun') return _sunAnchor.set(0, 0, 0);
     if (name === 'Moon') return solar.moonMesh.position;
-    return solar.meshes[name].position;
+    const m = solar.meshes[name];
+    return m ? m.position : null;
   }
   const _sunAnchor = new THREE.Vector3();
 
@@ -369,6 +406,7 @@ P.app = (function () {
     for (const e of entries) {
       if (!e.visible()) continue;
       const a = anchorOf(e);
+      if (!a) { e.scr = null; continue; }
       _pv.copy(a).applyMatrix4(camera.matrixWorldInverse);
       if (_pv.z > -0.35) { e.scr = null; continue; }
       _pv.copy(a).project(camera);
@@ -548,6 +586,32 @@ P.app = (function () {
       fun: r[10] || funFallback
     };
   }
+  function lightTime(au) {
+    const s = au * 499.004783836;             /* s per AU */
+    if (s < 60) return s.toFixed(1) + ' s';
+    if (s < 3600) return Math.floor(s / 60) + ' min ' + Math.round(s % 60) + ' s';
+    if (s < 86400) return (s / 3600).toFixed(1) + ' h';
+    return (s / 86400).toFixed(1) + ' d';
+  }
+  function probeInfo(name) {
+    const p = probeBy.get(name);
+    const e = eph[name];
+    if (!p || !e) return { title: name, rows: [], fun: '' };
+    const kmS = e.vel ? e.vel.length() * 1731.456 : 0;   /* AU/day -> km/s */
+    return {
+      title: p.name + '  ·  space probe',
+      rows: [
+        ['Agency', p.facts.agency],
+        ['Launched', p.facts.launch],
+        ['Status', p.facts.status],
+        ['Distance from Sun', e.helioAU.toFixed(2) + ' AU'],
+        ['Distance from Earth', e.distAU.toFixed(2) + ' AU'],
+        ['Velocity', kmS.toFixed(1) + ' km/s'],
+        ['Light time (Earth)', lightTime(e.distAU)]
+      ],
+      fun: p.facts.fun
+    };
+  }
   function bodyInfo(name) {
     const e = eph[name];
     if (name === 'Sun') {
@@ -639,7 +703,9 @@ P.app = (function () {
     if (!entry) { P.ui.hideInfo(); if (state.catalogOpen) renderCatalog(); return; }
     const info = entry.kind === 'body'
       ? bodyInfo(entry.body)
-      : entry.kind === 'dso'
+      : entry.kind === 'probe'
+        ? probeInfo(entry.body)
+        : entry.kind === 'dso'
         ? dsoInfo(entry)
         : entry.kind === 'const'
           ? (ZODIAC_INFO[entry.constName]
@@ -653,7 +719,7 @@ P.app = (function () {
                   fun: 'Drawn here with its classic stick figure among the ' + P.constellations.length + ' figures of the sky.' })
           : (entry.star ? starInfo(entry) : bufStarInfo(entry));
     P.ui.showInfo(info.title, info.rows, info.fun);
-    if (entry.kind === 'body' && state.mode === 'solar') state.follow = entry.body;
+    if ((entry.kind === 'body' || entry.kind === 'probe') && state.mode === 'solar') state.follow = entry.body;
     if (state.catalogOpen) renderCatalog();
   }
 
@@ -669,6 +735,12 @@ P.app = (function () {
     const z = ZODIAC_NAMES.has(cname);
     catalogList.push({ kind: 'const', constName: cname, name: cname,
       key: 'const:' + cname, isZodiac: z, common: z ? 'ZODIAC SIGN' : null });
+  }
+  /* space probes — searchable by name, alias ("webb") and agency */
+  for (const p of probeList) {
+    catalogList.push({ kind: 'probe', body: p.name, name: p.name,
+      key: 'probe:' + p.name,
+      refs: p.facts.agency + (p.aliases ? ' · ' + p.aliases.join(' · ') : '') });
   }
   sky.named.slice().sort((a, b) => a.mag - b.mag)
     .forEach(s => catalogList.push({ kind: 'star', star: s, name: s.name, key: 'star:' + s.name }));
@@ -773,6 +845,9 @@ P.app = (function () {
   }
 
   function catalogSub(c) {
+    if (c.kind === 'probe') {
+      return 'PROBE · ' + (eph[c.body] ? eph[c.body].distAU.toFixed(2) + ' AU FROM EARTH' : 'SPACECRAFT');
+    }
     if (c.kind === 'const') {
       return c.isZodiac ? 'ZODIAC SIGN · FIGURE' : 'CONSTELLATION · FIGURE';
     }
@@ -847,6 +922,7 @@ P.app = (function () {
   function pickCatalog(c) {
     let entry;
     if (c.kind === 'body') entry = { key: 'body:' + c.name, text: c.name, kind: 'body', body: c.name };
+    else if (c.kind === 'probe') entry = { key: 'probe:' + c.name, text: c.name, kind: 'probe', body: c.name };
     else if (c.kind === 'dso') entry = dsoEntry(c.dso);
     else if (c.kind === 'const') {
       entry = { key: 'const:' + c.constName, text: c.constName.toUpperCase(),
@@ -894,6 +970,11 @@ P.app = (function () {
       rotateToVec(P.sky.raDecToVec3(r[1], r[2], new THREE.Vector3()));
       return;
     }
+    if (c.kind === 'probe') {
+      if (state.mode === 'solar') { state.follow = c.body; cam.dist = 16; }
+      else rotateToVec(eph[c.body].anchor);
+      return;
+    }
     const name = c.body;
     if (P.minors && P.minors.moons.some(m => m.name === name) && state.mode !== 'solar') {
       setMode('solar');
@@ -934,6 +1015,8 @@ P.app = (function () {
         + (r[11] ? ' · ' + r[11] : '');
     } else if (hit.kind === 'const') {
       sub = 'CONSTELLATION · FIGURE';
+    } else if (hit.kind === 'probe') {
+      sub = 'PROBE · ' + (eph[hit.body] ? eph[hit.body].distAU.toFixed(2) + ' AU FROM EARTH' : 'SPACECRAFT');
     } else {
       const n = hit.body;
       const _mm = P.minors && P.minors.moons.find(m => m.name === n);
@@ -1121,7 +1204,7 @@ P.app = (function () {
     P.app._dbg = {
       get sky() { return sky; }, get scene() { return scene; }, get camera() { return camera; },
       get renderer() { return renderer; }, get solar() { return solar; },
-      get state() { return state; }, get cam() { return cam; }
+      get state() { return state; }, get cam() { return cam; }, get eph() { return eph; }
     };
   }
   P.ui.wire(P.app);

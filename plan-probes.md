@@ -1,6 +1,42 @@
 # PERIHELION — Plan: space probes, JWST models, planet close-ups, layout fix
 
-Status: **PLAN ONLY — not started.** Supersedes nothing; all prior features are complete and QA-green.
+Status: **PROBES DONE (phases 1–4, 2026-08-31); phases 5–7 (planet close-ups, layout
+fix, final regression) still to do.**
+
+## 12. Progress log
+
+**Phase 1 — data (2026-08-31, commit 9b47731).** 13 probes fetched from JPL Horizons
+(**PUNCH is not in the Horizons DB yet** — added when coverage lands; roster is then
+11 tier-1 + 3 tier-2). Samples: weekly 2022→prediction-end (inner) / monthly
+2001/2006→2049-2051 (outer), heliocentric ecliptic km+km/s; osculating elements at
+T0 (hyperbolic a<0/e>1 for V1/V2/NH, kept **unwrapped** M0). `js/probes.js`
+(0.26 MB, b64 int32 epochs + float32 states, 6,595 states). `probesSelfTest`:
+sample vs Kepler at T0 max 0.019 AU (PSP, high-e) — OK. T0 distances verified:
+JWST 1.018, PSP 0.182, Juno 5.29, V1 171.5, V2 143.7, NH 65.3 AU.
+Numeric Horizons IDs resolved empirically (Juno −61, Solar Orbiter −144, Psyche −255,
+Lucy −49, V1 −31, V2 −32). Fetches abort if the range leaves the trajectory file —
+per-probe START/STOP now bracket each file (notes in `_build/fetch-probes.mjs`).
+
+**Phases 2–4 — sky markers, models, solar scene (2026-08-31).**
+- `astro.probeHeliocEcl`: sample interpolation (binary search, linear) +
+  hyperbolic-aware Kepler fallback (unwrapped M, sinh-true-anomaly); velocity for
+  telemetry. `probesSelfTest` runs at load.
+- Sky mode: all 13 as dome discs (sky.js `bodyRecords`), labels + picking in both
+  modes, catalog entries (search by name/alias/agency — "webb" → JWST), info card
+  (agency, launch, status, live Sun/Earth distance, velocity, light time, fun fact).
+- Solar mode: procedural models (JWST gold mirror + sunshield; Parker octagon
+  shield; Juno 3-wing; Voyager/NH dish+bus+RTG; generic bus+panels) at true
+  compressed positions; tier-2 pushed to the scene rim (r=44) as icons since the
+  compressed scale parks them in the Sun's glow.
+- Chase camera: catalog click / select sets `state.follow` → camera rides the probe
+  (QA: target offset 0.000).
+- QA: `_qa/qa-probes.mjs` — 22 checks green (incl. 2036 time travel: V1 → 207 AU,
+  JWST via Kepler fallback 1.04 AU; chase-camera tracking).
+- three r128 note: `Vector3.array` does not exist in this build — engine writes via
+  `.set()` only.
+
+Remaining: **5** planet close-up textures + chase for planets · **6** catalog/detail
+pane overlap fix · **7** full regression.
 
 ---
 
@@ -65,7 +101,7 @@ Status: **PLAN ONLY — not started.** Supersedes nothing; all prior features ar
 | JUICE | cruise → Jupiter 2031 | |
 | Gaia | Sun–Earth L2 | |
 | Euclid | Sun–Earth L2 | |
-| PUNCH | Sun–Earth L1 | (launched 2025) |
+| PUNCH | Sun–Earth L1 | (launched 2025) — **not in Horizons yet** (tested P739 / PUNCH(2025-023A): no matches, 2026-08-31); add when coverage lands |
 
 **Tier 2 — too far for scene scale (hundreds of AU): SKY-mode markers + detail view**
 (they live on the celestial sphere like stars, but with probe styling):
