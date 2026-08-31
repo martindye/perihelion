@@ -6,6 +6,11 @@
  * Re-encodes at 2048x1024 / JPEG q0.72 via a headless canvas to keep the
  * payload small (~3 MB b64 total for all nine maps).
  *
+ * Exception: the Saturn ring strip (textures/saturn-rings.png, 2048x125
+ * radial profile WITH alpha, SST 2k_saturn_ring_alpha) is embedded VERBATIM
+ * as a PNG data URL — re-encoding to JPEG would destroy the alpha that
+ * carries the ring gaps (Cassini division etc). 12 KB -> ~16 KB b64.
+ *
  * Run from the _qa dir (needs playwright-core):  node _qa/embed-textures.mjs
  */
 import { chromium } from 'playwright-core';
@@ -54,6 +59,9 @@ js += ' * images to WebGL (opaque-origin SecurityError).\n';
 js += ' * ==========================================================================*/\n';
 js += "'use strict';\nwindow.P = window.P || {};\n\nP.planetTex = {\n";
 for (const n of names) js += '  ' + n + ': ' + JSON.stringify(map[n]) + ',\n';
+/* Saturn ring strip: verbatim PNG (alpha carries the ring structure). */
+const ringB64 = fs.readFileSync(ROOT + 'textures/saturn-rings.png').toString('base64');
+js += '  saturnRings: "data:image/png;base64,' + ringB64 + '",\n';
 js += '};\n';
 fs.writeFileSync(ROOT + 'js/planets-textures.js', js);
 console.log('wrote js/planets-textures.js (' + (total / 1048576).toFixed(2) + ' MB b64 total)');

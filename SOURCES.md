@@ -79,7 +79,7 @@ yourself, here are the exact locations:
 | Moon (LRO/NEAR composite) | NASA PDS / [LRO](https://lro.nasa.gov/) | `textures/moon.jpg` |
 | Mars (enhanced color global) | NASA PDS / MGS "Mars Color Mosaic" | `textures/mars.jpg` |
 | Jupiter (global color mosaic) | Juno/JPL mosaic via NASA PDS | `textures/jupiter.jpg` |
-| Saturn (color) + ring strip | JPL / Cassini archives | `textures/saturn.jpg`, `textures/saturn-rings.jpg` |
+| Saturn (color) + ring strip | ~~JPL / Cassini archives~~ **done**: Saturn body = SST `2k_saturn.jpg`; ring strip = SST `2k_saturn_ring_alpha.png` (2048×125 radial strip, alpha carries the C/B/Cassini/A/F structure; span 1.25–2.33 Saturn radii, verified column-by-column against the real ring radii). [Solar System Scope](https://www.solarsystemscope.com/textures/), CC-BY-4.0 (NASA/JPL/USGS-derived) | `textures/saturn.jpg` (existing), `textures/saturn-rings.png` — embedded in `js/planets-textures.js` as `saturnRings` (verbatim PNG; alpha must survive) |
 | Mercury (MESSENGER mosaic) | NASA PDS / MESSENGER | `textures/mercury.jpg` |
 | Venus (Magellan-derived enhanced) | NASA PDS | `textures/venus.jpg` |
 | Uranus, Neptune (Voyager 2 mosaics) | NASA PDS / Voyager archive | `textures/uranus.jpg`, `textures/neptune.jpg` |

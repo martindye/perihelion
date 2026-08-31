@@ -69,6 +69,7 @@ P.solar = (function () {
        equirectangular 2048×1024) are lazy-loaded via <img> on first use and
        swap in a Phong material when they arrive (see loadTextures). */
     const meshes = {};
+    const ringMeshes = {};
     const eclTmp = new THREE.Vector3();
     for (const pl of P.planets) {
       const mesh = new THREE.Mesh(
@@ -79,15 +80,33 @@ P.solar = (function () {
       meshes[pl.name] = mesh;
 
       if (pl.rings) {
+        /* Real radial strip texture (SST 2k_saturn_ring_alpha, 2048 px span
+           1.25–2.33 Saturn radii — C-ring inner edge → F ring, verified
+           column-by-column against the real ring radii). Mapped with radial
+           UVs; until the map arrives the flat tint below is the fallback. */
+        const RING_IN = 1.25, RING_OUT = 2.33;      // annulus span, planet radii
         const ring = new THREE.Mesh(
-          new THREE.RingGeometry(pl.size * 1.35, pl.size * 2.3, 96),
+          new THREE.RingGeometry(pl.size * RING_IN, pl.size * RING_OUT, 128),
           new THREE.MeshBasicMaterial({
             color: 0xcbb98f, side: THREE.DoubleSide, transparent: true, opacity: 0.55
           })
         );
+        /* Radial UV remap: three's RingGeometry carries planar UVs, but the
+           strip is 1-D radial — u = normalised radius (0 at RING_IN, 1 at
+           RING_OUT), v = middle of the strip. */
+        {
+          const p = ring.geometry.attributes.position, uv = ring.geometry.attributes.uv;
+          for (let i = 0; i < p.count; i++) {
+            const r = Math.hypot(p.getX(i), p.getY(i));
+            uv.setXY(i, (r - pl.size * RING_IN) / (pl.size * (RING_OUT - RING_IN)), 0.5);
+          }
+          uv.needsUpdate = true;
+        }
         ring.rotation.x = -Math.PI / 2 + 0.35;
         ring.rotation.y = 0.12;
+        ring.userData.ringTexKey = 'saturnRings';
         mesh.add(ring);
+        ringMeshes[pl.name] = ring;
       }
 
       /* orbit path — 720 samples of the true ellipse through the same
@@ -392,15 +411,35 @@ P.solar = (function () {
         img.onerror = () => { /* keep the procedural colour */ };
         img.src = src;
       };
+      const applyRing = (ring) => {
+        const src = pool[ring.userData.ringTexKey];
+        if (!src) return;
+        const img = new Image();
+        img.onload = () => {
+          const tex = new THREE.Texture(img);
+          tex.needsUpdate = true;
+          /* strip is 2048x125 (non-POT height): clamp + linear, no mips */
+          tex.minFilter = THREE.LinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+          ring.material.dispose();
+          ring.material = new THREE.MeshBasicMaterial({
+            map: tex, side: THREE.DoubleSide,
+            transparent: true, depthWrite: false
+          });
+        };
+        img.onerror = () => { /* keep the flat-tint fallback */ };
+        img.src = src;
+      };
       for (const name of Object.keys(TEXNAME)) {
         const m = name === 'Moon' ? moonMesh : meshes[name];
         if (m) apply(m, TEXNAME[name]);
       }
+      for (const name in ringMeshes) applyRing(ringMeshes[name]);
     }
 
     return {
       group, sun, moonMesh,
-      meshes,
+      meshes, ringMeshes,
       loadTextures,
       setOrbitsVisible(v) {
         for (const child of group.children) if (child.isLine) child.visible = v;
