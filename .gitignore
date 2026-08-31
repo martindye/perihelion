@@ -8,3 +8,6 @@ Thumbs.db
 
 # Video production (local-only: capture tooling + takes)
 video/
+
+# QA dependencies (install with: npm i playwright-core in _qa/)
+node_modules/

@@ -44,6 +44,8 @@ P.ui = (function () {
     tog('labels', 'LABELS', true);
     tog('orbits', 'ORBITS', true);
     tog('const', 'CONSTELLATIONS', true);
+    tog('zodiac', 'ZODIAC', true);
+    tog('minors', 'MINORS', true);
     tog('ecliptic', 'ECLIPTIC', true);
     tog('wash', 'MILKY WAY', true);
     tog('asterisms', 'ASTERISMS', true);
@@ -138,6 +140,8 @@ P.ui = (function () {
       '<tr><td>N</td><td>jump back to the present</td></tr>' +
       '<tr><td>M</td><td>toggle sky / solar-system mode</td></tr>' +
       '<tr><td>L / O / C / E</td><td>labels / orbits / constellations / ecliptic</td></tr>' +
+       '<tr><td>Z</td><td>zodiac figures on / off</td></tr>' +
+       '<tr><td>P</td><td>minor planets &amp; moons on / off</td></tr>' +
       '<tr><td>T</td><td>hover names on / off</td></tr>' +
       '<tr><td>W</td><td>milky way wash on / off</td></tr>' +
       '<tr><td>A</td><td>asterisms on / off</td></tr>' +
@@ -220,6 +224,8 @@ P.ui = (function () {
     $('#tg-labels').onclick = () => app.toggleState('labels');
     $('#tg-orbits').onclick = () => app.toggleState('orbits');
     $('#tg-const').onclick = () => app.toggleState('constellations');
+    $('#tg-zodiac').onclick = () => app.toggleState('zodiac');
+    $('#tg-minors').onclick = () => app.toggleState('minors');
     $('#tg-ecliptic').onclick = () => app.toggleState('ecliptic');
     $('#tg-wash').onclick = () => app.toggleState('galaxyWash');
     $('#tg-asterisms').onclick = () => app.toggleState('asterisms');

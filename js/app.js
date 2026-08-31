@@ -15,6 +15,8 @@ P.app = (function () {
     labels: true,
     orbits: true,
     constellations: true,
+    zodiac: true,             // the 12 zodiac figures (independent of 'constellations')
+    minors: true,             // dwarf planets + their major moons (solar mode & dome)
     ecliptic: true,
     galaxyWash: true,
     asterisms: true,
@@ -276,6 +278,12 @@ P.app = (function () {
   /* ---------------------------------------------------- labels & picking - */
   const BODY_NAMES = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune',
                       ...(P.minors ? P.minors.planets.map(m => m.name) : [])];
+  /* name sets for the MINORS toggle (dwarf planets + their major moons) and
+     the ZODIAC toggle (the 12 zodiac figures) */
+  const MINOR_NAMES = new Set(P.minors ? P.minors.planets.map(m => m.name) : []);
+  const MOON_NAMES = new Set(P.minors ? P.minors.moons.map(m => m.name) : []);
+  const ZODIAC_NAMES = new Set(P.zodiac || []);
+  const isMinor = name => MINOR_NAMES.has(name) || MOON_NAMES.has(name);
   const entries = [];
 
   for (let k = 0; k < sky.named.length; k++) {
@@ -291,14 +299,16 @@ P.app = (function () {
   for (const name of BODY_NAMES) {
     entries.push({
       key: 'body:' + name, text: name, kind: 'body', body: name,
-      anchor: new THREE.Vector3(), visible: () => true
+      anchor: new THREE.Vector3(),
+      /* dwarf planets follow the MINORS toggle; the major planets always label */
+      visible: () => MINOR_NAMES.has(name) ? state.minors : true
     });
   }
-  /* major moons — solar-system mode only (labels + picking) */
+  /* major moons — solar-system mode only (labels + picking), MINORS-gated */
   if (P.minors) for (const m of P.minors.moons) {
     entries.push({
       key: 'body:' + m.name, text: m.name, kind: 'body', body: m.name,
-      anchor: new THREE.Vector3(), visible: () => state.mode === 'solar'
+      anchor: new THREE.Vector3(), visible: () => state.mode === 'solar' && state.minors
     });
   }
   const starByKey = new Map(sky.named.map(s => ['star:' + s.name, s]));
@@ -327,10 +337,13 @@ P.app = (function () {
         sx += s.world.x; sy += s.world.y; sz += s.world.z; n++;
       }
       if (n < 2) continue;
+      const isZodiac = ZODIAC_NAMES.has(cname);
       entries.push({
         key: 'const:' + cname, text: cname.toUpperCase(), kind: 'const', constName: cname,
         anchor: new THREE.Vector3(sx / n, sy / n, sz / n),
-        visible: () => state.mode === 'sky' && state.constellations
+        /* zodiac figures additionally follow the ZODIAC toggle (key Z) */
+        visible: () => state.mode === 'sky' && state.constellations &&
+          (!isZodiac || state.zodiac)
       });
     }
   }
@@ -688,11 +701,14 @@ P.app = (function () {
 
   function catalogSearch(qRaw) {
     const nq = String(qRaw || '').trim().toLowerCase().replace(/\s+/g, '');
-    if (!nq) return catalogList;
+    /* MINORS toggle: dwarf planets & major moons disappear from the catalog */
+    const src = state.minors ? catalogList
+      : catalogList.filter(c => !(c.kind === 'body' && isMinor(c.body)));
+    if (!nq) return src;
     const res = [];
     const seen = new Set();
     const push = (sc, c) => { if (!seen.has(c.key)) { seen.add(c.key); res.push([sc, c]); } };
-    for (const c of catalogList) {
+    for (const c of src) {
       const n = c.name.toLowerCase().replace(/\s+/g, '');
       const refs = (c.refs || '').toLowerCase().replace(/\s+/g, '');
       let sc = n === nq ? 0 : n.indexOf(nq) === 0 ? 1 : n.indexOf(nq) >= 0 ? 2 : -1;
@@ -934,11 +950,16 @@ P.app = (function () {
     sky.bodies.visible = state.mode === 'sky';
     solar.group.visible = state.mode === 'solar';
     sky.constellations.visible = state.constellations;
+    /* the 12 zodiac figures — independent of the general constellation toggle */
+    if (sky.constellationsZodiac) sky.constellationsZodiac.visible = state.zodiac;
     /* the ecliptic is a line on the celestial dome - only meaningful in sky mode */
     sky.ecliptic.visible = state.ecliptic && state.mode === 'sky';
     if (sky.galaxyWash) sky.galaxyWash.visible = state.galaxyWash && state.mode === 'sky';
     if (sky.asterisms) sky.asterisms.visible = state.asterisms;
     solar.setOrbitsVisible(state.orbits);
+    /* MINORS toggle: dwarf planets + major moons (solar meshes/orbits + dome discs) */
+    solar.setMinorsVisible(state.minors);
+    if (sky.setMinorsVisible) sky.setMinorsVisible(state.minors);
   }
   function setMode(m) {
     if (state.mode === m) return;
@@ -960,7 +981,7 @@ P.app = (function () {
   function toggleState(key) {
     state[key] = !state[key];
     applyVisibility();
-    const map = { labels: 'labels', orbits: 'orbits', constellations: 'const', ecliptic: 'ecliptic', hoverNames: 'hover', galaxyWash: 'wash', asterisms: 'asterisms' };
+    const map = { labels: 'labels', orbits: 'orbits', constellations: 'const', ecliptic: 'ecliptic', hoverNames: 'hover', galaxyWash: 'wash', asterisms: 'asterisms', zodiac: 'zodiac', minors: 'minors' };
     const btn = document.getElementById('tg-' + map[key]);
     if (btn) btn.classList.toggle('on', state[key]);
   }
@@ -975,6 +996,8 @@ P.app = (function () {
       case 'l': case 'L': toggleState('labels'); break;
       case 'o': case 'O': toggleState('orbits'); break;
       case 'c': case 'C': toggleState('constellations'); break;
+      case 'z': case 'Z': toggleState('zodiac'); break;
+      case 'p': case 'P': toggleState('minors'); break;
       case 'e': case 'E': toggleState('ecliptic'); break;
       case 'w': case 'W': toggleState('galaxyWash'); break;
       case 'a': case 'A': toggleState('asterisms'); break;

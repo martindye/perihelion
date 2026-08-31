@@ -4,6 +4,39 @@ Status: **PLAN ONLY — not started.** Supersedes nothing; all prior features ar
 
 ---
 
+## 0. In progress / queued before the probe phase (added 2026-08-31)
+
+1. **All 12 zodiac signs as figures, switchable. — DONE (2026-08-31).**
+   - Already present: Aries, Taurus, Gemini, Leo, Virgo, Scorpius, Sagittarius.
+   - Added: **Cancer, Libra, Capricornus, Aquarius, Pisces** (new named stars,
+     coordinates verified against the in-app Hipparcos buffer + external tables).
+   - **ZODIAC** toggle (key `Z`, top-bar button): shows/hides the 12 zodiac
+     figures (lines + centroid name labels) independently of the general
+     constellation toggle.
+2. **Minor-bodies toggle. — DONE (2026-08-31).**
+   - **MINORS** toggle (key `P`, top-bar button): shows/hides the 9 dwarf
+     planets (5 IAU + Vesta, Pallas, Hygiea, **Ixion**) + their 11 major moons —
+     solar-mode meshes & orbit lines, sky-mode dome discs, labels and catalog
+     entries, all together.
+3. **Ixion** — added as a **dwarf-planet candidate** (28978 Ixion, 2001 KX76,
+   plutino 2:3 with Neptune; NOT the Saturn moon of the same name) — the 9th
+   entry in `P.minors.planets`, real T0 Horizons elements (a ≈ 39.35 AU,
+   i = 19.66°, Ω = 71.08°).
+4. **Star-buffer regeneration. — DONE (2026-08-31).** The 13 named stars added
+   in the v2 build were never regenerated out of the Hipparcos b64
+   (double-rendering); reran `_build/convert.js` + `convert-named.js` so all 122
+   named stars are excluded from `js/stars-hip.js` exactly once (116,508 buffer
+   stars).
+5. **Moon & minor-planet element correction (2026-08-31).** The v2 fetch
+   pipeline left 10 moons' phases/elements in a barycentric frame with a buggy
+   mean-anomaly formula. Re-derived all 10 moons from J2000 state vectors
+   (barycentre→planet-centre corrected) and all 9 dwarf planets from fresh T0
+   heliocentric states; every set round-trips its source state to ~1e-15
+   (see `_build/derive-final.mjs`, `_build/minors-final.json`).
+6. Probe/planet-zoom work below (phases 1–7) follows, unchanged.
+
+---
+
 ## 1. Objectives (from the request)
 
 1. Correct positions for space probes **still transmitting signals** (as of the app's T0 = 2026-08-30), incl. JWST.

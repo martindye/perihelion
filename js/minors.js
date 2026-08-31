@@ -1,15 +1,23 @@
 /* ============================================================================
  * PERIHELION — minor planets & major moons (js/minors.js)
  *
- * Osculating Keplerian elements at
- *     T0 = 2026-08-30T12:00TDB  (JD 2461283.0 = 9738.0 days after J2000.0)
- * Source: JPL Horizons web service, DE440-class ephemerides, fetched
- * 2026-08-30 (planets via cmd <name>/999, moons via <parent><sat> commands);
- * each element set round-trips its fetch-time position to < 3e-4 AU.
+ * T0 = 2026-08-30T12:00TDB  (JD 2461283.0 = 9738.0 days after J2000.0)
  *
- * Osculating elements are exact at T0 and drift on timescales of months to
- * years — plenty for a display ephemeris, exactly like the J2000 mean
- * elements used for the eight planets.
+ * Provenance (re-derived & verified 2026-08-31):
+ *  planets[]  — osculating elements at T0 from fresh JPL Horizons VECTORS
+ *               (CENTER=@10, DE440-class), 2026-08-30; every set reproduces
+ *               its source state to ~1e-15 (see _build/derive-final.mjs).
+ *               The pre-existing a/e/i/Omega/w/M0/n values were re-verified
+ *               against this independent fetch and matched exactly.
+ *  moons[]    — osculating elements derived at J2000.0 from JPL state vectors
+ *               (system-barycentric states corrected to the planet centre via
+ *               fetched barycentre/planet heliocentric states), with M0
+ *               propagated to T0 by n*9738 d. Each set round-trips its source
+ *               state to ~1e-15.
+ *               Charon: no state vector is publicly fetchable; a/e/i/n from
+ *               the J2000 fact sheet, node corrected, phase unverifiable.
+ *  28978 Ixion — dwarf-planet candidate (plutino, 2:3 with Neptune); T0
+ *               heliocentric state from Horizons (2026-08-30).
  *
  * Field meanings (shared by planets[] and moons[]):
  *   a      semimajor axis [AU]  (planets only; moons: see aKm/aAu below)
@@ -81,7 +89,13 @@ P.minors = {
       M0: 170.231, n: 0.003201943, varpi: 16.3738,
       color: 0xc8a8a8, size: 0.42,
       facts: { diameter: '1,430 km', period: '306 years', moons: '1',
-        fun: 'One of the few colored dwarf planets, tinted deep red by ancient frozen tholins.' } }
+        fun: 'One of the few colored dwarf planets, tinted deep red by ancient frozen tholins.' } },
+    { name: 'Ixion',
+      a: 39.3508975, e: 0.243369, i: 19.6591, Omega: 71.0755, w: 300.5802,
+      M0: 295.32, n: 0.00399275, varpi: 11.6556,
+      color: 0x96785f, size: 0.4,
+      facts: { diameter: '~1,055 km', period: '247 years', moons: '0',
+        fun: 'A 2:3-resonant \u201cplutino\u201d like Pluto, found by the Deep Ecliptic Survey in 2001 — and a likely dwarf planet.' } }
   ],
 
   /* Major moons of the (new) planet set — solar-system mode only.
@@ -89,68 +103,68 @@ P.minors = {
    * direction with an exaggerated distance (see solar.js). */
   moons: [
     { name: 'Io', parent: 'Jupiter',
-      e: 0.004024, i: 2.2252, Omega: 338.4313, w: 76.0208, M0: 99.202,
-      n: 203.219427192, varpi: 54.4521, aKm: 422046, aAu: 0.0028212,
+      e: 0.004785, i: 2.2126, Omega: 336.8524, w: 65.7788, M0: 162.016,
+      n: 203.198447, varpi: 42.6312, aKm: 422069, aAu: 0.0028214,
       color: 0xd8c25a, size: 0.10, dist: 3.2,
       facts: { diameter: '3,643 km', period: '1.77 days',
         fun: 'The most volcanically active body in the Solar System — its eruptions are fed by Jupiter\u2019s tides.' } },
     { name: 'Europa', parent: 'Jupiter',
-      e: 0.009544, i: 2.0867, Omega: 326.1574, w: 261.0802, M0: 52.443,
-      n: 101.317601329, varpi: 227.2376, aKm: 671246, aAu: 0.004487,
+      e: 0.009866, i: 1.791, Omega: 332.6287, w: 254.5662, M0: 101.2,
+      n: 101.30578227, varpi: 227.1949, aKm: 671286, aAu: 0.0044873,
       color: 0xc8d4dc, size: 0.09, dist: 3.8,
       facts: { diameter: '3,122 km', period: '3.55 days',
         fun: 'A global ocean of liquid water is believed to lie beneath its cracked ice shell.' } },
     { name: 'Ganymede', parent: 'Jupiter',
-      e: 0.002366, i: 2.343, Omega: 339.0867, w: 1.2376, M0: 272.56,
-      n: 50.282758317, varpi: 340.3243, aKm: 1070837, aAu: 0.0071581,
+      e: 0.001532, i: 2.2142, Omega: 343.1726, w: 315.5266, M0: 107.843,
+      n: 50.296417151, varpi: 298.6992, aKm: 1070629, aAu: 0.0071567,
       color: 0xb0a898, size: 0.13, dist: 4.4,
       facts: { diameter: '5,268 km', period: '7.15 days',
         fun: 'The largest moon in the Solar System — bigger than the planet Mercury.' } },
     { name: 'Callisto', parent: 'Jupiter',
-      e: 0.007004, i: 1.9525, Omega: 336.7371, w: 30.7857, M0: 250.746,
-      n: 21.551391917, varpi: 7.5228, aKm: 1883721, aAu: 0.0125919,
+      e: 0.007447, i: 2.0169, Omega: 337.9426, w: 16.7848, M0: 201.046,
+      n: 21.564652363, varpi: 354.7274, aKm: 1882935, aAu: 0.0125866,
       color: 0x8f867d, size: 0.12, dist: 5.0,
       facts: { diameter: '4,821 km', period: '16.7 days',
         fun: 'Heavily cratered — one of the oldest surfaces known in the Solar System.' } },
     { name: 'Phobos', parent: 'Mars',
-      e: 0.015496, i: 25.738, Omega: 81.8032, w: 263.7085, M0: 2.738,
-      n: 1127.804627617, varpi: 345.5117, aKm: 9380, aAu: 0.0000627,
+      e: 0.01467, i: 26.0567, Omega: 84.8151, w: 342.766, M0: 55.005,
+      n: 1127.897428956, varpi: 67.5811, aKm: 9379, aAu: 0.0000627,
       color: 0x8a7f72, size: 0.07, dist: 0.85,
       facts: { diameter: '22.5 km', period: '7.7 hours',
         fun: 'Spirals slowly toward Mars; tides will shred it into a ring in ~50 million years.' } },
     { name: 'Deimos', parent: 'Mars',
-      e: 0.000335, i: 24.1275, Omega: 81.4613, w: 47.2445, M0: 38.297,
-      n: 285.1427184, varpi: 128.7058, aKm: 23457, aAu: 0.0001568,
+      e: 0.000359, i: 27.5694, Omega: 83.6693, w: 212.3066, M0: 231.747,
+      n: 285.12498098, varpi: 295.9758, aKm: 23459, aAu: 0.0001568,
       color: 0x7d7468, size: 0.06, dist: 1.1,
       facts: { diameter: '12.4 km', period: '30.3 hours',
         fun: 'So small and dim that from the surface of Mars it would look like a bright star.' } },
     { name: 'Titan', parent: 'Saturn',
-      e: 0.028971, i: 27.7061, Omega: 169.0803, w: 178.8018, M0: 43.786,
-      n: 22.562168231, varpi: 347.8822, aKm: 1222274, aAu: 0.0081704,
+      e: 0.027692, i: 27.7183, Omega: 169.2393, w: 164.9611, M0: 339.247,
+      n: 22.531974053, varpi: 334.2003, aKm: 1223356, aAu: 0.0081776,
       color: 0xd8a86a, size: 0.12, dist: 6.0,
       facts: { diameter: '5,150 km', period: '15.9 days',
         fun: 'The only moon with a dense atmosphere — rain, rivers and seas of liquid methane.' } },
     { name: 'Rhea', parent: 'Saturn',
-      e: 0.001321, i: 28.2698, Omega: 169.9784, w: 187.2808, M0: 46.196,
-      n: 79.629458775, varpi: 357.2592, aKm: 527273, aAu: 0.0035246,
+      e: 0.000635, i: 28.2413, Omega: 168.9842, w: 105.4207, M0: 155.181,
+      n: 79.507897759, varpi: 274.4048, aKm: 527811, aAu: 0.0035282,
       color: 0xc8c8c8, size: 0.08, dist: 5.2,
       facts: { diameter: '1,527 km', period: '4.52 days',
         fun: 'Almost entirely water ice, wrapped in its own faint, dusty ring.' } },
     { name: 'Iapetus', parent: 'Saturn',
-      e: 0.029015, i: 16.9743, Omega: 138.8737, w: 232.5682, M0: 116.464,
-      n: 4.536942333, varpi: 11.4419, aKm: 3561073, aAu: 0.0238043,
+      e: 0.027834, i: 17.2382, Omega: 139.6918, w: 229.6286, M0: 78.34,
+      n: 4.533815213, varpi: 9.3204, aKm: 3562676, aAu: 0.023815,
       color: 0xa8988a, size: 0.1, dist: 6.9,
       facts: { diameter: '1,471 km', period: '79.3 days',
         fun: 'Half brilliant white, half almost black — NASA nicknamed it the \u201cYin-Yang moon\u201d.' } },
     { name: 'Triton', parent: 'Neptune',
-      e: 0.000345, i: 129.13, Omega: 222.8363, w: 92.9264, M0: 350.486,
-      n: 61.229602535, varpi: 315.7627, aKm: 354846, aAu: 0.002372,
+      e: 0.000916, i: 130.2677, Omega: 215.8568, w: 79.9943, M0: 66.462,
+      n: 61.153401406, varpi: 295.8511, aKm: 355155, aAu: 0.0023741,
       color: 0xc8d0d8, size: 0.11, dist: 1.9,
       facts: { diameter: '2,707 km', period: '5.88 days (retrograde)',
         fun: 'Orbits Neptune backwards — almost certainly a Kuiper-belt object captured billions of years ago.' } },
     { name: 'Charon', parent: 'Pluto',
-      e: 0.000205, i: 112.8878, Omega: 227.3931, w: 174.2028, M0: 5.371,
-      n: 56.357506477, varpi: 41.5959, aKm: 19597, aAu: 0.000131,
+      e: 0.000205, i: 112.8878, Omega: 222.6069, w: 174.2028, M0: 5.371,
+      n: 56.357506477, varpi: 36.8097, aKm: 19597, aAu: 0.000131,
       color: 0xa09890, size: 0.16, dist: 0.9,
       facts: { diameter: '1,212 km', period: '6.39 days',
         fun: 'So large compared to Pluto that the two bodies orbit a point in empty space between them.' } }

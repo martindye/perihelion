@@ -1,0 +1,126 @@
+*******************************************************************************
+JPL/HORIZONS               136108 Haumea (2003 EL61)      # obs: 62 (2005-2018)
+PRE-COMPUTED               Primary body: 920136108
+                        Soln.date: 2022-Sep-08_11:38:19
+ 
+NOTE: PRIMARY body Haumea from TNO satellite solution
+
+      See also:    '136108;' for CURRENT barycenter
+                  '20136108' for SATELLITE SOLUTION barycenter
+                 '120136108' for satellite body  I (Hi'iaka)
+                 '220136108' for satellite body II (Namaka)
+
+Asteroid physical parameters (km, seconds, rotational period in hours):
+   GM= 264.413 km^3/s^2   RAD= 1050 x 840 x 537 km       ROTPER= 3.915341
+   GM_rat= 0.99553          H= 0.428 +/- 0.011                G= n.a.
+   B-V= 0.64           ALBEDO= 0.66                        STYP= BB
+
+ASTEROID comments: 
+1: soln ref.= wrt/JPL#110 system barycenter, OCC=2
+2: source= tnosat_v001b_20136108_jpl110_20221014
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Sun Aug 30 15:03:44 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: Haumea (primary body) (920136108) {source: tnosat_v001b_20136108_jp}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2026-Aug-30 12:00:00.0000 TDB
+Stop  time      : A.D. 2026-Aug-30 12:01:00.0000 TDB
+Step-size       : 1 minutes
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Output units    : KM-S
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC cartesian states
+Output format   : 3 (position, velocity, LT, range, range-rate)
+Reference frame : Ecliptic of J2000.0
+*******************************************************************************
+JDTDB
+   X     Y     Z
+   VX    VY    VZ
+   LT    RG    RR
+*******************************************************************************
+$$SOE
+2461283.000000000 = A.D. 2026-Aug-30 12:00:00.0000 TDB 
+ X =-5.488222495293126E+09 Y =-3.594789147283984E+09 Z = 3.517971013030047E+09
+ VX= 2.431153429649719E+00 VY=-3.014392629919770E+00 VZ=-2.567468379427154E-01
+ LT= 2.483187325208249E+04 RG= 7.444408318986262E+09 RR=-4.580394865361350E-01
+2461283.000694444 = A.D. 2026-Aug-30 12:01:00.0000 TDB 
+ X =-5.488222349423917E+09 Y =-3.594789328147540E+09 Z = 3.517970997625235E+09
+ VX= 2.431153530598200E+00 VY=-3.014392585341014E+00 VZ=-2.567469204211343E-01
+ LT= 2.483187316041117E+04 RG= 7.444408291503892E+09 RR=-4.580395017481314E-01
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+  Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
+continuous coordinate time is equivalent to the relativistic proper time
+of a clock at rest in a reference frame co-moving with the solar system
+barycenter but outside the system's gravity well. It is the independent
+variable in the solar system relativistic equations of motion.
+
+  TDB runs at a uniform rate of one SI second per second and is independent
+of irregularities in Earth's rotation.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  Ecliptic at the standard reference epoch
+
+    Reference epoch: J2000.0
+    X-Y plane: adopted Earth orbital plane at the reference epoch
+               Note: IAU76 obliquity of 84381.448 arcseconds wrt ICRF X-Y plane
+    X-axis   : ICRF
+    Z-axis   : perpendicular to the X-Y plane in the directional (+ or -) sense
+               of Earth's north pole at the reference epoch.
+
+  Symbol meaning:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      X      X-component of position vector (km)
+      Y      Y-component of position vector (km)
+      Z      Z-component of position vector (km)
+      VX     X-component of velocity vector (km/sec)                           
+      VY     Y-component of velocity vector (km/sec)                           
+      VZ     Z-component of velocity vector (km/sec)                           
+      LT     One-way down-leg Newtonian light-time (sec)
+      RG     Range; distance from coordinate center (km)
+      RR     Range-rate; radial velocity wrt coord. center (km/sec)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric state vectors have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

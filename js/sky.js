@@ -787,21 +787,30 @@ P.sky = (function () {
     }
 
     /* ---- constellation lines --------------------------------------------- */
+    /* split into the 12 zodiac figures (P.zodiac) and the rest so the two
+       groups can be toggled independently (ZODIAC toggle, key Z) */
     const byName = new Map(named.map(s => [s.name, s]));
-    const linePos = [];
-    for (const [, pairs] of P.constellations) {
+    const linePos = [], zPos = [];
+    const zodiacSet = new Set(P.zodiac || []);
+    for (const [cname, pairs] of P.constellations) {
+      const arr = zodiacSet.has(cname) ? zPos : linePos;
       for (const [na, nb] of pairs) {
         const A = byName.get(na), B = byName.get(nb);
         if (!A || !B) continue;
-        linePos.push(A.world.x, A.world.y, A.world.z, B.world.x, B.world.y, B.world.z);
+        arr.push(A.world.x, A.world.y, A.world.z, B.world.x, B.world.y, B.world.z);
       }
     }
+    const figMat = new THREE.LineBasicMaterial({ color: 0x3f6f9f, transparent: true, opacity: 0.4, depthWrite: false });
     const cGeo = new THREE.BufferGeometry();
     cGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(linePos), 3));
-    const constellations = new THREE.LineSegments(cGeo,
-      new THREE.LineBasicMaterial({ color: 0x3f6f9f, transparent: true, opacity: 0.4, depthWrite: false }));
+    const constellations = new THREE.LineSegments(cGeo, figMat);
     constellations.frustumCulled = false;
     dome.add(constellations);
+    const zGeo = new THREE.BufferGeometry();
+    zGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(zPos), 3));
+    const constellationsZodiac = new THREE.LineSegments(zGeo, figMat);
+    constellationsZodiac.frustumCulled = false;
+    dome.add(constellationsZodiac);
 
     /* ---- asterisms (classic cross-constellation figures) ---------------- */
     const aPos = [];
@@ -884,16 +893,22 @@ P.sky = (function () {
       bodyRecords[pl.name] = { holder };
     }
     /* minor planets & dwarf planets — small discs on the dome (js/minors.js) */
+    const minorHolders = {};
     if (P.minors) for (const m of P.minors.planets) {
       const holder = new THREE.Group();
       holder.add(sprite(planetDiscTexture(m.color), 0.22, 1, THREE.NormalBlending));
       bodies.add(holder);
       bodyRecords[m.name] = { holder };
+      minorHolders[m.name] = holder;
     }
 
     return {
       dome, bodies, mat, named, bodyRecords, R,
-      constellations, ecliptic, galaxyWash, asterisms,
+      constellations, constellationsZodiac, ecliptic, galaxyWash, asterisms,
+      /* MINORS toggle: hide/show the dwarf-planet discs on the dome */
+      setMinorsVisible(v) {
+        for (const h of Object.values(minorHolders)) h.visible = v;
+      },
       hipBuf: hip,                    // Float32Array [ra,dec,v,bv] x N (null if absent)
       hipN: hip ? hip.length / 4 : 0,
       ids,                            // {hip: Int32Array, hd: Int32Array} | null

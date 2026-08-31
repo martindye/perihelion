@@ -1,0 +1,141 @@
+*******************************************************************************
+JPL/HORIZONS             136472 Makemake (2005 FY9)        2026-Aug-30 14:48:39
+Rec #:  136472 (+COV) Soln.date: 2026-Jun-06_21:09:02   # obs: 6348 (1955-2026)
+ 
+IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs):
+ 
+  EPOCH=  2458666.5 ! 2019-Jul-02.00 (TDB)         Residual RMS= .14409
+   EC= .158547070219366    QR= 38.31981212406959   TP= 2407463.1848816629
+   OM= 79.64391423451013   W=  295.0360447607118   IN= 28.98052779604894
+   A= 45.54005431303155    MA= 164.2146267350034   ADIST= 52.7602965019935
+   PER= 307.32544          N= .003207109           ANGMOM= .114617246
+   DAN= 41.60388           DDN= 47.58825           L= 17.743017
+   B= -26.0393556          MOID= 37.42350006       TP= 1879-Apr-23.6848816629
+ 
+Asteroid physical parameters (km, seconds, rotational period in hours):
+   GM= n.a.                RAD= n.a.               ROTPER= 22.8266
+   H= -.250                G= .150                 B-V= n.a.
+                           ALBEDO= n.a.            STYP= n.a.
+
+ASTEROID comments: 
+1: soln ref.= JPL#130, OCC=1
+2: source=ORB
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Sun Aug 30 14:48:39 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: 136472 Makemake (2005 FY9)      {source: JPL#130}
+Center body name: Sun (10)                        {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2026-Aug-30 12:00:00.0000 TDB
+Stop  time      : A.D. 2026-Aug-30 12:01:00.0000 TDB
+Step-size       : 1 minutes
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}
+Small perturbers: Yes                             {source: SB441-N16}
+Output units    : KM-S
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC cartesian states
+Output format   : 3 (position, velocity, LT, range, range-rate)
+Reference frame : Ecliptic of J2000.0
+*******************************************************************************
+Initial IAU76/J2000 heliocentric ecliptic osculating elements (au, days, deg.):
+  EPOCH=  2458666.5 ! 2019-Jul-02.00 (TDB)         Residual RMS= .14409        
+   EC= .158547070219366    QR= 38.31981212406959   TP= 2407463.1848816629      
+   OM= 79.64391423451013   W=  295.0360447607118   IN= 28.98052779604894       
+  Equivalent ICRF heliocentric cartesian coordinates (au, au/d):
+   X=-4.618510293643012E+01  Y=-1.346515970874411E+01  Z= 2.116175363358036E+01
+  VX=-1.922692244439941E-05 VY=-1.911429707618814E-03 VZ=-1.053058489163954E-03
+Asteroid physical parameters (km, seconds, rotational period in hours):        
+   GM= n.a.                RAD= n.a.               ROTPER= 22.8266             
+   H= -.250                G= .150                 B-V= n.a.                   
+                           ALBEDO= n.a.            STYP= n.a.                  
+*******************************************************************************
+JDTDB
+   X     Y     Z
+   VX    VY    VZ
+   LT    RG    RR
+*******************************************************************************
+$$SOE
+2461283.000000000 = A.D. 2026-Aug-30 12:00:00.0000 TDB 
+ X =-6.872080508798914E+09 Y =-1.431288347645025E+09 Z = 3.599712178024635E+09
+ VX= 3.654825640401396E-01 VY=-3.703538750553135E+00 VZ=-5.805860499765025E-01
+ LT= 2.631395892424768E+04 RG= 7.888726425611248E+09 RR= 8.864087076344611E-02
+2461283.000694444 = A.D. 2026-Aug-30 12:01:00.0000 TDB 
+ X =-6.872080486869957E+09 Y =-1.431288569857350E+09 Z = 3.599712143189470E+09
+ VX= 3.654826805555178E-01 VY=-3.703538735344986E+00 VZ=-5.805861084948869E-01
+ LT= 2.631395894198813E+04 RG= 7.888726430929701E+09 RR= 8.864084764442166E-02
+$$EOE
+*******************************************************************************
+ 
+TIME
+
+  Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
+continuous coordinate time is equivalent to the relativistic proper time
+of a clock at rest in a reference frame co-moving with the solar system
+barycenter but outside the system's gravity well. It is the independent
+variable in the solar system relativistic equations of motion.
+
+  TDB runs at a uniform rate of one SI second per second and is independent
+of irregularities in Earth's rotation.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  Ecliptic at the standard reference epoch
+
+    Reference epoch: J2000.0
+    X-Y plane: adopted Earth orbital plane at the reference epoch
+               Note: IAU76 obliquity of 84381.448 arcseconds wrt ICRF X-Y plane
+    X-axis   : ICRF
+    Z-axis   : perpendicular to the X-Y plane in the directional (+ or -) sense
+               of Earth's north pole at the reference epoch.
+
+  Symbol meaning:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      X      X-component of position vector (km)
+      Y      Y-component of position vector (km)
+      Z      Z-component of position vector (km)
+      VX     X-component of velocity vector (km/sec)                           
+      VY     Y-component of velocity vector (km/sec)                           
+      VZ     Z-component of velocity vector (km/sec)                           
+      LT     One-way down-leg Newtonian light-time (sec)
+      RG     Range; distance from coordinate center (km)
+      RR     Range-rate; radial velocity wrt coord. center (km/sec)
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric state vectors have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

@@ -25,14 +25,15 @@ planetarium/index.html#solar    → solar-system mode
 - ~116,500 **real stars from the Hipparcos catalog** (ESA, public domain) —
   every point is an individually observed star with true position, magnitude
   and color; the Milky Way emerges from the real galactic-plane data.
-- **Every star has an address**: all 116,547 carry their HIP number, ~98,700
+- **Every star has an address**: all 116,508 carry their HIP number, ~98,700
   also an HD number. Hover any star to see its identity; search the catalog
   by number.
-- **580 IAU-named stars** — 105 hand-curated bright stars (Sirius →
-  Ras Algethi) with constellation figures, distances and facts, plus 497
+- **580 IAU-named stars** — 122 hand-curated bright stars (Sirius →
+  Ras Algethi) with constellation figures, distances and facts, plus 458
   official names from the IAU Working Group on Star Names (Acamar, Alrakis,
   Gnomon, Naledi, …).
-- **19 constellation figures** (stick figures with name labels), 6 classic
+- **24 constellation figures** (stick figures with name labels) — including
+  all **12 zodiac signs**, which toggle as a group with `Z` — plus 6 classic
   **asterisms** (Summer Triangle, Big/Little Dipper, Teapot, Keystone,
   Northern Crown — `A`), the **ecliptic**, and the Sun, Moon and all 8
   planets in their *actual current positions* (Keplerian ephemeris computed
@@ -48,16 +49,18 @@ planetarium/index.html#solar    → solar-system mode
 - The Sun, 8 planets, the Moon, Saturn's rings and full orbit paths on a
   compressed radial scale (planets are not to scale with distance, or nothing
   would be visible).
-- **8 minor planets / dwarf planets** (Ceres, Vesta, Pallas, Hygiea, Pluto,
-  Eris, Haumea, Makemake) on real osculating orbits (JPL Horizons,
-  DE440-class, epoch 2026-08-30), and **11 major moons** (Io…Callisto,
+- **9 minor planets / dwarf planets** (Ceres, Vesta, Pallas, Hygiea, Pluto,
+  Eris, Haumea, Makemake, and the dwarf-planet candidate 28978 Ixion) on real
+  osculating orbits (JPL Horizons, DE440-class, epoch 2026-08-30; moons
+  re-derived from J2000 state vectors), and **11 major moons** (Io…Callisto,
   Phobos, Deimos, Titan, Rhea, Iapetus, Triton, Charon) orbiting their
-  parents with labels, orbits and catalog entries.
+  parents with labels, orbits and catalog entries. The whole group toggles
+  with `P` (MINORS).
 - Free orbit camera — click a planet to make the camera follow it.
 
 **In both modes**
-- **Catalog** (`K`): searchable drawer over the whole 116,547-star Hipparcos
-  catalog, the 945 deep-sky objects, and the Sun, Moon, 8 planets, 8 minor
+- **Catalog** (`K`): searchable drawer over the whole 116,508-star Hipparcos
+  catalog, the 945 deep-sky objects, and the Sun, Moon, 8 planets, 9 minor
   planets and 11 major moons. Search by proper name, Bayer designation,
   **HIP** number or **HD** number (e.g. `sirius`, `acamar`, `60718`,
   `18622`, `m31`, `ceres`, `triton`) — the results show the object's ID and
@@ -92,6 +95,8 @@ planetarium/index.html#solar    → solar-system mode
 | `N` | jump to now |
 | `M` | sky ↔ solar-system mode |
 | `L` / `O` / `C` / `E` | labels / orbits / constellations / ecliptic |
+| `Z` | zodiac figures on / off |
+| `P` | minor planets & moons on / off |
 | `T` | hover names on / off |
 | `W` | milky way wash on / off |
 | `A` | asterisms on / off |
@@ -110,7 +115,7 @@ scripts in `_build/` from the official Hipparcos main catalog:
    mirror (official archive: NASA HEASARC) and drop it into `_build/`.
    It is **not** committed to this repo — the generated JS is checked in
    instead, so nothing needs regenerating to run the app.
-2. `node _build/convert.js` → `js/stars-hip.js` (the 116,547-star buffer)
+2. `node _build/convert.js` → `js/stars-hip.js` (the 116,508-star buffer)
 3. `node _build/convert-named.js` → `js/stars-named.js` (HIP/HD IDs + the
    IAU-named stars, from `_build/wgsn.csv`)
 4. `node _build/verify-align.js` proves the ID arrays stay byte-aligned with
@@ -134,12 +139,12 @@ scripts in `_build/` from the official Hipparcos main catalog:
 index.html          page shell
 css/style.css        HUD styling
 js/three.min.js     Three.js r128 (local copy)
-js/data.js          orbital elements, 105 curated named stars, 19 constellation figures
-js/stars-hip.js     116,547 Hipparcos stars (position, magnitude, color)
-js/stars-named.js   HIP/HD IDs for every star + 497 IAU-named stars (generated, see _build/)
+js/data.js          orbital elements, 122 curated named stars, 24 constellation figures
+js/stars-hip.js     116,508 Hipparcos stars (position, magnitude, color)
+js/stars-named.js   HIP/HD IDs for every star + 458 IAU-named stars (generated, see _build/)
 js/dso.js           624 bright galaxies + 18,304 faint background galaxies (NGC/UGC/Corwin)
 js/dso2.js          321 clusters/nebulae + 138 faint (SIMBAD J2000)
-js/minors.js        8 minor planets + 11 major moons, osculating at 2026-08-30 (JPL Horizons)
+js/minors.js        9 minor planets + 11 major moons, osculating at 2026-08-30 (JPL Horizons)
 js/asterisms.js     6 classic asterisms (Dipper, Teapot, Triangle, …)
 js/astro.js         Kepler solver, ephemeris, coordinate transforms
 js/sky.js           celestial dome: starfield, lines, body sprites, DSOs, milky-way wash

@@ -100,8 +100,14 @@ P.solar = (function () {
       group.add(line);
     }
 
-    /* Minor planets & dwarf planets (js/minors.js) — osculating Kepler
-     * elements at T0 2026-08-30T12:00TDB (JPL Horizons, DE440-class). */
+    /* Minor planets, dwarf planets & their major moons (js/minors.js) —
+     * osculating Kepler elements at T0 2026-08-30T12:00TDB (JPL Horizons,
+     * DE440-class; moons derived from J2000 state vectors). All of their
+     * meshes and orbit lines live in one group so the MINORS toggle
+     * (key P) can hide the whole set at once. */
+    const minorsGroup = new THREE.Group();
+    group.add(minorsGroup);
+    const minorOrbitLines = [];
     const elOf = m => ({ a: m.a, e: m.e, i: m.i, Omega: m.Omega, varpi: m.varpi,
                          M0: m.M0, n: m.n, t0: P.minors.t0 });
     const mEl = {};
@@ -111,7 +117,7 @@ P.solar = (function () {
         new THREE.SphereGeometry(m.size, 40, 24),
         new THREE.MeshLambertMaterial({ color: m.color })
       );
-      group.add(mesh);
+      minorsGroup.add(mesh);
       meshes[m.name] = mesh;
 
       const pts = new Float32Array(721 * 3);
@@ -126,7 +132,8 @@ P.solar = (function () {
       const line = new THREE.LineLoop(og, new THREE.LineBasicMaterial({
         color: 0x3d5a80, transparent: true, opacity: 0.4, depthWrite: false
       }));
-      group.add(line);
+      minorsGroup.add(line);
+      minorOrbitLines.push(line);
     }
 
     /* Major moons (solar mode only; true direction, exaggerated distance). */
@@ -136,7 +143,7 @@ P.solar = (function () {
         new THREE.SphereGeometry(m.size, 20, 12),
         new THREE.MeshLambertMaterial({ color: m.color })
       );
-      group.add(mesh);
+      minorsGroup.add(mesh);
       meshes[m.name] = mesh;
       moonMinor.push({ el: elOf({ a: m.aAu, e: m.e, i: m.i, Omega: m.Omega, varpi: m.varpi, M0: m.M0, n: m.n }),
                        parent: m.parent, dist: m.dist, mesh });
@@ -197,7 +204,10 @@ P.solar = (function () {
       meshes,
       setOrbitsVisible(v) {
         for (const child of group.children) if (child.isLine) child.visible = v;
+        for (const l of minorOrbitLines) l.visible = v;   /* nested in minorsGroup */
       },
+      /* MINORS toggle (key P): dwarf planets + their major moons */
+      setMinorsVisible(v) { minorsGroup.visible = v; },
       setVisible(v) { group.visible = v; },
       update
     };
