@@ -30,7 +30,9 @@ P.app = (function () {
   };
   /* initial gaze: center of Orion (RA ~85deg, Dec 0) — the belt, Betelgeuse
    * and Rigel all fit in the default 55-degree field of view */
-  const cam = { target: new THREE.Vector3(), dist: 120, yaw: -1.481, pitch: 0.02 };
+  const cam = { target: new THREE.Vector3(), dist: 120, yaw: -1.481, pitch: 0.02,
+                pan: new THREE.Vector3() };
+  let lastFollow = null;
 
   /* ---------------------------------------------------------- renderer --- */
   let renderer;
@@ -230,12 +232,18 @@ P.app = (function () {
       camera.lookAt(dx, dy, dz);
       camera.fov = state.fovSky;
     } else {
+      /* solar: the view centre is target + pan (pan = strafe offset from
+         middle-mouse / Ctrl-drag); camera = centre + dir·dist, looks at
+         centre. A pure translation — orientation is untouched. */
+      const px = cam.target.x + cam.pan.x,
+            py = cam.target.y + cam.pan.y,
+            pz = cam.target.z + cam.pan.z;
       camera.position.set(
-        cam.target.x + dx * cam.dist,
-        cam.target.y + dy * cam.dist,
-        cam.target.z + dz * cam.dist
+        px + dx * cam.dist,
+        py + dy * cam.dist,
+        pz + dz * cam.dist
       );
-      camera.lookAt(cam.target);
+      camera.lookAt(px, py, pz);
       camera.fov = state.fovSolar;
     }
     camera.updateProjectionMatrix();
@@ -245,11 +253,17 @@ P.app = (function () {
   const cv = renderer.domElement;
   cv.classList.add('scene-canvas');
   cv.style.cursor = 'grab';
-  let dragging = false, lastX = 0, lastY = 0, downX = 0, downY = 0;
+  let dragging = false, panning = false, lastX = 0, lastY = 0, downX = 0, downY = 0;
   cv.style.touchAction = 'none';
+  /* middle-mouse press would otherwise trigger Chrome's autoscroll ring */
+  cv.addEventListener('mousedown', e => { if (e.button === 1) e.preventDefault(); });
 
   cv.addEventListener('pointerdown', e => {
     dragging = true;
+    /* strafe (solar mode only — sky mode has no place to slide to):
+       middle drag, or Ctrl/Cmd+left drag, like Blender/GIMP */
+    panning = state.mode === 'solar'
+      && (e.button === 1 || (e.button === 0 && (e.ctrlKey || e.metaKey)));
     cam.viewAnim = null;          // user takes over the camera
     P.ui.hideTip();
     lastX = downX = e.clientX;
@@ -268,6 +282,18 @@ P.app = (function () {
     if (dragging) {
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       lastX = e.clientX; lastY = e.clientY;
+      if (panning) {
+        /* strafe: move view centre (and camera) sideways in the view plane,
+           content follows the cursor. World-units-per-pixel at the target
+           distance so pan speed tracks zoom. Camera local X/Y = its right/up
+           in world space (columns 0/1 of matrixWorld). */
+        const wpp = 2 * cam.dist * Math.tan(state.fovSolar * Math.PI / 360) / cv.clientHeight;
+        const m = camera.matrixWorld.elements;
+        cam.pan.x += (-dx * m[0] + dy * m[4]) * wpp;
+        cam.pan.y += (-dx * m[1] + dy * m[5]) * wpp;
+        cam.pan.z += (-dx * m[2] + dy * m[6]) * wpp;
+        return;
+      }
       if (DEMO_SMOOTH) {
         if (yawT === null) { yawT = cam.yaw; pitchT = cam.pitch; }
         yawT -= dx * 0.0042;
@@ -287,8 +313,9 @@ P.app = (function () {
   cv.addEventListener('pointerleave', () => P.ui.hideTip());
   cv.addEventListener('pointerup', e => {
     dragging = false;
+    panning = false;
     const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
-    if (moved < 6) {
+    if (e.button === 0 && moved < 6) {
       const hit = pick(e.clientX, e.clientY);
       select(hit ? hit : null);
     }
@@ -1302,6 +1329,9 @@ P.app = (function () {
 
     if (state.mode === 'solar') {
       solar.update(d);
+      /* re-follow (click, catalog, keys) re-centres the frame: any manual
+         strafe offset belongs to the old target, not the new one */
+      if (lastFollow !== state.follow) { cam.pan.set(0, 0, 0); lastFollow = state.follow; }
       if (state.follow !== 'Sun') cam.target.copy(solar.meshes[state.follow] ? solar.meshes[state.follow].position : solar.sun.position);
       else cam.target.set(0, 0, 0);
     }

@@ -97,6 +97,7 @@ planetarium/index.html#solar    → solar-system mode
 | Input | Action |
 |---|---|
 | drag | look around / orbit the camera |
+| middle-drag / `Ctrl`+drag | strafe — slide the view sideways (solar mode; orbits in sky mode) |
 | scroll | zoom — field of view (sky) or distance (solar) |
 | click | select a star / planet |
 | `Space` | pause / resume time |
