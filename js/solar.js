@@ -9,11 +9,17 @@ P.solar = (function () {
   const DIST_K = 26, DIST_P = 0.62;          // compressed radial scale
   const SUN_R = 3.2;
   const MOON_DIST = 2.2;
-  const TIER2_RIM = 44;                       // rim radius for interplanetary probes
+  const TIER2_RIM = 300;                      // rim radius for interstellar probes
+                                              // (outside Neptune ~215 / Ixion ~242)
 
   function distScale(rAu) { return DIST_K * Math.pow(Math.max(rAu, 1e-6), DIST_P); }
 
-  /* World position of a planet from its heliocentric ecliptic vector. */
+  /* World position of a planet from its heliocentric ecliptic vector.
+   * Scene radius = distScale(r) = 26·r^0.62 — compressed but ORDER-CORRECT:
+   * Mercury 14.4, Earth 26, Jupiter 72, Saturn 105, Uranus 162, Neptune 215.
+   * (An earlier version divided by the radius as well, which flipped the
+   *  system — Mercury outside Neptune — and piled Saturn/Uranus/Neptune
+   *  into the Sun's glow.) */
   function posFromEcl(eclV, out) {
     const r = eclV.length();
     // ecliptic -> equatorial
@@ -21,7 +27,7 @@ P.solar = (function () {
           Z = eclV.y * Math.sin(EPSJ) + eclV.z * Math.cos(EPSJ);
     const wx = X, wy = Z, wz = -Y;            // equatorial -> world
     const wl = Math.hypot(wx, wy, wz) || 1;
-    const s = distScale(r) / wl;
+    const s = distScale(r);
     return out.set(wx / wl * s, wy / wl * s, wz / wl * s);
   }
   // (obliquity constant, duplicated here to keep this module self-contained)
@@ -52,7 +58,7 @@ P.solar = (function () {
       map: new THREE.CanvasTexture(glowC), transparent: true,
       blending: THREE.AdditiveBlending, depthWrite: false
     }));
-    sunGlow.scale.set(24, 24, 1);
+    sunGlow.scale.set(16, 16, 1);
     group.add(sunGlow);
 
     const light = new THREE.PointLight(0xfff2d8, 1.55, 0, 0);
@@ -157,24 +163,54 @@ P.solar = (function () {
      * heliocentric position. Tier 2 (Voyager 1/2, New Horizons) ride the
      * same true position hundreds of units out — their "rim icon" — so the
      * model is enlarged to stay visible from an overview camera. */
+    /* Detailed procedural spacecraft (plan §10.3). Tier-1 built at 2.5×
+       body size so the detail reads up close; tier-2 (interstellar) icons
+       stay large for the rim. */
     function probeModel(p) {
       const g = new THREE.Group();
-      const s = p.tier === 2 ? p.size * 8 : p.size;
-      const body = new THREE.MeshLambertMaterial({ color: 0x9aa2b1 });
+      const s = p.tier === 2 ? p.size * 8 : p.size * 2.5;
+      const body = new THREE.MeshLambertMaterial({ color: 0x9aa2b1, emissive: 0x0a0d14 });
       const gold = new THREE.MeshLambertMaterial({ color: 0xd9b34a, emissive: 0x2a1d05 });
+      const gold2 = new THREE.MeshLambertMaterial({ color: 0xc8a23c, emissive: 0x1f1503 });
       const panel = new THREE.MeshLambertMaterial({ color: 0x27406e, emissive: 0x0a1420 });
       const add = (m) => { g.add(m); return m; };
+
       if (p.model === 'jwst') {
-        const shield = add(new THREE.Mesh(new THREE.CylinderGeometry(0.95 * s, 1.15 * s, 0.05, 6), panel));
-        shield.rotation.z = 0.18;
-        const mirror = add(new THREE.Mesh(new THREE.CylinderGeometry(0.42 * s, 0.42 * s, 0.12, 6), gold));
-        mirror.position.y = 0.5 * s;
-        mirror.rotation.x = Math.PI / 2;
+        /* five-layer gold sunshield: much wider than the mirror (like the
+           real ~21 m kite), tapered, visibly staggered stack */
+        for (let i = 0; i < 5; i++) {
+          const layer = add(new THREE.Mesh(
+            new THREE.CylinderGeometry((1.7 - i * 0.11) * s, (1.7 - i * 0.11) * s, 0.04 * s, 6),
+            i % 2 ? gold2 : gold));
+          layer.position.y = -0.16 * s - i * 0.12 * s;
+        }
+        /* bus between shield and mirror */
+        const bus = add(new THREE.Mesh(new THREE.BoxGeometry(0.5 * s, 0.24 * s, 0.4 * s), body));
+        bus.position.y = 0.02 * s;
+        /* primary mirror — the real JWST layout: 18 hexagons in a side-2
+           honeycomb (6 inner + 12 outer, centre empty). A dark backing panel
+           + generous grout make the individual tiles read from a distance. */
+        const h = 0.19 * s;                        /* segment circumradius   */
+        const gap = 1.18;                          /* >1 => visible grout    */
+        const yMirror = 0.5 * s;
+        const dark = new THREE.MeshLambertMaterial({ color: 0x14161c });
+        const back = add(new THREE.Mesh(new THREE.CylinderGeometry(5.3 * h, 5.3 * h, 0.03 * s, 6), dark));
+        back.position.y = yMirror - 0.06 * s;
+        const segGeo = new THREE.CylinderGeometry(h, h, 0.12 * s, 6);
+        const cells = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1],
+                       [2, -2], [2, -1], [2, 0], [1, 1], [0, 2], [-1, 2],
+                       [-2, 2], [-2, 1], [-2, 0], [-1, -1], [0, -2], [1, -2]];
+        for (const [cx, cy] of cells) {
+          const m = add(new THREE.Mesh(segGeo, (cx + cy) % 2 ? gold : gold2));
+          m.position.set(Math.sqrt(3) * h * gap * (cx + cy / 2), yMirror, 1.5 * h * gap * cy);
+        }
       } else if (p.model === 'parker') {
-        const shield = add(new THREE.Mesh(new THREE.CylinderGeometry(0.75 * s, 0.75 * s, 0.07, 8), gold));
-        shield.rotation.z = Math.PI / 2;
+        const shield = add(new THREE.Mesh(new THREE.CylinderGeometry(0.75 * s, 0.75 * s, 0.07 * s, 8), gold));
+        shield.rotation.z = Math.PI / 2;                 /* octagon faces the Sun (−x) */
         const bus = add(new THREE.Mesh(new THREE.BoxGeometry(0.5 * s, 0.4 * s, 0.4 * s), body));
         bus.position.x = 0.55 * s;
+        const rad = add(new THREE.Mesh(new THREE.BoxGeometry(0.4 * s, 0.05 * s, 0.3 * s), body));
+        rad.position.set(0.5 * s, 0.3 * s, 0);          /* radiator panel */
       } else if (p.model === 'juno') {
         const bus = add(new THREE.Mesh(new THREE.BoxGeometry(0.5 * s, 0.5 * s, 0.5 * s), body));
         for (let k = 0; k < 3; k++) {
@@ -183,20 +219,52 @@ P.solar = (function () {
           wing.position.set(Math.cos(a) * 1.0 * s, 0, Math.sin(a) * 1.0 * s);
           wing.rotation.y = -a;
         }
+        const dish = add(new THREE.Mesh(new THREE.ConeGeometry(0.28 * s, 0.14 * s, 12, 1, true), gold));
+        dish.position.y = 0.36 * s;
+        dish.rotation.x = Math.PI;
       } else if (p.model === 'voyager' || p.model === 'nh') {
         const bus = add(new THREE.Mesh(new THREE.CylinderGeometry(0.28 * s, 0.34 * s, 0.5 * s, 8), body));
-        const dish = add(new THREE.Mesh(new THREE.ConeGeometry(0.55 * s, 0.22 * s, 12, 1, true), body));
-        dish.position.y = 0.4 * s;
+        const dish = add(new THREE.Mesh(new THREE.ConeGeometry(0.55 * s, 0.22 * s, 12, 1, true), gold));
+        dish.position.y = 0.42 * s;
         dish.rotation.x = Math.PI;
-        dish.material = gold;
-        const rtg = add(new THREE.Mesh(new THREE.BoxGeometry(0.06 * s, 0.06 * s, 0.9 * s), gold));
-        rtg.position.set(0.6 * s, -0.1 * s, 0);
-      } else { /* generic bus + panels */
+        const tray = add(new THREE.Mesh(new THREE.CylinderGeometry(0.3 * s, 0.3 * s, 0.1 * s, 12), body));
+        tray.position.y = 0.2 * s;                       /* instrument tray under the dish */
+        if (p.model === 'nh') {
+          /* New Horizons: twin solar arrays */
+          for (const side of [-1, 1]) {
+            const wing = add(new THREE.Mesh(new THREE.BoxGeometry(1.1 * s, 0.04 * s, 0.34 * s), panel));
+            wing.position.x = side * 0.95 * s;
+          }
+        } else {
+          /* Voyager: RTG boom (3 RTGs) + long magnetometer boom */
+          const boom = add(new THREE.Mesh(new THREE.BoxGeometry(1.2 * s, 0.04 * s, 0.04 * s), body));
+          boom.position.set(0.6 * s, -0.15 * s, 0);
+          for (let k = 0; k < 3; k++) {
+            const r = add(new THREE.Mesh(new THREE.CylinderGeometry(0.07 * s, 0.07 * s, 0.18 * s, 8), gold2));
+            r.position.set(0.25 * s + k * 0.4 * s, -0.22 * s, 0);
+          }
+          const mb = add(new THREE.Mesh(new THREE.CylinderGeometry(0.02 * s, 0.02 * s, 1.1 * s, 6), body));
+          mb.rotation.z = Math.PI / 2;
+          mb.position.set(-0.9 * s, 0.1 * s, 0.2 * s);
+        }
+      } else { /* generic bus + panels + dish */
         const bus = add(new THREE.Mesh(new THREE.BoxGeometry(0.45 * s, 0.45 * s, 0.45 * s), body));
         for (const side of [-1, 1]) {
           const wing = add(new THREE.Mesh(new THREE.BoxGeometry(0.9 * s, 0.04 * s, 0.3 * s), panel));
           wing.position.x = side * 0.7 * s;
         }
+        const dish = add(new THREE.Mesh(new THREE.ConeGeometry(0.24 * s, 0.12 * s, 10, 1, true), gold));
+        dish.position.y = 0.32 * s;
+        dish.rotation.x = Math.PI;
+      }
+      /* furthest reach of any part (for the de-embedding nudge in update) */
+      switch (p.model) {
+        case 'jwst': g.userData.half = 1.15 * s; break;
+        case 'parker': g.userData.half = 0.85 * s; break;
+        case 'juno': g.userData.half = 1.75 * s; break;
+        case 'voyager': g.userData.half = 1.2 * s; break;
+        case 'nh': g.userData.half = 1.5 * s; break;
+        default: g.userData.half = 1.15 * s;
       }
       return g;
     }
@@ -256,9 +324,9 @@ P.solar = (function () {
         mm.mesh.position.set(p.x + mwx / mwl * mm.dist, p.y + mwy / mwl * mm.dist, p.z + mwz / mwl * mm.dist);
       }
       /* probes — true (compressed) heliocentric position from Horizons data.
-         Tier-2 (interplanetary) probes compress to the Sun's glow at this
-         scene's scale, so they are pushed to the scene rim along their
-         true direction — a visible "rim icon" instead of a lost speck. */
+          Tier-2 (interstellar) probes sit at compressed radii of 347-631,
+          far beyond the overview view, so they are shown at their true
+          positions there (the r=300 rim guard is a no-op for them today). */
       if (P.probes) for (const p of P.probes.probes) {
         P.astro.probeHeliocEcl(p.pb, d, eclTmp);
         posFromEcl(eclTmp, _v1);
@@ -266,7 +334,28 @@ P.solar = (function () {
           const L = _v1.length();
           if (L > 1e-6 && L < TIER2_RIM) _v1.multiplyScalar(TIER2_RIM / L);
         }
+        /* de-embed: on this compressed scale a probe can physically sit
+           inside a body's mesh (JWST at L2 is 0.26 scene-units from Earth,
+           inside the 0.9-unit Earth sphere; Juno is always inside Jupiter).
+           Nudge it just clear of whatever sphere it is buried in. */
+        const half = meshes[p.name].userData.half;
+        for (const pl of P.planets) {
+          const pp = meshes[pl.name].position;
+          const dx = _v1.x - pp.x, dy = _v1.y - pp.y, dz = _v1.z - pp.z;
+          const L2 = Math.hypot(dx, dy, dz);
+          const minR = pl.size + half * 1.05;
+          if (L2 > 1e-9 && L2 < minR) {
+            const k = minR / L2;
+            _v1.x = pp.x + dx * k;
+            _v1.y = pp.y + dy * k;
+            _v1.z = pp.z + dz * k;
+          }
+        }
+        const lsun = _v1.length();
+        const smin = SUN_R + half * 1.05;
+        if (lsun > 1e-9 && lsun < smin) _v1.multiplyScalar(smin / lsun);
         meshes[p.name].position.copy(_v1);
+        meshes[p.name].rotation.y = (d * 0.2) % TAU;  /* slow turntable for the detail */
       }
     }
 

@@ -44,9 +44,9 @@ const solar = await page.evaluate(() => {
   for (const p of P.probes.probes) o[p.name] = s.meshes[p.name] ? Math.round(s.meshes[p.name].position.length() * 10) / 10 : null;
   return o;
 });
-/* Tier-2 (interplanetary) probes compress to ~3.7 in this scene (inside the
-   sun's glow), so they are pushed to the scene rim (TIER2_RIM=44). */
-ok(solar['Voyager 1'] > 40 && solar['Voyager 1'] < 48, `solar: Voyager 1 on the rim (~44, got ${solar['Voyager 1']})`);
+/* Tier-2 probes sit at their true compressed radii (347-631), far outside
+   Neptune (215) — no rim push needed at this scale. */
+ok(solar['Voyager 1'] > 615 && solar['Voyager 1'] < 645, `solar: Voyager 1 at ~631 (26·171.5^0.62), got ${solar['Voyager 1']}`);
 ok(solar['JWST'] != null && solar['JWST'] > 20 && solar['JWST'] < 40, `solar: JWST near Earth's orbit (${solar['JWST']})`);
 ok(Object.values(solar).every(v => v != null), 'all 13 probes have solar meshes');
 

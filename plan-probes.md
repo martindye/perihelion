@@ -1,7 +1,8 @@
 # PERIHELION — Plan: space probes, JWST models, planet close-ups, layout fix
 
-Status: **PROBES DONE (phases 1–4, 2026-08-31); phases 5–7 (planet close-ups, layout
-fix, final regression) still to do.**
+Status: **COMPLETE — all 7 phases done (2026-08-31), plus post-plan fixes for the
+radial-scale inversion, orbit crowding, and detailed probe models (see progress log
+tail).**
 
 ## 12. Progress log
 

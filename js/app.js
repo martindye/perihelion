@@ -971,7 +971,7 @@ P.app = (function () {
       return;
     }
     if (c.kind === 'probe') {
-      if (state.mode === 'solar') { state.follow = c.body; cam.dist = 16; }
+      if (state.mode === 'solar') { state.follow = c.body; cam.dist = 8; }
       else rotateToVec(eph[c.body].anchor);
       return;
     }
@@ -1100,7 +1100,7 @@ P.app = (function () {
     if (state.mode === m) return;
     state.mode = m;
     if (m === 'solar') {
-      cam.dist = 150; cam.pitch = 0.85;
+      cam.dist = 200; cam.pitch = 0.85;   /* frames inner system + Jupiter */
       state.follow = 'Sun';
       solar.loadTextures();           /* lazy: photo maps on first entry */
       /* whole system visibly in motion: Moon ~1 s/orbit, Earth 12 s,

@@ -61,6 +61,25 @@ const others = await page.evaluate(() => {
 ok(others.Jupiter && others.Saturn && others.Mars && others.Venus && others.Moon,
   `Jupiter/Saturn/Mars/Venus/Moon textured (${JSON.stringify(others)})`);
 
+/* the radial scale must be ORDER-CORRECT: scene radius strictly increases
+   with heliocentric AU (the old /wl bug flipped it: Mercury outside Neptune) */
+const order = await page.evaluate(() => {
+  const s = P.app._dbg.solar;
+  const rows = P.planets
+    .map(pl => [pl.au, s.meshes[pl.name].position.length()])
+    .sort((a, b) => a[0] - b[0]);
+  let ok = true;
+  for (let i = 1; i < rows.length; i++) if (!(rows[i][1] > rows[i - 1][1])) ok = false;
+  return { ok, rows: rows.map(r => [r[0], Math.round(r[1])]) };
+});
+ok(order.ok, `orbit radii strictly increase with AU (Mercury…Neptune: ${order.rows.map(r => r[1]).join(' < ')})`);
+const gaps = await page.evaluate(() => {
+  const s = P.app._dbg.solar;
+  const rad = n => s.meshes[n].position.length();
+  return { su: rad('Uranus') - rad('Saturn'), un: rad('Neptune') - rad('Uranus') };
+});
+ok(gaps.su > 30 && gaps.un > 30, `Saturn/Uranus/Neptune well separated (gaps ${Math.round(gaps.su)}/${Math.round(gaps.un)} scene units)`);
+
 /* ---- Phase 6: catalog vs detail pane never overlap ------------------------ */
 await page.click('#tg-catalog'); await page.waitForTimeout(250);
 /* open a selection so the detail pane is visible */
