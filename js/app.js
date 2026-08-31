@@ -1230,7 +1230,8 @@ P.app = (function () {
     P.app._dbg = {
       get sky() { return sky; }, get scene() { return scene; }, get camera() { return camera; },
       get renderer() { return renderer; }, get solar() { return solar; },
-      get state() { return state; }, get cam() { return cam; }, get eph() { return eph; }
+      get state() { return state; }, get cam() { return cam; }, get eph() { return eph; },
+      get perf() { return perf; }
     };
   }
   P.ui.wire(P.app);
@@ -1282,7 +1283,10 @@ P.app = (function () {
 
   /* ---------------------------------------------------------- main loop -- */
   let lastNow = performance.now();
-  let fpsFrames = 0, lastHud = 0, booted = false;
+  let fpsFrames = 0, lastHud = 0, booted = false, lowFpsWarned = false;
+  /* per-frame cost breakdown (ms, cumulative) — read via P.app._dbg.perf to
+     diagnose slow machines: which stage eats the frame */
+  const perf = { bodies: 0, solar: 0, labels: 0, render: 0, other: 0, frames: 0, last: null };
 
   function frame(now) {
     requestAnimationFrame(frame);
@@ -1292,7 +1296,9 @@ P.app = (function () {
     if (state.playing) state.simTimeMs += dtms * state.speed;
     const d = (state.simTimeMs - P.J2000_MS) / 86400000;
 
+    let t = now;
     computeBodies(d);
+    const t1 = performance.now(); perf.bodies += t1 - t; t = t1;
 
     if (state.mode === 'solar') {
       solar.update(d);
@@ -1321,6 +1327,15 @@ P.app = (function () {
 
     applyCamera();
 
+    /* the celestial dome rides with the camera: stars stay exactly
+       5000 units (50 × R) from the eye at every zoom — always inside
+       the 6000 far plane, so fully zoomed-out views clip nothing, and
+       the sky shows zero parallax, like stars at true infinity.
+       (In sky mode the camera sits at the origin, so this is a no-op.) */
+    sky.dome.position.copy(camera.position);
+
+    const t2 = performance.now(); perf.solar += t2 - t; t = t2;
+
     /* selection marker — follows the selected object (Moon, planets, …) */
     {
       let on = false;
@@ -1338,16 +1353,23 @@ P.app = (function () {
       marker.visible = on;
     }
     updateLabels();
-    sky.setBodies(key => eph[key] || null);
+    if (state.mode === 'sky') sky.setBodies(key => eph[key] || null);  /* body sprites are sky-mode only */
     sky.mat.uniforms.uTime.value = now / 1000;
 
+    const t3 = performance.now(); perf.labels += t3 - t; t = t3;
     renderer.render(scene, camera);
+    const t4 = performance.now(); perf.render += t4 - t; t = t4;
+    perf.last = { calls: renderer.info.render.calls, tris: renderer.info.render.triangles, points: renderer.info.render.points };
 
     /* HUD (throttled; the first frame always updates so fields populate at once) */
     fpsFrames++;
     if (now - lastHud >= 500 || fpsFrames === 1) {
       const fps = lastHud ? Math.round(fpsFrames * 1000 / (now - lastHud)) : 0;
       P.ui.set.fps(fps ? String(fps) : '--');
+      if (fps && fps < 15 && !lowFpsWarned) {
+        lowFpsWarned = true;
+        console.warn('[PERIHELION] low FPS (' + fps + '). Check the GPU badge top-left: if it does not show your graphics card (e.g. it says "SwiftShader"), the browser is software-rendering — enable Hardware acceleration in Chrome settings (chrome://settings/system) and restart the browser. Stage times: P.app._dbg.perf (needs ?dbg=1).');
+      }
       fpsFrames = 0; lastHud = now;
       const [dm, off] = dateParts();
       P.ui.set.date(dm, off);
@@ -1359,6 +1381,9 @@ P.app = (function () {
       document.title = 'PERIHELION READY';
       P.ui.splashDone();
     }
+
+    perf.other += performance.now() - t;   /* marker, HUD, bookkeeping */
+    perf.frames++;
   }
 
   /* watchdog: if no frame ever renders, say so on the splash screen */

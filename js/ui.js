@@ -161,21 +161,33 @@ P.ui = (function () {
     let l = labels.get(key);
     if (!l) {
       const d = el('div', 'lbl' + (cls ? ' ' + cls : ''), labelLayer);
-      l = { el: d, key };
+      l = { el: d, key, on: false, tx: null, ty: null, sel: null };
       labels.set(key, l);
     }
     return l;
   }
+  /* Idempotent: touches the DOM only when a value actually changed, so a
+     paused/stationary scene costs zero label work per frame. */
   function placeLabel(key, txt, x, y, on, selected) {
     const l = makeLabel(key);
-    if (!on) { l.el.style.display = 'none'; return; }
-    l.el.style.display = '';
+    if (!on) {
+      if (l.on) { l.el.style.display = 'none'; l.on = false; }
+      return;
+    }
+    if (!l.on) { l.el.style.display = ''; l.on = true; }
     if (l.el.textContent !== txt) l.el.textContent = txt;
-    l.el.style.transform = 'translate(' + (x + 8).toFixed(1) + 'px,' + (y - 14).toFixed(1) + 'px)';
-    l.el.classList.toggle('selected', !!selected);
+    const tx = (x + 8).toFixed(1), ty = (y - 14).toFixed(1);
+    if (tx !== l.tx || ty !== l.ty) {
+      l.el.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';
+      l.tx = tx; l.ty = ty;
+    }
+    if (l.sel !== !!selected) {
+      l.el.classList.toggle('selected', !!selected);
+      l.sel = !!selected;
+    }
   }
   function clearLabels() {
-    for (const l of labels.values()) l.el.style.display = 'none';
+    for (const l of labels.values()) if (l.on) { l.el.style.display = 'none'; l.on = false; }
   }
 
   /* ------------------------------------------------------------- info panel */

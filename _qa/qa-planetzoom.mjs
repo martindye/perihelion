@@ -80,14 +80,31 @@ const gaps = await page.evaluate(() => {
 });
 ok(gaps.su > 30 && gaps.un > 30, `Saturn/Uranus/Neptune well separated (gaps ${Math.round(gaps.su)}/${Math.round(gaps.un)} scene units)`);
 
-/* star dome = infinite sky in solar mode (50x radius: 5000 > max cam 4000),
-   unit scale in sky mode */
-const domeSolar = await page.evaluate(() => P.app._dbg.sky.dome.scale.x);
-ok(Math.abs(domeSolar - 50) < 1e-6, `solar: star dome at 50x (infinity) — got ${domeSolar}`);
-await page.evaluate(() => P.app.setMode('sky'));
+/* star dome = infinite sky in solar mode: 50x radius (5000, inside the 6000
+   far plane) AND riding the camera, so even fully zoomed out the far side of
+   the dome is 5000 from the eye (not 4000+5000=9000 > far plane) — no
+   clipped "hole" in the stars. Sky mode: unit scale at the origin. */
+await page.evaluate(() => { P.app._dbg.cam.dist = 4000; });   // fully zoomed out
+await page.waitForTimeout(200);
+const domeSolar = await page.evaluate(() => {
+  const d = P.app._dbg;
+  return {
+    scale: d.sky.dome.scale.x,
+    chase: d.sky.dome.position.distanceTo(d.camera.position),
+    far: d.camera.far
+  };
+});
+ok(Math.abs(domeSolar.scale - 50) < 1e-6, `solar: star dome at 50x (infinity) — got ${domeSolar.scale}`);
+ok(domeSolar.chase < 0.01, `solar: dome rides the camera (gap ${domeSolar.chase.toFixed(4)}) — stars can't clip`);
+ok(domeSolar.scale * 100 < domeSolar.far - 100, `stars always inside far plane (5000 < ${domeSolar.far})`);
+await page.evaluate(() => { P.app._dbg.cam.dist = 200; P.app.setMode('sky'); });
 await page.waitForTimeout(300);
-const domeSky = await page.evaluate(() => P.app._dbg.sky.dome.scale.x);
-ok(Math.abs(domeSky - 1) < 1e-6, `sky: star dome back to 1x — got ${domeSky}`);
+const domeSky = await page.evaluate(() => {
+  const d = P.app._dbg;
+  return { scale: d.sky.dome.scale.x, atOrigin: Math.hypot(d.camera.position.x, d.camera.position.y, d.camera.position.z) };
+});
+ok(Math.abs(domeSky.scale - 1) < 1e-6, `sky: star dome back to 1x — got ${domeSky.scale}`);
+ok(domeSky.atOrigin < 0.01, 'sky: camera at origin (dome unchanged)');
 await page.evaluate(() => P.app.setMode('solar'));
 await page.waitForTimeout(300);
 
