@@ -5,6 +5,7 @@ import fs from 'node:fs';
 const DIR = new URL('../textures/', import.meta.url);
 fs.mkdirSync(DIR, { recursive: true });
 const FILES = [
+  ['sun',     'https://www.solarsystemscope.com/textures/download/2k_sun.jpg'],
   ['earth',   'https://www.solarsystemscope.com/textures/download/2k_earth.jpg'],
   ['moon',    'https://www.solarsystemscope.com/textures/download/2k_moon.jpg'],
   ['mercury', 'https://www.solarsystemscope.com/textures/download/2k_mercury.jpg'],
