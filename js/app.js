@@ -33,6 +33,10 @@ P.app = (function () {
   const cam = { target: new THREE.Vector3(), dist: 120, yaw: -1.481, pitch: 0.02,
                 pan: new THREE.Vector3() };
   let lastFollow = null;
+  /* render-on-demand bookkeeping (see the frame loop): the last rendered
+     scene signature; null = "render the next frame" */
+  let lastSig = null;
+  const poke = () => { lastSig = null; };
 
   /* ---------------------------------------------------------- renderer --- */
   let renderer;
@@ -1235,6 +1239,7 @@ P.app = (function () {
     renderer.setSize(innerWidth, innerHeight);
     sky.setPixelRatio(CAPTURE_MODE && innerWidth >= 3000 ? 2 : renderer.getPixelRatio());
     updateGalaxyScale();
+    poke();                        /* the projection changed — redraw */
   }
   window.addEventListener('resize', onResize);
   onResize();
@@ -1319,8 +1324,28 @@ P.app = (function () {
   let lastNow = performance.now();
   let fpsFrames = 0, lastHud = 0, booted = false, lowFpsWarned = false;
   /* per-frame cost breakdown (ms, cumulative) — read via P.app._dbg.perf to
-     diagnose slow machines: which stage eats the frame */
+     diagnose slow machines: which stage eats the frame. perf.frames counts
+     FULL render passes (the loop itself keeps ticking at display rate). */
   const perf = { bodies: 0, solar: 0, labels: 0, render: 0, other: 0, frames: 0, last: null };
+
+  /* ------------------------------------------------- render-on-demand ----
+   * The scene is a pure function of (sim time, camera, toggles, selection,
+    * hover). When none of those changed since the last rendered frame the
+   * canvas already shows the correct image, so the whole simulation +
+   * label + render pass is skipped — CPU and GPU go to zero while the
+   * app is being looked at but not touched. The star twinkle (uTime) and
+   * the reticle pulse freeze with it; any input, the clock, or a texture
+   * landing wakes the loop again. (lastSig/poke are declared up top so
+   * onResize can poke before the frame loop exists.) */
+  P.solar.onTexture = poke;   /* photo maps swap in asynchronously */
+  function sceneSig() {
+    return state.mode + '|' + state.follow + '|' + cam.yaw + '|' + cam.pitch + '|' + cam.dist
+      + '|' + cam.pan.x + '|' + cam.pan.y + '|' + cam.pan.z
+      + '|' + state.fovSky + '|' + state.fovSolar
+      + '|' + state.labels + '|' + state.orbits + '|' + state.constellations + '|' + state.zodiac
+      + '|' + state.minors + '|' + state.ecliptic + '|' + state.galaxyWash + '|' + state.asterisms
+      + '|' + state.highlightSel + '|' + state.selected + '|' + state.hover;
+  }
 
   function frame(now) {
     requestAnimationFrame(frame);
@@ -1329,6 +1354,19 @@ P.app = (function () {
     lastNow = now;
     if (state.playing) state.simTimeMs += dtms * state.speed;
     const d = (state.simTimeMs - P.J2000_MS) / 86400000;
+
+    const sig = d + '|' + sceneSig();
+    if (sig === lastSig) {           /* nothing moved — keep the last frame */
+      fpsFrames++;
+      if (now - lastHud >= 500) {
+        const fps = Math.round(fpsFrames * 1000 / (now - lastHud));
+        P.ui.set.fps(fps ? String(fps) : '--');
+        fpsFrames = 0; lastHud = now;
+        syncSpeedUI();              /* warp keys work while paused too */
+      }
+      return;
+    }
+    lastSig = sig;
 
     let t = now;
     computeBodies(d);

@@ -68,9 +68,17 @@ P.solar = (function () {
     /* planets — a flat colour is the placeholder; photo maps (textures/*.jpg,
        equirectangular 2048×1024) are lazy-loaded via <img> on first use and
        swap in a Phong material when they arrive (see loadTextures). */
+    /* render-on-demand hook (app.js): texture maps swap in asynchronously
+       after the frame that requested them — poke the scene dirty each time */
+    const pokeTex = () => { if (P.solar.onTexture) P.solar.onTexture(); };
+
     const meshes = {};
     const ringMeshes = {};
     const eclTmp = new THREE.Vector3();
+    /* orbit paths — one merged LineSegments per class (planets / minors)
+       instead of one draw call per body: 17 loops used to cost 17 calls */
+    const planetOrbitSegs = [];
+    const minorOrbitSegs = [];
     for (const pl of P.planets) {
       const mesh = new THREE.Mesh(
         new THREE.SphereGeometry(pl.size, 48, 28),
@@ -110,7 +118,8 @@ P.solar = (function () {
       }
 
       /* orbit path — 720 samples of the true ellipse through the same
-       * radial compression, so planets always sit on their line */
+       * radial compression, so planets always sit on their line. Closed
+       * loop → 720 segments, appended to the shared merged buffer. */
       const pts = new Float32Array(721 * 3);
       const out = new THREE.Vector3();
       for (let i = 0; i <= 720; i++) {
@@ -119,12 +128,18 @@ P.solar = (function () {
         posFromEcl(eclTmp, out);
         pts[i * 3] = out.x; pts[i * 3 + 1] = out.y; pts[i * 3 + 2] = out.z;
       }
+      for (let i = 0; i < 720; i++) {
+        planetOrbitSegs.push(pts[i * 3], pts[i * 3 + 1], pts[i * 3 + 2],
+          pts[(i + 1) * 3], pts[(i + 1) * 3 + 1], pts[(i + 1) * 3 + 2]);
+      }
+    }
+    {
       const og = new THREE.BufferGeometry();
-      og.setAttribute('position', new THREE.BufferAttribute(pts, 3));
-      const line = new THREE.LineLoop(og, new THREE.LineBasicMaterial({
+      og.setAttribute('position', new THREE.BufferAttribute(new Float32Array(planetOrbitSegs), 3));
+      const line = new THREE.LineSegments(og, new THREE.LineBasicMaterial({
         color: 0x3d5a80, transparent: true, opacity: 0.45, depthWrite: false
       }));
-      line.userData.planet = pl.name;
+      line.userData.planet = 'planets';
       group.add(line);
     }
 
@@ -155,9 +170,15 @@ P.solar = (function () {
         posFromEcl(eclTmp, o2);
         pts[i * 3] = o2.x; pts[i * 3 + 1] = o2.y; pts[i * 3 + 2] = o2.z;
       }
+      for (let i = 0; i < 720; i++) {
+        minorOrbitSegs.push(pts[i * 3], pts[i * 3 + 1], pts[i * 3 + 2],
+          pts[(i + 1) * 3], pts[(i + 1) * 3 + 1], pts[(i + 1) * 3 + 2]);
+      }
+    }
+    if (P.minors && minorOrbitSegs.length) {
       const og = new THREE.BufferGeometry();
-      og.setAttribute('position', new THREE.BufferAttribute(pts, 3));
-      const line = new THREE.LineLoop(og, new THREE.LineBasicMaterial({
+      og.setAttribute('position', new THREE.BufferAttribute(new Float32Array(minorOrbitSegs), 3));
+      const line = new THREE.LineSegments(og, new THREE.LineBasicMaterial({
         color: 0x3d5a80, transparent: true, opacity: 0.4, depthWrite: false
       }));
       minorsGroup.add(line);
@@ -419,6 +440,7 @@ P.solar = (function () {
           const mat = new THREE.MeshPhongMaterial({ map: tex, shininess: 6, specular: 0x1a1a1a });
           mesh.material.dispose();
           mesh.material = mat;
+          pokeTex();
         };
         img.onerror = () => { /* keep the procedural colour */ };
         img.src = src;
@@ -438,6 +460,7 @@ P.solar = (function () {
             map: tex, side: THREE.DoubleSide,
             transparent: true, depthWrite: false
           });
+          pokeTex();
         };
         img.onerror = () => { /* keep the flat-tint fallback */ };
         img.src = src;
@@ -456,6 +479,7 @@ P.solar = (function () {
           tex.needsUpdate = true;
           sun.material.dispose();
           sun.material = new THREE.MeshBasicMaterial({ map: tex });
+          pokeTex();
         };
         img.onerror = () => { /* keep the flat colour */ };
         img.src = sunSrc;
