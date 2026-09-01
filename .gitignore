@@ -15,3 +15,10 @@ node_modules/
 # Raw planet maps — embedded (re-encoded) in js/planets-textures.js;
 # regenerate with _build/fetch-textures.mjs + _qa/embed-textures.mjs
 textures/
+
+# Minor-body texture scratch (final data-URLs live in js/planets-textures.js;
+# regenerate: _qa/gen-minor-textures.mjs + _qa/normalize-minors.mjs
+# + _qa/embed-minor-textures.mjs, sources documented in SOURCES.md)
+_qa/_minor*.jpg
+_qa/_contact-minors.html
+_qa/_norm-base.html

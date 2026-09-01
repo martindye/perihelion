@@ -326,7 +326,11 @@ P.app = (function () {
       state.fovSky = Math.max(8, Math.min(110, state.fovSky + e.deltaY * 0.02));
       updateGalaxyScale();
     } else {
-      cam.dist = Math.max(4, Math.min(4000, cam.dist * Math.exp(e.deltaY * 0.0011)));
+      /* dolly floor = just outside the followed body's surface, so every
+         planet, dwarf and moon can be zoomed to a true close-up */
+      const fm = state.follow === 'Sun' ? solar.sun : solar.meshes[state.follow];
+      const floor = fm ? fm.geometry.parameters.radius * 1.15 : 0.12;
+      cam.dist = Math.max(floor, Math.min(4000, cam.dist * Math.exp(e.deltaY * 0.0011)));
     }
   }, { passive: false });
 
@@ -1030,10 +1034,13 @@ P.app = (function () {
       else if (name === 'Earth') { state.follow = 'Earth'; cam.dist = 9; }
       else {
         state.follow = name;
-        const pl = P.planets.find(p => p.name === name);
-        /* close-up that fills the frame with the (photo) surface; the
-           wheel dollies between a few radii and back out to system view */
-        cam.dist = Math.max(4, (pl ? pl.size : 1) * 5);
+        /* close-up that fills the frame with the (photo) surface — planets,
+           dwarf planets and moons alike; the wheel dollies between a few
+           radii and back out to system view */
+        const p = P.planets.find(x => x.name === name)
+          || (P.minors && (P.minors.planets.find(x => x.name === name)
+                           || P.minors.moons.find(x => x.name === name)));
+        cam.dist = Math.max(1.2, (p ? p.size : 1) * 5);
       }
     } else if (eph[name]) {
       rotateToVec(eph[name].anchor);

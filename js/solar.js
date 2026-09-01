@@ -395,7 +395,15 @@ P.solar = (function () {
        the fallback if a map is missing. */
     const TEXNAME = { Mercury: 'mercury', Venus: 'venus', Earth: 'earth',
                       Mars: 'mars', Jupiter: 'jupiter', Saturn: 'saturn',
-                      Uranus: 'uranus', Neptune: 'neptune', Moon: 'moon' };
+                      Uranus: 'uranus', Neptune: 'neptune', Moon: 'moon',
+                      /* dwarf planets & major moons (minors.js bodies) */
+                      Pluto: 'pluto', Ceres: 'ceres', Vesta: 'vesta',
+                      Pallas: 'pallas', Hygiea: 'hygiea', Ixion: 'ixion',
+                      Eris: 'eris', Haumea: 'haumea', Makemake: 'makemake',
+                      Io: 'io', Europa: 'europa', Ganymede: 'ganymede',
+                      Callisto: 'callisto', Titan: 'titan', Triton: 'triton',
+                      Iapetus: 'iapetus', Rhea: 'rhea', Phobos: 'phobos',
+                      Deimos: 'deimos', Charon: 'charon' };
     let texStarted = false;
     function loadTextures() {
       if (texStarted) return;
