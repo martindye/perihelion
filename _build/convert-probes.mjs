@@ -26,6 +26,7 @@ const b64 = (buf) => Buffer.from(buf).toString('base64');
 /* ------------------------------------------------------------- metadata -- */
 const PROBES = [
   { key: 'jwst', name: 'JWST', tier: 1, model: 'jwst', color: 0xd8b84a, size: 0.34,
+    aliases: ['James Webb', 'Webb'],
     facts: { launch: '2021-12-25 · Ariane 5 ECA', agency: 'NASA / ESA / CSA', status: 'operational — halo orbit at Sun–Earth L2',
       fun: 'Sixteen metres of gold-plated mirror, kept colder than outer space by a tennis-court-sized sunshield.' } },
   { key: 'psp', name: 'Parker Solar Probe', tier: 1, model: 'parker', color: 0xe0a030, size: 0.3,
@@ -109,9 +110,12 @@ function parseElems(t) {
   const N = g(/N =\s*(-?[\d.]+(?:[eE][-+]?\d+)?)/);          // deg/sec
   const MA = g(/MA=\s*(-?[\d.]+(?:[eE][-+]?\d+)?)/);
   const PR = g(/PR=\s*(-?[\d.]+(?:[eE][-+]?\d+)?)/);         // s
+  /* M0 is kept UNWRAPPED: for hyperbolic elements (Voyager 1/2, NH) the mean
+   * anomaly is an unbounded quantity (e.g. 2914 deg for V1), and wrapping it
+   * to 360 makes the Kepler fallback jump to the wrong branch of M = e sinh H - H. */
   return {
     a: A / AU_KM, e, i: IN, Omega: OM, w: W,
-    M0: ((MA % 360) + 360) % 360,
+    M0: MA,
     n: N * 86400,                       // deg/day
     varpi: (((OM + W) % 360) + 360) % 360,
     Pdays: PR / 86400,
@@ -185,9 +189,10 @@ for (const r of rows) {
   js += '      color: 0x' + r.color.toString(16).padStart(6, '0') + ', size: ' + r.size + ', model: \'' + r.model + '\',\n';
   js += '      el: { a: ' + el.a.toPrecision(8) + ', e: ' + el.e.toPrecision(8) +
         ', i: ' + el.i.toFixed(4) + ', Omega: ' + el.Omega.toFixed(4) +
-        ', w: ' + el.w.toFixed(4) + ', M0: ' + el.M0.toFixed(3) +
+        ', w: ' + el.w.toFixed(4) + ', M0: ' + el.M0.toFixed(6) +
         ', n: ' + el.n.toFixed(9) + ', varpi: ' + el.varpi.toFixed(4) +
         (el.hyper ? ', hyper: 1' : '') + ', t0: ' + T0_D + ' },\n';
+  if (r.aliases) js += '      aliases: ' + JSON.stringify(r.aliases) + ',\n';
   js += '      ep: "' + r.epB64 + '",\n      st: "' + r.stB64 + '",\n      n: ' + r.n + ',\n';
   js += '      facts: { launch: \'' + r.facts.launch + '\', agency: \'' + r.facts.agency + '\',\n' +
         '        status: \'' + r.facts.status + '\', fun: \'' + r.facts.fun + '\' } },\n';
