@@ -1306,10 +1306,12 @@ P.app = (function () {
       }
     }
     for (const e of catalogSearch(q)) {
-      if (e.kind !== 'star') continue;
+      /* curated ('star') and catalog buffer ('bufstar') entries — but only
+         ones with a known distance, since those are the only flyable stars */
+      if (e.kind !== 'star' && e.kind !== 'bufstar') continue;
       const a = starAddress(e);
-      if (!a) continue;
-      out.push({ label: e.name, sub: 'star' + (a.distPc ? ' · ' + a.distPc.toFixed(1) + ' pc' : ''), addr: a });
+      if (!a || !a.distPc) continue;
+      out.push({ label: e.name, sub: 'star · ' + a.distPc.toFixed(1) + ' pc', addr: a });
       if (out.length >= 9) break;
     }
     return out.slice(0, 9);

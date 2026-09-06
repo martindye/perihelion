@@ -40,6 +40,26 @@ if (q.ok) {
   ok(ty > 250000 && ty < 400000, 'Apollo ship time ≈ 3.2e5 yr (got ' + q.summary.time + ')');
 }
 
+/* ---------------------------------- 1b) autocomplete through the real UI -- */
+await page.keyboard.press('j');
+await page.waitForTimeout(300);
+await page.fill('#jr-to', 'TAU CETI');           /* user's exact (uppercase) input */
+await page.waitForTimeout(400);
+const cands = await page.$$eval('.jr-cand', els => els.map(e => e.textContent.trim()));
+ok(cands.some(t => /Tau Ceti/.test(t) && /pc/.test(t)),
+  'autocomplete offers Tau Ceti (+pc) for "TAU CETI": ' + JSON.stringify(cands.slice(0, 4)));
+await page.locator('.jr-cand', { hasText: 'Tau Ceti' }).click();
+await page.fill('#jr-from', 'london');
+await page.waitForTimeout(400);
+await page.locator('.jr-cand').first().click();   /* first "London…" city */
+await page.waitForTimeout(200);
+const sum = (await page.textContent('#jr-summary') || '').replace(/\s+/g, ' ').trim();
+ok(/Tau Ceti/.test(sum) && /yr/.test(sum), 'UI summary shows the flight: ' + sum.slice(0, 90));
+const launchOff = await page.getAttribute('#jr-launch', 'disabled');
+ok(launchOff === null, 'LAUNCH button is enabled after picking both ends');
+await page.keyboard.press('j');   /* close the drawer again */
+await page.waitForTimeout(200);
+
 /* ------------------------------------------- 2) interstellar flight, full run */
 const earthBefore = await page.evaluate(() =>
   P.app._dbg.solar.meshes['Earth'].position.toArray());
