@@ -12,14 +12,16 @@ const lines = src.split(/\r?\n/).filter(Boolean);
 const header = lines[0].split(',').map(s => s.replace(/^"|"$/g, ''));
 const c = n => header.indexOf(n);
 
-let out = 'hip,hd,bayer,flam,con\n', n = 0, noHip = 0;
+let out = 'hip,hd,bayer,flam,con,mag,dist\n', n = 0, noHip = 0;
 for (let i = 1; i < lines.length; i++) {
   const f = lines[i].split(',').map(s => s.replace(/^"|"$/g, ''));
   const bayer = f[c('bayer')] || '', flam = f[c('flam')] || '';
   if (!bayer && !flam) continue;
   const hip = f[c('hip')] || '';
   if (!/^\d+$/.test(hip) || +hip === 0) { noHip++; continue; }
-  out += [hip, f[c('hd')] || '', bayer, flam, f[c('con')] || ''].join(',') + '\n';
+  /* mag + distance (pc) for the journey feature's mission cards */
+  out += [hip, f[c('hd')] || '', bayer, flam, f[c('con')] || '',
+    f[c('mag')] || '', f[c('dist')] || ''].join(',') + '\n';
   n++;
 }
 writeFileSync(dir + 'hyg-bayer-flam.csv', out);

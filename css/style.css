@@ -295,6 +295,130 @@ body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
+/* ---------------- journey drawer ---------------- */
+.journey {
+  position: fixed;
+  left: 16px;
+  bottom: 88px;
+  z-index: 16;
+  width: 316px;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 14px;
+  overflow: hidden;
+  pointer-events: auto;
+  padding-bottom: 10px;
+}
+.jr-close {
+  margin-left: auto;
+  background: none; border: 0; cursor: pointer;
+  color: var(--dim); font-size: 16px; line-height: 1; padding: 2px 4px;
+}
+.jr-close:hover { color: #fff; }
+.jr-field { position: relative; padding: 4px 12px 0; }
+.jr-lab {
+  display: block;
+  font-size: 9px; letter-spacing: 0.28em; color: var(--dim);
+  margin-bottom: 3px;
+}
+.jr-field input, .jr-field select {
+  width: 100%; box-sizing: border-box;
+  background: rgba(4, 8, 16, 0.6);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--txt);
+  font-size: 12px;
+  font-family: inherit;
+  padding: 6px 9px;
+  outline: none;
+}
+.jr-field input:focus, .jr-field select:focus { border-color: var(--acc); }
+.jr-field input::placeholder { color: var(--dim); letter-spacing: 0.04em; }
+.jr-cands {
+  position: absolute; left: 12px; right: 12px;
+  top: 100%; z-index: 20;
+  background: rgba(6, 10, 20, 0.97);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  max-height: 190px; overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+.jr-cand {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 10px; padding: 5px 9px; cursor: pointer; font-size: 12px;
+  border-radius: 6px;
+}
+.jr-cand:hover { background: rgba(111, 214, 255, 0.12); }
+.jr-cand b { letter-spacing: 0.05em; font-weight: 600; }
+.jr-cand span {
+  color: var(--dim); font-size: 9.5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.jr-summary {
+  margin: 10px 12px 4px; padding: 8px 10px;
+  border: 1px solid var(--line); border-radius: 9px;
+  font-size: 10.5px; line-height: 1.55; color: var(--dim);
+  letter-spacing: 0.03em;
+}
+.jr-summary b { color: var(--txt); letter-spacing: 0.06em; }
+.jr-launchbtn {
+  margin: 10px 12px 0;
+  background: rgba(255, 210, 122, 0.14);
+  border-color: rgba(255, 210, 122, 0.55);
+  color: #ffd67a;
+  letter-spacing: 0.22em;
+}
+.jr-launchbtn:disabled { opacity: 0.35; cursor: default; }
+.jr-error {
+  margin: 8px 12px 0; padding: 6px 9px;
+  border-radius: 7px; font-size: 11px;
+  background: rgba(255, 90, 80, 0.12);
+  border: 1px solid rgba(255, 90, 80, 0.4);
+  color: #ffb4ac;
+}
+/* in-flight */
+.jr-flight { padding-top: 4px; }
+.jr-route {
+  padding: 2px 14px 0;
+  font-size: 12.5px; letter-spacing: 0.05em; font-weight: 600;
+}
+.jr-phase {
+  padding: 2px 14px 8px;
+  font-size: 9.5px; letter-spacing: 0.14em; color: var(--dim);
+}
+.jr-metrics { display: flex; gap: 8px; padding: 0 12px; }
+.jr-mcell {
+  flex: 1; text-align: center;
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 6px 4px 5px;
+}
+.jr-mcell b { display: block; font-size: 11.5px; letter-spacing: 0.04em; }
+.jr-mcell span {
+  display: block; margin-top: 2px;
+  font-size: 8px; letter-spacing: 0.22em; color: var(--dim);
+}
+.jr-bar {
+  margin: 10px 14px 0; height: 5px;
+  background: rgba(111, 214, 255, 0.12);
+  border-radius: 3px; overflow: hidden;
+}
+.jr-bar i {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, #6fd6ff, #ffd67a);
+}
+.jr-warp {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px 0;
+  font-size: 9px; letter-spacing: 0.24em; color: var(--dim);
+}
+.jr-warp input { flex: 1; accent-color: #6fd6ff; }
+.jr-warpval { min-width: 34px; text-align: right; color: var(--txt); letter-spacing: 0.05em; font-size: 11px; }
+.jr-btns { display: flex; gap: 8px; padding: 10px 14px 0; }
+.jr-btns .btn { flex: 1; }
+
 /* ---------------- help ---------------- */
 .help {
   position: fixed; inset: 0; z-index: 30;

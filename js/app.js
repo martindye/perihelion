@@ -263,6 +263,7 @@ P.app = (function () {
   cv.addEventListener('mousedown', e => { if (e.button === 1) e.preventDefault(); });
 
   cv.addEventListener('pointerdown', e => {
+    if (P.journey.active()) return;    /* the journey owns the camera */
     dragging = true;
     /* strafe (solar mode only — sky mode has no place to slide to):
        middle drag, or Ctrl/Cmd+left drag, like Blender/GIMP */
@@ -326,6 +327,7 @@ P.app = (function () {
   });
   cv.addEventListener('wheel', e => {
     e.preventDefault();
+    if (P.journey.active()) return;
     if (state.mode === 'sky') {
       state.fovSky = Math.max(8, Math.min(110, state.fovSky + e.deltaY * 0.02));
       updateGalaxyScale();
@@ -1160,6 +1162,12 @@ P.app = (function () {
   function setMode(m) {
     if (state.mode === m) return;
     state.mode = m;
+    if (state.follow === '__dest') {
+      /* the arrival view belongs to solar space — drop it on a mode change */
+      P.journey.clearArrived();
+      state.follow = 'Sun';
+      cam.dist = 200; cam.pitch = 0.85;
+    }
     if (m === 'solar') {
       cam.dist = 200; cam.pitch = 0.85;   /* frames inner system + Jupiter */
       state.follow = 'Sun';
@@ -1186,6 +1194,11 @@ P.app = (function () {
   /* -------------------------------------------------------------- keys --- */
   window.addEventListener('keydown', e => {
     if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    if (P.journey.active()) {
+      /* mid-flight: Esc / J abort the journey, everything else is locked */
+      if (e.key === 'Escape' || e.key === 'j' || e.key === 'J') P.journey.abort();
+      return;
+    }
     switch (e.key) {
       case ' ': e.preventDefault(); togglePause(); break;
       case 'n': case 'N': goNow(); break;
@@ -1200,6 +1213,7 @@ P.app = (function () {
       case 'a': case 'A': toggleState('asterisms'); break;
       case 't': case 'T': toggleState('hoverNames'); break;
       case 'k': case 'K': toggleCatalog(); break;
+      case 'j': case 'J': toggleJourney(); break;
       case 'x': case 'X': {
         state.highlightSel = !state.highlightSel;
         const c = document.getElementById('chk-marker');
@@ -1244,10 +1258,172 @@ P.app = (function () {
   window.addEventListener('resize', onResize);
   onResize();
 
+  /* ---------------------------------------------------- journeys (J) ----
+   * "Google Maps of the solar neighbourhood" (js/journey.js): give it an
+   * address — a city, a planet, or a star — and it flies you there. P.journey
+   * owns the camera and the mission clock; this is the bridge that gives it
+   * scene access and the UI its candidate lists. */
+  const starDistMap = new Map((P.starDist && P.starDist.data || []).map(e => [e[0], e[1]]));
+  const JOURNEY_BODIES = ['Sun']
+    .concat((P.planets || []).map(p => p.name))
+    .concat((P.minors && P.minors.planets || []).map(p => p.name))
+    .concat((P.minors && P.minors.moons || []).map(m => m.name));
+
+  /* catalog entry -> journey star address (direction + distance) */
+  function starAddress(e) {
+    let name, ra = null, dec = null, bv = null, hip = null, distPc = null, dir = null;
+    if (e.buf != null) {
+      const x = bufStarEntry(e.buf);
+      name = x.name; ra = x.ra; dec = x.dec; bv = x.bv; hip = x.hip;
+      const sd = starDistMap.get(hip);
+      if (sd) distPc = sd[0];
+    } else if (e.star) {
+      const s = e.star;
+      name = s.name; ra = s.ra; dec = s.dec; bv = s.bv;
+      if (s.dist) distPc = s.dist / 3.26156;              /* ly -> pc */
+      if (s.world) dir = s.world.clone().normalize();
+    } else return null;
+    if (ra == null && !dir) return null;
+    return { type: 'star', name, ra, dec, bv, hip, distPc, dir: dir || null };
+  }
+
+  /* From/To autocomplete: cities (pop order), solar bodies, then stars */
+  function journeyCandidates(qRaw) {
+    const out = [];
+    const q = (qRaw || '').trim().toLowerCase();
+    if (q.length < 2) return out;
+    let n = 0;
+    for (const c of (P.cities || [])) {
+      if (c[0].toLowerCase().startsWith(q)) {
+        out.push({ label: c[0], sub: 'city · ' + (c[1] || ''),
+          addr: { type: 'city', name: c[0], country: c[1] || '', lat: c[2], lon: c[3] } });
+        if (++n >= 3) break;
+      }
+    }
+    for (const name of JOURNEY_BODIES) {
+      if (name.toLowerCase().startsWith(q)) {
+        out.push({ label: name, sub: 'solar system', addr: { type: 'body', name } });
+      }
+    }
+    for (const e of catalogSearch(q)) {
+      if (e.kind !== 'star') continue;
+      const a = starAddress(e);
+      if (!a) continue;
+      out.push({ label: e.name, sub: 'star' + (a.distPc ? ' · ' + a.distPc.toFixed(1) + ' pc' : ''), addr: a });
+      if (out.length >= 9) break;
+    }
+    return out.slice(0, 9);
+  }
+
+  function journeyAuRadius(addr) {
+    if (addr.type === 'city') return 1;
+    if (addr.type === 'star') return 0;
+    const name = addr.name;
+    if (name === 'Sun' || name === 'Earth') return name === 'Sun' ? 0 : 1;
+    const pl = (P.planets || []).find(p => p.name === name);
+    if (pl) return pl.a;
+    const mp = (P.minors && P.minors.planets || []).find(p => p.name === name);
+    if (mp) return mp.a;
+    const mm = (P.minors && P.minors.moons || []).find(m => m.name === name);
+    if (mm) {
+      const par = (P.planets || []).find(p => p.name === mm.parent)
+        || (P.minors && P.minors.planets || []).find(p => p.name === mm.parent);
+      return par ? par.a : 1;
+    }
+    return 1;
+  }
+
+  function arriveBody(name) {
+    if (state.mode !== 'solar') setMode('solar');
+    state.follow = name;
+    cam.pan.set(0, 0, 0);
+    const m = solar.meshes[name];
+    const r = m ? m.geometry.parameters.radius : 1;
+    cam.dist = Math.max(2.5, r * 7);
+    cam.pitch = 0.55;
+  }
+
+  function showArrival(j) {
+    const d = j.to;
+    let rows, fun;
+    if (d.type === 'star') {
+      const ly = d.distPc ? (d.distPc * 3.26156).toFixed(1) : '?';
+      rows = [['Distance flown', (d.distPc ? d.distPc.toFixed(2) + ' pc · ' : '') + ly + ' light-years'],
+        ['Ship', j.preset.label],
+        ['Ship time', fmtJYears(j.m.T / 31557600)]];
+      fun = 'You have made it. Somewhere behind you the Sun is just another star — a very bright one, mind. Drag to orbit the star; J to plan the next leg.';
+      /* keep the camera on the arrival star (free orbit, solar rig) */
+      const a = P.journey.arrived();
+      if (a) {
+        state.follow = '__dest';
+        const v = camera.position.clone().sub(a.dest).normalize();
+        cam.pitch = Math.asin(Math.max(-1, Math.min(1, v.y)));
+        cam.yaw = Math.atan2(v.z, v.x);
+        cam.dist = Math.max(4, camera.position.distanceTo(a.dest));
+        cam.pan.set(0, 0, 0);
+      }
+    } else {
+      rows = [['Distance', j.dLabel], ['Ship', j.preset.label]];
+      fun = 'Welcome to ' + d.name + '. Mind the gravity.';
+    }
+    P.ui.showInfo('ARRIVED — ' + (d.name || '').toUpperCase(), rows, fun);
+  }
+  function fmtJYears(y) {
+    if (!isFinite(y) || y <= 0) return '—';
+    if (y < 1 / 365) return Math.round(y * 31557600 / 3600) + ' hours';
+    if (y < 1) return (y * 365.25).toFixed(1) + ' days';
+    return y < 1000 ? y.toFixed(1) + ' years' : Math.round(y).toLocaleString() + ' years';
+  }
+
+  function journeyLaunch(from, to, presetKey) {
+    if (!from || !to) return { ok: false, error: 'choose both a start and an end address' };
+    if (from.type === 'star') return { ok: false, error: 'the fleet departs from the solar system' };
+    if (state.mode !== 'solar') setMode('solar');
+    return P.journey.launch(from, to, presetKey);
+  }
+  function toggleJourney(force) {
+    if (P.ui.journey) P.ui.journey.open(force != null ? force : undefined);
+  }
+
+  P.journey.init({
+    THREE, scene, camera,
+    dome: sky.dome,
+    raDecToVec3: (ra, dec, out, R) => P.sky.raDecToVec3(ra, dec, out, R),
+    bodyPos: name => { const m = solar.meshes[name]; return m ? m.position : null; },
+    earthMesh: () => solar.meshes['Earth'] || null,
+    bodyRadius: name => { const m = solar.meshes[name]; return m ? m.geometry.parameters.radius : 1; },
+    auRadius: journeyAuRadius,
+    bvColor: bv => {
+      const c = P.sky.bvToColor(bv == null ? 0.8 : bv);
+      return (((c[0] * 255) | 0) << 16) | (((c[1] * 255) | 0) << 8) | ((c[2] * 255) | 0);
+    },
+    arriveBody,
+    restoreCamera: far => { camera.far = far; camera.updateProjectionMatrix(); },
+    onJourneyChange: (active, j, aborted) => {
+      /* the UI panel switches itself via its ticker; only the arrival
+         card needs an explicit hand-off */
+      if (!active && !aborted) showArrival(j);
+    }
+  });
+
   /* ------------------------------------------------------------ ui wire -- */
   P.app = {
     state,
     toggleCatalog,
+    toggleJourneyPanel: () => toggleJourney(),
+    journey: {
+      candidates: journeyCandidates,
+      quote: (f, t, p) => P.journey.quote(f, t, p),
+      launch: journeyLaunch,
+      abort: () => P.journey.abort(),
+      skip: () => P.journey.skip(),
+      setWarp: x => P.journey.setWarp(x),
+      active: () => P.journey.active(),
+      phase: () => P.journey.phase(),
+      warp: () => P.journey.warp(),
+      hud: () => P.journey.hud(),
+      PRESETS: P.journey.PRESETS
+    },
     setHighlight: on => { state.highlightSel = !!on; },
     onUIMode: m => {
       document.getElementById('btn-sky').classList.toggle('on', m === 'sky');
@@ -1352,10 +1528,20 @@ P.app = (function () {
     /* clamp: never negative (timestamp quirks), never huge (tab was hidden) */
     const dtms = Math.max(0, Math.min(100, now - lastNow));
     lastNow = now;
-    if (state.playing) state.simTimeMs += dtms * state.speed;
+    if (P.journey.active()) {
+      /* a journey owns the clock: mission time-lapse rate (warp included);
+         the pre-flight phases fall back to the user's own rate so the
+         solar system keeps moving however it is set */
+      const jr = P.journey.simRate();
+      state.simTimeMs += dtms * (jr > 0 ? jr : (state.playing ? state.speed : 0));
+    } else if (state.playing) state.simTimeMs += dtms * state.speed;
     const d = (state.simTimeMs - P.J2000_MS) / 86400000;
 
-    const sig = d + '|' + sceneSig();
+    /* the journey steps the camera itself (bypassing applyCamera) —
+       including the abort ease-back, which "holds" the camera too */
+    const jHold = P.journey.active() || P.journey.holdsCamera();
+    if (P.journey.active()) P.journey.update(dtms / 1000);
+    const sig = d + '|' + sceneSig() + (jHold ? '|j' + P.journey.tick() : '');
     if (sig === lastSig) {           /* nothing moved — keep the last frame */
       fpsFrames++;
       if (now - lastHud >= 500) {
@@ -1377,8 +1563,16 @@ P.app = (function () {
       /* re-follow (click, catalog, keys) re-centres the frame: any manual
          strafe offset belongs to the old target, not the new one */
       if (lastFollow !== state.follow) { cam.pan.set(0, 0, 0); lastFollow = state.follow; }
-      if (state.follow !== 'Sun') cam.target.copy(solar.meshes[state.follow] ? solar.meshes[state.follow].position : solar.sun.position);
-      else cam.target.set(0, 0, 0);
+      if (state.follow === '__dest') {
+        /* lingering interstellar arrival: orbit the arrival star */
+        const a = P.journey.arrived();
+        if (a) cam.target.copy(a.dest);
+        else cam.target.set(0, 0, 0);
+      } else {
+        /* following another body drops the arrival view */
+        if (state.follow !== '__dest' && P.journey.arrived()) P.journey.clearArrived();
+        cam.target.copy(solar.meshes[state.follow] ? solar.meshes[state.follow].position : solar.sun.position);
+      }
     }
 
     /* fly-to camera tween (catalog "point at") */
@@ -1400,14 +1594,17 @@ P.app = (function () {
       cam.pitch += (pitchT - cam.pitch) * k;
     }
 
-    applyCamera();
+    if (!P.journey.active() && !P.journey.holdsCamera()) applyCamera();
 
     /* the celestial dome rides with the camera: stars stay exactly
        5000 units (50 × R) from the eye at every zoom — always inside
        the 6000 far plane, so fully zoomed-out views clip nothing, and
        the sky shows zero parallax, like stars at true infinity.
-       (In sky mode the camera sits at the origin, so this is a no-op.) */
+       (In sky mode the camera sits at the origin, so this is a no-op.)
+       During a journey the dome lags the camera slightly (domeLag) so
+       the starfield streams past — the warp effect. */
     sky.dome.position.copy(camera.position);
+    P.journey.domeLag();
 
     const t2 = performance.now(); perf.solar += t2 - t; t = t2;
 

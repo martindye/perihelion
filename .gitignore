@@ -6,6 +6,14 @@ _build/hip_main.csv
 _build/hygdata_v42.csv
 _build/hygdata_v42.csv.gz
 
+# Raw GeoNames gazetteer download (~6 MB zip at the repo root / ~30 MB txt)
+# — not committed; the distilled js/cities.js is
+/_cities5000.zip
+_build/cities5000.txt
+
+# QA scratch images (regenerable; the .mjs suites themselves are committed)
+_qa/*.png
+
 # OS / editor noise
 Thumbs.db
 ~*

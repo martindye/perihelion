@@ -97,6 +97,23 @@ planetarium/index.html#solar    → solar-system mode
   from the Moon to Neptune, is visibly in motion). The simulated date is
   always shown in UTC.
 
+**JOURNEYS** (`J` or the JOURNEY button)
+- Travel between any two *addresses*: a city (12,171-city gazetteer,
+  GeoNames, pop ≥ 50 k — type "Lon" and London appears), any body, or a star
+  (e.g. `tau ceti`, with its real 3.65 pc distance).
+- Pick a drive: **Apollo** (chemical, 11 km/s), **Fusion** (0.1 c),
+  **Hail Mary** (0.99 c @ 2 g — the *Project Hail Mary* ship) or **Photon**
+  (0.999 c). The flight runs the *real mission time* (constant accel →
+  cruise → symmetric brake): London → Tau Ceti on Hail Mary is 12.5 ship
+  years, and the in-game clock counts every one of those years.
+- The camera flies it: wide overview of the system, dive to the departure
+  point (a gold pin marks your city on the globe), launch, a long cruise —
+  the solar system keeps living behind you, planets lapping their orbits at
+  the mission's own time-lapse — and an arrival that orbits the destination
+  star (or hands the camera to the destination planet). A warp slider
+  (×0.25 – ×16) fast-forwards the boring middle; `Esc` or `J` aborts and
+  eases the camera back to where it was.
+
 ## Controls
 
 | Input | Action |
@@ -117,9 +134,10 @@ planetarium/index.html#solar    → solar-system mode
 | `W` | milky way wash on / off |
 | `A` | asterisms on / off |
 | `K` | catalog — search & fly to any star, DSO, minor planet or moon |
+| `J` | journey — travel between addresses (city, body or star) |
 | `X` | selection marker on / off (checkbox in the right column) |
 | `H` or `?` | help |
-| `Esc` | deselect |
+| `Esc` | deselect (aborts a journey in flight) |
 
 ## Regenerating star data
 
@@ -137,9 +155,12 @@ scripts in `_build/` from the official Hipparcos main catalog:
    then `node _build/extract-hyg.mjs` → `_build/hyg-bayer-flam.csv`
    (committed — the distilled designation list).
 4. `node _build/convert-named.js` → `js/stars-named.js` (HIP/HD IDs + the
-   IAU-named stars from `_build/wgsn.csv` + every Bayer/Flamsteed designation)
+   IAU-named stars from `_build/wgsn.csv` + every Bayer/Flamsteed designation
+   + HYG distances for 3,304 stars, used by journeys)
 5. `node _build/verify-align.js` proves the ID arrays stay byte-aligned with
    the star buffer; `test-search.js` and `test-moon.js` are sanity checks.
+6. `node _build/fetch-cities.mjs` re-downloads the GeoNames `cities5000`
+   gazetteer (CC-BY) and regenerates `js/cities.js` (pop ≥ 50,000).
 
 ## Notes on accuracy
 
@@ -161,7 +182,9 @@ css/style.css        HUD styling
 js/three.min.js     Three.js r128 (local copy)
 js/data.js          orbital elements, 122 curated named stars, 24 constellation figures
 js/stars-hip.js     116,508 Hipparcos stars (position, magnitude, color)
-js/stars-named.js   HIP/HD IDs for every star + 458 IAU-named stars (generated, see _build/)
+js/stars-named.js   HIP/HD IDs for every star + 458 IAU-named stars + 3,304 star distances (generated, see _build/)
+js/cities.js        12,171-city gazetteer for journeys (GeoNames, CC-BY; generated, see _build/)
+js/journey.js       journey engine: addresses, mission physics, flight phases, warp
 js/dso.js           624 bright galaxies + 18,304 faint background galaxies (NGC/UGC/Corwin)
 js/dso2.js          321 clusters/nebulae + 138 faint (SIMBAD J2000)
 js/minors.js        9 minor planets + 11 major moons, osculating at 2026-08-30 (JPL Horizons)

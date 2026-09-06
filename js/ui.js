@@ -11,6 +11,7 @@ P.ui = (function () {
 
   /* created in buildUI(), exposed lazily so this module can load before them */
   let catalogUI = null;
+  let journeyUI = null, journeyNodes = null;
   let tipEl = null, tipNameEl = null, tipSubEl = null;
 
   /* ------------------------------------------------------------- DOM build */
@@ -50,6 +51,7 @@ P.ui = (function () {
     tog('wash', 'MILKY WAY', true);
     tog('asterisms', 'ASTERISMS', true);
     tog('catalog', 'CATALOG', false);
+    el('button', 'btn tog', 'JOURNEY', rc).id = 'btn-journey';
     tog('hover', 'HOVER NAMES', true);
     const chk = el('label', 'chk', '', rc);
     const chkInput = document.createElement('input');
@@ -123,6 +125,70 @@ P.ui = (function () {
       }
     };
 
+    /* journey drawer (J key) — "Google Maps of the solar neighbourhood" */
+    const jr = el('div', 'journey');
+    jr.id = 'journey';
+    jr.style.display = 'none';
+    const jrHead = el('div', 'cat-head', '', jr);
+    el('h3', null, 'JOURNEY', jrHead);
+    const jrClose = el('button', 'jr-close', '×', jrHead);
+    const jrPlan = el('div', 'jr-plan', '', jr);
+    const jrField = (id, label, ph) => {
+      const f = el('div', 'jr-field', '', jrPlan);
+      el('label', 'jr-lab', label, f);
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.id = id; inp.placeholder = ph;
+      inp.autocomplete = 'off'; inp.spellcheck = false;
+      f.appendChild(inp);
+      const list = el('div', 'jr-cands', '', f);
+      return { inp, list };
+    };
+    const fromF = jrField('jr-from', 'FROM', 'city, planet, moon, star…');
+    const toF = jrField('jr-to', 'TO', 'city, planet, moon, star…');
+    const dField = el('div', 'jr-field', '', jrPlan);
+    el('label', 'jr-lab', 'DRIVE', dField);
+    const drive = el('select', null, '', dField);
+    drive.id = 'jr-drive';
+    el('div', 'jr-summary', '', jrPlan).id = 'jr-summary';
+    const launchB = el('button', 'btn jr-launchbtn', 'LAUNCH', jrPlan);
+    launchB.id = 'jr-launch';
+    const jrErr = el('div', 'jr-error', '', jrPlan);
+    jrErr.style.display = 'none';
+    /* in-flight view */
+    const jrFlight = el('div', 'jr-flight', '', jr);
+    jrFlight.style.display = 'none';
+    const jrRoute = el('div', 'jr-route', '', jrFlight);
+    const jrPhase = el('div', 'jr-phase', '', jrFlight);
+    const jrM = el('div', 'jr-metrics', '', jrFlight);
+    const jrMCell = (label) => {
+      const c = el('div', 'jr-mcell', '', jrM);
+      const b = el('b', null, '—', c);
+      el('span', null, label, c);
+      return b;
+    };
+    const jrSpeed = jrMCell('speed');
+    const jrElapsed = jrMCell('elapsed');
+    const jrRemain = jrMCell('remaining');
+    const jrBar = el('div', 'jr-bar', '', jrFlight);
+    const jrFill = el('i', null, '', jrBar);
+    const jrWarp = el('div', 'jr-warp', '', jrFlight);
+    el('label', null, 'TIME WARP', jrWarp);
+    const warpInp = document.createElement('input');
+    warpInp.type = 'range'; warpInp.min = '0.25'; warpInp.max = '16';
+    warpInp.step = '0.25'; warpInp.value = '1';
+    jrWarp.appendChild(warpInp);
+    const warpVal = el('span', 'jr-warpval', '×1', jrWarp);
+    const jrBtns = el('div', 'jr-btns', '', jrFlight);
+    const skipB = el('button', 'btn', 'SKIP', jrBtns);
+    skipB.id = 'jr-skip';
+    const abortB = el('button', 'btn', 'ABORT', jrBtns);
+    abortB.id = 'jr-abort';
+    journeyNodes = {
+      jr, jrPlan, jrFlight, jrClose, fromF, toF, drive,
+      launchB, jrErr, jrRoute, jrPhase, jrSpeed, jrElapsed, jrRemain,
+      jrFill, warpInp, warpVal, skipB, abortB
+    };
+
     /* help overlay */
     const help = el('div', 'help');
     help.id = 'help';
@@ -146,6 +212,7 @@ P.ui = (function () {
       '<tr><td>W</td><td>milky way wash on / off</td></tr>' +
       '<tr><td>A</td><td>asterisms on / off</td></tr>' +
       '<tr><td>K</td><td>catalog — search &amp; fly to any star or body</td></tr>' +
+      '<tr><td>J</td><td>journey — travel between any two addresses (city, planet, star)</td></tr>' +
       '<tr><td>X</td><td>selection marker on / off</td></tr>' +
       '<tr><td>H</td><td>this help</td></tr>' +
       '</table>' +
@@ -243,12 +310,118 @@ P.ui = (function () {
     $('#tg-asterisms').onclick = () => app.toggleState('asterisms');
     $('#btn-help').onclick = () => app.toggleHelp();
     $('#help-close').onclick = () => app.toggleHelp(false);
+    const jb = document.getElementById('btn-journey');
+    if (jb) jb.onclick = () => app.toggleJourneyPanel();
     $('#ip-close').onclick = () => { app.select(null); };
     app.onUIMode = m => {
       $('#btn-sky').classList.toggle('on', m === 'sky');
       $('#btn-solar').classList.toggle('on', m === 'solar');
     };
     app.onUIMode(app.state.mode);
+
+    /* ------------------------------------------------------- journey wire */
+    const jn = app.journey;
+    if (jn && journeyNodes) {
+      const N = journeyNodes;
+      for (const k of Object.keys(jn.PRESETS)) {
+        const o = document.createElement('option');
+        o.value = k;
+        o.textContent = jn.PRESETS[k].label;
+        N.drive.appendChild(o);
+      }
+      const S = { from: { a: null, f: N.fromF }, to: { a: null, f: N.toF } };
+      const sEl = document.getElementById('jr-summary');
+      const esc = t => String(t).replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+      const updateReady = () => { N.launchB.disabled = !(S.from.a && S.to.a); };
+      const refreshSummary = () => {
+        if (!S.from.a || !S.to.a) { sEl.style.display = 'none'; sEl.innerHTML = ''; return; }
+        const q = jn.quote(S.from.a, S.to.a, N.drive.value);
+        if (!q || !q.ok) { sEl.style.display = 'none'; return; }
+        sEl.style.display = '';
+        sEl.innerHTML = '<b>' + esc(S.from.a.name || S.from.a) + '</b> → <b>' + esc(S.to.a.name) + '</b><br>' +
+          q.summary.distance + ' · ship time ' + q.summary.time + '<br>' + q.summary.cruise;
+      };
+      const wireField = slot => {
+        let timer = null;
+        slot.f.inp.addEventListener('input', () => {
+          slot.a = null;
+          updateReady(); refreshSummary();
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            const q = slot.f.inp.value.trim();
+            if (q.length < 2) { slot.f.list.innerHTML = ''; return; }
+            slot.f.list.innerHTML = '';
+            for (const it of jn.candidates(q)) {
+              const row = document.createElement('div');
+              row.className = 'jr-cand';
+              const b = document.createElement('b'); b.textContent = it.label;
+              const s = document.createElement('span'); s.textContent = it.sub || '';
+              row.appendChild(b); row.appendChild(s);
+              row.onclick = () => {
+                slot.a = it.addr;
+                slot.f.inp.value = it.label;
+                slot.f.list.innerHTML = '';
+                updateReady(); refreshSummary();
+              };
+              slot.f.list.appendChild(row);
+            }
+          }, 120);
+        });
+        slot.f.inp.addEventListener('keydown', e => {
+          e.stopPropagation();
+          if (e.key === 'Enter') {
+            const first = slot.f.list.querySelector('.jr-cand');
+            if (first) first.click();
+          }
+        });
+      };
+      wireField(S.from);
+      wireField(S.to);
+      N.drive.addEventListener('change', refreshSummary);
+      N.launchB.onclick = () => {
+        if (!S.from.a || !S.to.a) return;
+        const r = jn.launch(S.from.a, S.to.a, N.drive.value);
+        N.jrErr.style.display = r.ok ? 'none' : '';
+        N.jrErr.textContent = r.ok ? '' : r.error;
+      };
+      N.jrClose.onclick = () => { journeyUI.open(false); };
+      N.skipB.onclick = () => jn.skip();
+      N.abortB.onclick = () => jn.abort();
+      N.warpInp.addEventListener('input', () => {
+        const v = parseFloat(N.warpInp.value);
+        jn.setWarp(v);
+        N.warpVal.textContent = '×' + v;
+      });
+      let wasFlight = false;
+      setInterval(() => {
+        if (N.jr.style.display === 'none') return;
+        const a = jn.active();
+        if (a !== wasFlight) {
+          wasFlight = a;
+          N.jrPlan.style.display = a ? 'none' : '';
+          N.jrFlight.style.display = a ? '' : 'none';
+          if (!a) { N.jrErr.style.display = 'none'; N.warpVal.textContent = '×' + N.warpInp.value; }
+        }
+        if (a) {
+          const h = jn.hud();
+          if (h) {
+            N.jrRoute.textContent = h.route;
+            N.jrPhase.textContent = h.phaseLabel + ' — ' + h.note;
+            N.jrSpeed.textContent = h.speed;
+            N.jrElapsed.textContent = h.elapsed;
+            N.jrRemain.textContent = h.remain;
+            N.jrFill.style.width = (Math.min(1, h.progress) * 100).toFixed(1) + '%';
+          }
+        }
+      }, 180);
+      journeyUI = {
+        open(v) {
+          const show = v == null ? N.jr.style.display === 'none' : !!v;
+          N.jr.style.display = show ? 'flex' : 'none';
+          if (show) setTimeout(() => N.fromF.inp.focus(), 0);
+        }
+      };
+    }
   }
 
   function syncPlay() {
@@ -260,6 +433,9 @@ P.ui = (function () {
     wire,
     makeLabel, placeLabel, clearLabels,
     showInfo, hideInfo,
+    journey: {
+      open(v) { if (journeyUI) journeyUI.open(v); }
+    },
     catalog: {
       get panel() { return catalogUI.panel; },
       get search() { return catalogUI.search; },

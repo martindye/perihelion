@@ -49,6 +49,12 @@ planned probe/planet-zoom phase; see `plan-probes.md`).
   render-only point sprites.
 - VizieR = CDS Strasbourg: <https://vizier.cds.unistra.fr/viz-bin/VizieR>
 
+### Journeys (cities & star distances)
+| What | Source |
+|---|---|
+| City gazetteer, 12,171 rows (`js/cities.js`) | **GeoNames** `cities5000` dump ([download.geonames.org](https://download.geonames.org/export/datasets/)), **CC-BY 4.0** — population ≥ 50,000, fetched 2026-09. Regenerate with `node _build/fetch-cities.mjs`. |
+| Star distances for journeys (`P.starDist`, 3,304 HIP entries in `js/stars-named.js`) | **HYG 4.2** (CC BY-SA 4.0) `dist` column — emitted by `_build/extract-hyg.mjs` → `_build/hyg-bayer-flam.csv` → `_build/convert-named.js`. |
+
 ### Everything else
 - **Milky Way soft wash**: procedural (galactic-plane geometry in `js/sky.js`),
   no external files; toggle `W`.
