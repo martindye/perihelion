@@ -28,10 +28,14 @@ planetarium/index.html#solar    → solar-system mode
 - **Every star has an address**: all 116,508 carry their HIP number, ~98,700
   also an HD number. Hover any star to see its identity; search the catalog
   by number.
-- **580 IAU-named stars** — 122 hand-curated bright stars (Sirius →
-  Ras Algethi) with constellation figures, distances and facts, plus 458
-  official names from the IAU Working Group on Star Names (Acamar, Alrakis,
-  Gnomon, Naledi, …).
+- **~3,900 named stars, searchable by name**:
+  - 122 hand-curated bright stars (Sirius → Ras Algethi) with constellation
+    figures, distances and facts;
+  - 458 official names from the IAU Working Group on Star Names (Acamar,
+    Alrakis, Gnomon, Naledi, …);
+  - Bayer + Flamsteed designations for every classical star (τ Ceti, 61
+    Cygni, λ Canis Majoris, …) from the HYG catalog — so `tau ceti`,
+    `61 cyg` and `alpha centauri` all resolve, not just the IAU names.
 - **24 constellation figures** (stick figures with name labels) — including
   all **12 zodiac signs**, which toggle as a group with `Z` — plus 6 classic
   **asterisms** (Summer Triangle, Big/Little Dipper, Teapot, Keystone,
@@ -71,8 +75,9 @@ planetarium/index.html#solar    → solar-system mode
 - **Catalog** (`K`): searchable drawer over the whole 116,508-star Hipparcos
   catalog, the 945 deep-sky objects, the Sun, Moon, 8 planets, 9 minor
   planets, 11 major moons, and the 13 probes. Search by proper name, Bayer
-  designation, **HIP** number or **HD** number (e.g. `sirius`, `acamar`,
-  `60718`, `18622`, `m31`, `ceres`, `triton`, `webb`, `voyager`) — the
+  or Flamsteed designation (`tau ceti`, `61 cyg`), **HIP** number or **HD**
+  number (e.g. `sirius`, `acamar`, `60718`, `18622`, `m31`, `ceres`,
+  `triton`, `webb`, `voyager`) — the
   results show the object's ID and magnitude/distance, and clicking one
   selects it, highlights the row, and smoothly flies the camera to it (in
   solar mode the camera follows the body instead). The catalog is also
@@ -127,9 +132,13 @@ scripts in `_build/` from the official Hipparcos main catalog:
    It is **not** committed to this repo — the generated JS is checked in
    instead, so nothing needs regenerating to run the app.
 2. `node _build/convert.js` → `js/stars-hip.js` (the 116,508-star buffer)
-3. `node _build/convert-named.js` → `js/stars-named.js` (HIP/HD IDs + the
-   IAU-named stars, from `_build/wgsn.csv`)
-4. `node _build/verify-align.js` proves the ID arrays stay byte-aligned with
+3. Bayer/Flamsteed designations: download the HYG 4.2 catalog (CC BY-SA 4.0,
+   <https://astronexus.com/hyg>) as `_build/hygdata_v42.csv` (gitignored),
+   then `node _build/extract-hyg.mjs` → `_build/hyg-bayer-flam.csv`
+   (committed — the distilled designation list).
+4. `node _build/convert-named.js` → `js/stars-named.js` (HIP/HD IDs + the
+   IAU-named stars from `_build/wgsn.csv` + every Bayer/Flamsteed designation)
+5. `node _build/verify-align.js` proves the ID arrays stay byte-aligned with
    the star buffer; `test-search.js` and `test-moon.js` are sanity checks.
 
 ## Notes on accuracy

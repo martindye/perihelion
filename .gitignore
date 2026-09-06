@@ -1,6 +1,11 @@
 # Raw Hipparcos CSV (~37 MB) — not committed; see "Regenerating star data" in README
 _build/hip_main.csv
 
+# Raw HYG 4.2 catalog (astronexus.com, CC BY-SA 4.0; ~14 MB gz / ~34 MB csv)
+# — not committed; the distilled _build/hyg-bayer-flam.csv is committed
+_build/hygdata_v42.csv
+_build/hygdata_v42.csv.gz
+
 # OS / editor noise
 Thumbs.db
 ~*

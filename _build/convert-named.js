@@ -234,6 +234,118 @@ for (const w of wgsn) {
 console.log(`matched: buffer=${nBuf} curated=${nCur} missed=${nMiss}`);
 if (missed.length) console.log('missed (fainter than catalog / unmatched):', missed.join(', '));
 
+/* ---------- 4.5 Bayer + Flamsteed designations (HYG 4.2, CC BY-SA 4.0) ----
+   System-wide name search: every star with a classical designation becomes
+   findable by name, not just the 458 IAU names.
+     - star has no name yet        -> new entry "Tau Ceti" / "52 Ceti"
+     - star has an IAU name        -> designations merged into its refs
+     - curated (data.js) star      -> designations appended to starNamed83 */
+const GREEK = { Alp: ['α', 'alpha'], Bet: ['β', 'beta'], Gam: ['γ', 'gamma'],
+  Del: ['δ', 'delta'], Eps: ['ε', 'epsilon'], Zet: ['ζ', 'zeta'], Eta: ['η', 'eta'],
+  The: ['θ', 'theta'], Iot: ['ι', 'iota'], Kap: ['κ', 'kappa'], Lam: ['λ', 'lambda'],
+  Mu: ['μ', 'mu'], Nu: ['ν', 'nu'], Xi: ['ξ', 'xi'], Ome: ['ο', 'omicron'],
+  Pi: ['π', 'pi'], Rho: ['ρ', 'rho'], Sig: ['σ', 'sigma'], Tau: ['τ', 'tau'],
+  Ups: ['υ', 'upsilon'], Phi: ['φ', 'phi'], Chi: ['χ', 'chi'], Psi: ['ψ', 'psi'],
+  Omi: ['ω', 'omega'] };
+/* conventional (genitive) constellation names — the form people actually
+   write in Bayer/Flamsteed designations: "tau Ceti", "61 Cygni",
+   "52 Canis Majoris" — so that name searches match real usage */
+const CON = { And: 'Andromedae', Ant: 'Antliae', Aps: 'Aps', Aql: 'Aquilae',
+  Aqr: 'Aquarii', Ara: 'Arae', Ari: 'Arietis', Aur: 'Aurigae', Boo: 'Bootis',
+  Cae: 'Caeli', Cam: 'Camelopardalis', Cap: 'Capricorni', Car: 'Carinae',
+  Cas: 'Cassiopeiae', Cen: 'Centauri', Cep: 'Cephei', Cet: 'Ceti',
+  Cha: 'Chamaeleontis', Cir: 'Circini', CMa: 'Canis Majoris',
+  CMi: 'Canis Minoris', Cnc: 'Canceri', Col: 'Columbae',
+  Com: 'Comae Berenices', CrA: 'Coronae Australis', CrB: 'Coronae Borealis',
+  Crt: 'Crateris', Cru: 'Crucis', Crv: 'Corvi', CVn: 'Cygni', Cyg: 'Cygni',
+  Del: 'Delphini', Dor: 'Doradi', Dra: 'Draconis', Equ: 'Equulei',
+  Eri: 'Eridani', For: 'Fornacis', Gem: 'Geminorum', Gru: 'Grus',
+  Her: 'Herculis', Hor: 'Horologii', Hya: 'Hydri', Hyi: 'Hydrae',
+  Ind: 'Indi', Lac: 'Lacertae', Leo: 'Leonis', Lep: 'Leporis',
+  Lib: 'Librae', LMi: 'Lynx', Lyn: 'Lynx', Lup: 'Lupi', Lyr: 'Lyrae',
+  Men: 'Mensae', Mic: 'Microscopii', Mon: 'Monocerotis', Mus: 'Muscae',
+  Nor: 'Normae', Oct: 'Octantis', Oph: 'Ophiuchi', Pav: 'Pavonis',
+  Peg: 'Pegasi', Per: 'Persei', Phe: 'Phoenicis', Pic: 'Pictoris',
+  PsA: 'Puppis', Pup: 'Puppis', Psc: 'Piscium', Pyx: 'Pyxidis',
+  Ret: 'Reticuli', Scl: 'Sculptoris', Sco: 'Scorpii', Sct: 'Scuti',
+  Ser: 'Serpentis', Sge: 'Sagittae', Sgr: 'Sagittarii', Tau: 'Tauri',
+  Tel: 'Telescopii', TrA: 'Trianguli Australis', Tri: 'Trianguli',
+  Tuc: 'Tucanae', UMa: 'Ursae Majoris', UMi: 'Ursae Minoris',
+  Vel: 'Velorum', Vir: 'Virginis', Vol: 'Volantis', Vul: 'Vulpeculae' };
+const SUP = { 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵' };
+
+/* refs tokens for one star's designations, plus the display name */
+function designationParts(bayer, flam, con3) {
+  const con = CON[con3] || con3;
+  const parts = [];
+  let name = '';
+  if (bayer) {
+    const m = /^([A-Za-z]+?)(?:-(\d+))?$/.exec(bayer.trim());
+    if (m && GREEK[m[1]]) {
+      const sup = m[2] || '';
+      const greek = GREEK[m[1]][0] + (SUP[sup] || sup);
+      parts.push(greek + '-' + con3);                       /* τ-Cet  */
+      name = GREEK[m[1]][1].charAt(0).toUpperCase() + GREEK[m[1]][1].slice(1)
+           + sup + ' ' + con;                                /* Tau Ceti */
+      if (!parts.includes(name)) parts.push(name);
+    }
+  }
+  if (flam) parts.push(+flam + ' ' + con);                  /* 52 Ceti */
+  if (!name && flam) name = +flam + ' ' + con;
+  return { name, parts };
+}
+
+const hygLines = fs.readFileSync(path + '_build/hyg-bayer-flam.csv', 'utf8')
+  .split(/\r?\n/).filter(Boolean);
+const bufIdxOf = new Map(namedBuf.map(e => [e[0], e]));
+let nBayBuf = 0, nBayCur = 0, nBayMiss = 0;
+for (let li = 1; li < hygLines.length; li++) {
+  const f = hygLines[li].split(',');
+  const hip = +f[0], bayer = f[2] || '', flam = f[3] || '', con3 = f[4] || '';
+  if (!bayer && !flam) continue;
+  const { name, parts } = designationParts(bayer, flam, con3);
+  if (!name) { nBayMiss++; continue; }
+
+  let target = null;
+  if (hipToBuf.has(hip)) target = { type: 'buf', idx: hipToBuf.get(hip) };
+  if (!target) {
+    /* HIP not in buffer (faint / excluded) — try position via nearest */
+    const src = rows.find(r => r.hip === hip);
+    if (src) {
+      const { i, ang } = nearest2(src.ra, src.dec);
+      if (i >= 0 && ang < 0.2) {
+        if (rowToCur.has(i)) target = { type: 'cur', idx: rowToCur.get(i) };
+        else if (rowToBuf.has(i)) target = { type: 'buf', idx: rowToBuf.get(i) };
+      }
+    }
+  }
+  if (!target) { nBayMiss++; continue; }
+
+  if (target.type === 'cur') {
+    const k = target.idx;
+    const missing = parts.filter(p => !curatedRefs[k] || !curatedRefs[k].includes(p));
+    if (missing.length) curatedRefs[k] = (curatedRefs[k] || '') + ' · ' + missing.join(' · ');
+    nBayCur++;
+    continue;
+  }
+  const b = target.idx;
+  const row = bufRows[b];
+  const entry = bufIdxOf.get(b);
+  if (entry) {
+    /* already IAU-named — fold designations into the existing refs */
+    const missing = parts.filter(p => !entry[2].includes(p));
+    if (missing.length) entry[2] = (entry[2] + ' · ' + missing.join(' · ')).slice(0, 150);
+  } else {
+    let refs = 'HIP ' + row.hip + (row.hd ? ' · HD ' + row.hd : '');
+    if (parts.length) refs += ' · ' + parts.join(' · ');
+    const e = [b, name, refs.slice(0, 150)];
+    namedBuf.push(e);
+    bufIdxOf.set(b, e);
+    nBayBuf++;
+  }
+}
+console.log(`bayer/flamsteed: buffer=${nBayBuf} curated=${nBayCur} missed=${nBayMiss} (named entries now ${namedBuf.length})`);
+
 /* ---------- 5. emit js/stars-named.js ---------- */
 const N = bufRows.length;
 const hipArr = new Int32Array(N), hdArr = new Int32Array(N);
