@@ -29,6 +29,7 @@ P.journey = (function () {
   /* state */
   let ctx = null;    // context handed over by app.js (see P.journey.init)
   let j = null;      // active journey state (null when idle)
+  let _fwd = null;   // lazy unit +Z (ship nose axis)
   let snapshot = null;
   let arrived = null;  /* {dest: V3, sprite, to} — the lingering arrival view */
 
@@ -180,6 +181,17 @@ P.journey = (function () {
       }
     }
 
+    /* the ship lifts off from the surface, not from the path's anchor —
+       offset the whole flight so s=0 sits just above the departure point */
+    let padOffset;
+    if (from.type === 'city') {
+      padOffset = cityDir.clone()
+        .multiplyScalar(Math.max(0.9, ctx.bodyRadius('Earth') || 1) * 1.5);
+    } else {
+      padOffset = dir.clone()
+        .multiplyScalar((ctx.bodyRadius(from.name) || 1) * 1.4 + 0.6);
+    }
+
     snapshot = {
       pos: ctx.camera.position.clone(),
       quat: ctx.camera.quaternion.clone(),
@@ -192,7 +204,8 @@ P.journey = (function () {
       interstellar, dir: dir.clone(), dest, cityDir,
       fromPos: fromPos.clone(),
       destSprite, pin,
-      scenery: makeScenery(fromPos.clone(), dest.clone()),
+      scenery: makeScenery(fromPos.clone(), dest.clone(), makeShip(presetKey)),
+      padOffset, shipPos: new ctx.THREE.Vector3(), shipRoll: 0,
       phase: 'brief', t: 0, warp: 1,
       lag: 0, lagOn: 0, shipS: 0, simRate: 0, done: false, frames: 0,
       /* filled in lazily as the flight unfolds */
@@ -298,6 +311,10 @@ P.journey = (function () {
       s = easeIO(ph.u) * 0.002;
     }
     j.shipS = s;
+    /* the ship flies the pad-offset path (it lifts off the surface, not the
+       path's anchor at the departure body's centre) — computed before the
+       camera block because the launch hero pose is posed on it */
+    j.shipPos.copy(shipPoint(s)).add(j.padOffset);
 
     /* --- camera --- */
     const cam = ctx.camera;
@@ -314,18 +331,40 @@ P.journey = (function () {
       cam.lookAt(j.fromPos);
       cam.fov = lerp(52, 46, ph.u);
     } else if (ph.k === 'launch') {
-      /* pull away while the gaze swings — smoothly — from the home world
-         (which fills the frame at first) to the stars ahead */
+      /* three beats: (1) push in from the departure overview to a 3/4 rear
+         hero view of the ship on its pad (Earth behind it), (2) hold the
+         beauty shot while the engines light, (3) swing around the route and
+         off toward the cruise pull-back. */
       const C0 = departureCamPos();
       const rig = cruiseCam(0.002);
-      const e = easeIO(ph.u);
-      cam.position.lerpVectors(C0, rig.pos, e);
+      /* hero pose: behind and above the ship, looking along its spine */
+      const side = new ctx.THREE.Vector3().crossVectors(j.dir, v3(0, 1, 0));
+      if (side.lengthSq() < 1e-8) side.set(1, 0, 0); else side.normalize();
+      const upv = new ctx.THREE.Vector3().crossVectors(side, j.dir).normalize();
+      const heroPos = j.shipPos.clone()
+        .addScaledVector(j.dir, -4.8)
+        .addScaledVector(side, 2.0)
+        .addScaledVector(upv, 1.5);
+      const heroLook = j.shipPos.clone().addScaledVector(j.dir, 0.4);
       const fwd = new ctx.THREE.Vector3(0, 0, -1);
-      const dHome = j.fromPos.clone().sub(cam.position).normalize();
-      const dFwd = j.fromPos.clone().add(j.dir.clone().multiplyScalar(400)).sub(cam.position).normalize();
-      const q0 = new ctx.THREE.Quaternion().setFromUnitVectors(fwd, dHome);
-      const q1 = new ctx.THREE.Quaternion().setFromUnitVectors(fwd, dFwd);
-      cam.quaternion.slerpQuaternions(q0, q1, e);
+      const qHome = new ctx.THREE.Quaternion().setFromUnitVectors(
+        fwd, j.fromPos.clone().sub(C0).normalize());
+      const qHero = new ctx.THREE.Quaternion().setFromUnitVectors(
+        fwd, heroLook.clone().sub(heroPos).normalize());
+      const qFwd = new ctx.THREE.Quaternion().setFromUnitVectors(
+        fwd, j.fromPos.clone().addScaledVector(j.dir, 400).sub(heroPos).normalize());
+      const e1 = easeIO(Math.min(1, ph.u / 0.25));
+      const e3 = easeIO(Math.min(1, (ph.u - 0.5) / 0.5));
+      if (ph.u < 0.25) {
+        cam.position.lerpVectors(C0, heroPos, e1);
+        cam.quaternion.slerpQuaternions(qHome, qHero, e1);
+      } else if (ph.u < 0.5) {
+        cam.position.copy(heroPos);
+        cam.quaternion.copy(qHero);
+      } else {
+        cam.position.lerpVectors(heroPos, rig.pos, e3);
+        cam.quaternion.slerpQuaternions(qHero, qFwd, e3);
+      }
       cam.fov = lerp(46, 60, ph.u);
     } else if (ph.k === 'cruise') {
       /* diagrammatic cruise: pull back until the WHOLE route fits in
@@ -396,7 +435,6 @@ P.journey = (function () {
     /* --- route scenery: the diagram line, the travelled trail, the ship --- */
     if (j.scenery) {
       const sc = j.scenery;
-      const ship = shipPoint(s);
       sc.a.copy(j.fromPos);
       sc.b.copy(j.dest);
       const pa = sc.dim.geometry.attributes.position;
@@ -405,19 +443,45 @@ P.journey = (function () {
       pa.needsUpdate = true;
       const pt = sc.trail.geometry.attributes.position;
       pt.setXYZ(0, sc.a.x, sc.a.y, sc.a.z);
-      pt.setXYZ(1, ship.x, ship.y, ship.z);
+      pt.setXYZ(1, j.shipPos.x, j.shipPos.y, j.shipPos.z);
       pt.needsUpdate = true;
-      sc.dot.position.copy(ship);
-      sc.dot.scale.setScalar(Math.max(3, Math.min(80, sc.a.distanceTo(sc.b) * 0.015)));
-      const on = (ph.k === 'cruise' || ph.k === 'arrive');
-      sc.dim.visible = sc.trail.visible = sc.dot.visible = on;
-      if (ph.k === 'arrive') {
-        /* left behind: the ship fades as the camera takes over */
-        sc.dot.material.opacity = lerp(1, 0.25, easeIO(ph.u));
-        sc.trail.material.opacity = 0.85 * (1 - 0.5 * easeIO(ph.u));
-      } else {
-        sc.dot.material.opacity = 1;
-        sc.trail.material.opacity = 0.85;
+      const inFlight = (ph.k === 'launch' || ph.k === 'cruise' || ph.k === 'arrive');
+      sc.dim.visible = sc.trail.visible = inFlight;
+      sc.trail.material.opacity = (ph.k === 'arrive')
+        ? 0.85 * (1 - 0.5 * easeIO(ph.u)) : 0.85;
+
+      /* --- the ship: a constant slice of the view, engine lit --- */
+      const ship = sc.ship;
+      ship.group.visible = inFlight;
+      if (inFlight) {
+        const cam = ctx.camera;
+        ship.group.position.copy(j.shipPos);
+        if (!_fwd) _fwd = new ctx.THREE.Vector3(0, 0, 1);
+        ship.group.quaternion.setFromUnitVectors(_fwd, j.dir);
+        j.shipRoll += dtReal * 0.25;                    /* slow cinematic roll */
+        ship.group.rotateZ(j.shipRoll);
+        const tC = j.t - (j.plan.brief + j.plan.approach + j.plan.launch);
+        const frac = ph.k === 'launch' ? 0.30
+          : ph.k === 'cruise'
+            ? lerp(0.30, 0.035, easeIO(Math.min(1, tC / 2.5)))
+            : lerp(0.035, 0.05, Math.min(1, ph.u / 0.25));
+        const dist = cam.position.distanceTo(j.shipPos);
+        const frameH = 2 * dist * Math.tan((cam.fov * Math.PI) / 360);
+        ship.group.scale.setScalar(Math.max(1e-4, frameH * frac / 4));
+        /* plumes: stern drive while driving, nose brakes when arriving */
+        let sternK, noseK;
+        if (ph.k === 'launch') { sternK = easeIO(Math.min(1, ph.u / 0.4)); noseK = 0; }
+        else if (ph.k === 'cruise') { sternK = 1; noseK = 0; }
+        else {
+          const k = Math.min(1, ph.u / 0.3);
+          sternK = 1 - k;
+          noseK = k * (1 - 0.75 * Math.min(1, ph.u));
+        }
+        const flick = 0.85 + 0.15 * Math.sin(j.frames * 0.9);
+        ship.sternPlume.visible = sternK > 0.004;
+        ship.sternPlume.scale.setScalar(Math.max(1e-4, sternK * flick));
+        ship.nosePlume.visible = noseK > 0.004;
+        ship.nosePlume.scale.setScalar(Math.max(1e-4, noseK * flick));
       }
     }
     /* --- dome drift (warp streaks) --- */
@@ -558,7 +622,7 @@ P.journey = (function () {
   }
   /* route scenery for the diagrammatic cruise: dim full route, bright
      travelled trail, and the ship marker */
-  function makeScenery(a, b) {
+  function makeScenery(a, b, ship) {
     const mkLine = (color, opacity) => {
       const g = new ctx.THREE.BufferGeometry().setFromPoints([a.clone(), b.clone()]);
       const ln = new ctx.THREE.Line(g, new ctx.THREE.LineBasicMaterial({
@@ -571,18 +635,152 @@ P.journey = (function () {
     };
     const dim = mkLine(0x6f8fc8, 0.30);
     const trail = mkLine(0xcfe0ff, 0.85);
-    const dot = makeStarSprite(0xffdf9e);
-    dot.visible = false;
-    ctx.scene.add(dot);
-    return { dim, trail, dot, a: a.clone(), b: b.clone() };
+    return { dim, trail, ship, a: a.clone(), b: b.clone() };
+  }
+  function disposeGroup(g) {
+    g.traverse(o => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) {
+        const ms = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of ms) { if (m.map) m.map.dispose(); m.dispose(); }
+      }
+    });
   }
   function removeScenery(sc) {
     if (!sc) return;
-    for (const o of [sc.dim, sc.trail, sc.dot]) {
+    for (const o of [sc.dim, sc.trail]) {
       if (o.parent) o.parent.remove(o);
       if (o.geometry) o.geometry.dispose();
       if (o.material) o.material.dispose();
     }
+    if (sc.ship) {
+      const sg = sc.ship.group;
+      if (sg.parent) sg.parent.remove(sg);
+      disposeGroup(sg);
+    }
+  }
+  /* -------------------------------------------------------------- ships --
+     Procedural hulls per drive preset, built in a 4-unit frame (nose +Z,
+     stern -Z). Each frame the group is rescaled to a constant slice of the
+     view height, so the ship reads as a ship at every range: a hero close-
+     up at ignition, a lit model gliding along the route line in cruise. */
+  function makeShip(presetKey) {
+    const T = ctx.THREE;
+    const g = new T.Group();
+    g.userData.jship = presetKey;
+    const R = Math.PI / 2;
+    const mat = (color, glow) => new T.MeshLambertMaterial({
+      color, emissive: color, emissiveIntensity: glow == null ? 0.28 : glow
+    });
+    const add = (mesh, x, y, z, rx) => {
+      mesh.position.set(x || 0, y || 0, z || 0);
+      if (rx) mesh.rotation.x = rx;
+      g.add(mesh);
+      return mesh;
+    };
+    const cyl = (rt, rb, h, seg, m) => new T.Mesh(new T.CylinderGeometry(rt, rb, h, seg || 10), m);
+    const box = (w, h, d, m) => new T.Mesh(new T.BoxGeometry(w, h, d), m);
+    const sph = (r, m, ws, hs) => new T.Mesh(new T.SphereGeometry(r, ws || 14, hs || 10), m);
+
+    if (presetKey === 'hmary') {
+      /* Project Hail Mary — an ice-sculpted colony ship: pale hex hull,
+         gold solar wings, a warm crew dome, blue engine glow. */
+      const ice = mat(0xdfeeff, 0.30);
+      const dark = mat(0x39424e, 0.16);
+      const gold = mat(0xe0a92e, 0.40);
+      add(cyl(0.52, 0.52, 2.3, 10, ice), 0, 0, 0, R);            // ice hull
+      add(cyl(0.30, 0.52, 0.6, 10, ice), 0, 0, 1.45, R);         // nose taper
+      add(sph(0.20, mat(0xffd98a, 0.95), 12, 8), 0, 0, 1.78);    // crew dome
+      add(box(1.1, 0.85, 0.75, dark), 0, 0, -1.55);              // engine block
+      add(cyl(0.34, 0.44, 0.35, 10, dark), 0, 0, -2.0, R);       // nozzle
+      add(box(1.7, 0.035, 0.85, gold), -1.25, 0, -0.15);         // solar wings
+      add(box(1.7, 0.035, 0.85, gold), 1.25, 0, -0.15);
+      add(box(0.05, 0.4, 0.05, dark), -0.55, 0, -0.15);          // struts
+      add(box(0.05, 0.4, 0.05, dark), 0.55, 0, -0.15);
+      const band = new T.Mesh(new T.TorusGeometry(0.545, 0.028, 6, 24), dark);
+      add(band, 0, 0, 0.55);
+      add(new T.Mesh(band.geometry, dark), 0, 0, -0.55);
+    } else if (presetKey === 'apollo') {
+      /* Apollo-class — a capsule on a chemical stack, four fins. */
+      const white = mat(0xe8e6df, 0.30);
+      const gray = mat(0x9aa0a8, 0.22);
+      const dark = mat(0x6d7480, 0.18);
+      add(cyl(0, 0.18, 0.45, 10, white), 0, 0, 1.9, R);
+      add(cyl(0.24, 0.26, 0.7, 10, white), 0, 0, 1.35, R);
+      add(cyl(0.30, 0.30, 1.3, 10, gray), 0, 0, 0.15, R);
+      add(cyl(0.34, 0.28, 0.6, 10, dark), 0, 0, -1.1, R);
+      for (let i = 0; i < 4; i++) {                              // fins
+        const a = i * Math.PI / 2 + Math.PI / 4;
+        const fin = box(0.03, 0.55, 0.5, dark);
+        fin.position.set(Math.cos(a) * 0.34, Math.sin(a) * 0.34, -1.0);
+        fin.rotation.z = a;
+        g.add(fin);
+      }
+    } else if (presetKey === 'photon') {
+      /* Light chaser — a needle on a photon drive. */
+      const hull = mat(0x2a3140, 0.22);
+      const bright = mat(0x9fd8ff, 0.9);
+      add(cyl(0.03, 0.16, 3.2, 8, hull), 0, 0, 0.1, R);
+      add(sph(0.06, bright, 8, 6), 0, 0, 1.72);
+      const b1 = new T.Mesh(new T.TorusGeometry(0.14, 0.025, 6, 16), bright);
+      add(b1, 0, 0, 0.9);
+      add(new T.Mesh(b1.geometry, bright), 0, 0, 0.3);
+    } else {
+      /* Fusion drive — a silver spindle with a glowing reactor ring. */
+      const silver = mat(0xc9ced8, 0.30);
+      const core = mat(0x35e0ff, 1.0);
+      const dark = mat(0x2a3140, 0.16);
+      add(cyl(0, 0.42, 1.1, 12, silver), 0, 0, 1.0, R);
+      add(cyl(0.42, 0, 1.5, 12, silver), 0, 0, -0.85, R);
+      add(new T.Mesh(new T.TorusGeometry(0.48, 0.06, 8, 28), core), 0, 0, 0.1);
+      add(sph(0.2, core, 12, 8), 0, 0, 0.1);
+      add(cyl(0.30, 0.40, 0.5, 10, dark), 0, 0, -1.5, R);
+    }
+
+    /* plumes — stern drive (cruise) and nose brakes (arrival) */
+    const plumeCol = { hmary: 0x7fd0ff, apollo: 0xffc06a, photon: 0xbfe8ff, fusion: 0x35e0ff }[presetKey] || 0x7fd0ff;
+    const plumeSize = { hmary: 2.3, apollo: 0.85, photon: 2.3, fusion: 1.2 }[presetKey] || 1.2;
+    const mkPlume = nose => {
+      const p = new T.Group();
+      const c = document.createElement('canvas');
+      c.width = c.height = 128;
+      const g2 = c.getContext('2d');
+      const col = '#' + ('00000' + plumeCol.toString(16)).slice(-6);
+      const gr = g2.createRadialGradient(64, 64, 0, 64, 64, 64);
+      gr.addColorStop(0, 'rgba(255,255,255,1)');
+      gr.addColorStop(0.25, col + 'cc');
+      gr.addColorStop(1, col + '00');
+      g2.fillStyle = gr;
+      g2.fillRect(0, 0, 128, 128);
+      const spr = new T.Sprite(new T.SpriteMaterial({
+        map: new T.CanvasTexture(c), transparent: true, depthWrite: false,
+        blending: T.AdditiveBlending
+      }));
+      spr.scale.setScalar(plumeSize);
+      spr.position.z = nose ? 0.4 : -0.4;
+      p.add(spr);
+      const hh = 0.75 * plumeSize;
+      const cone = new T.Mesh(
+        new T.ConeGeometry(0.34 * plumeSize, 2 * hh, 10, 1, true),
+        new T.MeshBasicMaterial({
+          color: plumeCol, transparent: true, opacity: 0.38,
+          blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide
+        })
+      );
+      cone.rotation.x = nose ? -R : R;        // flare away from the hull
+      cone.position.z = nose ? hh : -hh;
+      p.add(cone);
+      p.visible = false;
+      return p;
+    };
+    const sternPlume = mkPlume(false);
+    sternPlume.position.z = -2.0;
+    const nosePlume = mkPlume(true);
+    nosePlume.position.z = 2.0;
+    g.add(sternPlume, nosePlume);
+    g.visible = false;
+    ctx.scene.add(g);
+    return { group: g, sternPlume, nosePlume };
   }
   function makeCityPin() {
     const c = document.createElement('canvas');

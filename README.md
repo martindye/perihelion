@@ -106,15 +106,25 @@ planetarium/index.html#solar    → solar-system mode
   (0.999 c). The flight runs the *real mission time* (constant accel →
   cruise → symmetric brake): London → Tau Ceti on Hail Mary is 12.5 ship
   years, and the in-game clock counts every one of those years.
+- Every drive flies its own procedurally-built ship (ice hull, gold solar
+  wings and a blue engine plume for Hail Mary; a classic capsule for Apollo;
+  a silver spindle with a glowing reactor ring for Fusion; a needle on a
+  photon drive for Photon). Each frame the ship keeps a constant share of
+  the frame, so it reads as a ship at every range.
 - The camera flies it in four acts: a wide overview of the system, a dive to
-  the departure point (a gold pin marks your city on the globe), launch — and
-  then the cruise pulls back into a **schematic wide shot**: the whole route
-  in frame, home system on one end, the destination star on the other, your
-  ship a bright dot crossing the line while the mission clock laps the
-  planets behind you (the time-warp readout switches to the mission's own
-  rate; the `[` `]` keys and the flight's warp slider ×0.25–×16 speed the
-  whole thing up). For the arrival the clock hands back to normal time: the
-  ship is left behind at the star, and the camera makes one fast, real-time
+  the departure point (a gold pin marks your city on the globe), then a
+  three-beat **hero launch** — push in to a 3/4 view of the ship on its pad
+  (home world behind it), hold while the engines light, then swing around the
+  route. The cruise then pulls back into a **schematic wide shot**: the whole
+  route in frame, home system on one end, the destination star on the other,
+  your ship crossing the line with its engine trail while the mission clock
+  laps the planets behind you. Because the planets would smear at mission
+  speed, their positions are re-solved on a 2 Hz tick — a ticking map, each
+  tick still the exact ephemeris position (the date keeps flowing smoothly).
+  The time-warp readout switches to the mission's own rate; the `[` `]` keys
+  and the flight's warp slider ×0.25–×16 speed the whole thing up. For the
+  arrival the clock hands back to normal time: the ship fires its brakes and
+  is left behind at the star, and the camera makes one fast, real-time
   fly-in to the destination — orbiting the arrival star (or handing you the
   destination planet, no jump). `Esc` or `J` aborts at any point and eases
   the camera back to where it was.

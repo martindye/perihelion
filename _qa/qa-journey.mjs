@@ -79,7 +79,7 @@ while (Date.now() - t0 < 50000) {
       /* at the approach→launch transition the camera sits exactly over the
          departure city, staring at the planet — the perfect departure shot */
       shotApproach = true;
-      await page.waitForTimeout(150);
+      await page.waitForTimeout(1200);  /* ship on the pad, engine ignition lit */
       if (await page.evaluate(() => P.app.journey.active()))
         await page.screenshot({ path: 'qa-journey-approach.png' });
     }
@@ -94,6 +94,36 @@ while (Date.now() - t0 < 50000) {
         ok(d0 > 2000, 'cruise is the wide diagram (camera ' + Math.round(d0) + 'u out)');
         const sub = await page.textContent('#speed-sub');
         ok(sub === 'mission time-lapse', 'time readout shows the mission clock: ' + sub);
+
+        /* the ship model rides the route (warp still 1 → cruise lasts ~12 s) */
+        const findShip = () => page.evaluate(() => {
+          let f = null;
+          P.app._dbg.scene.traverse(o => { if (o.userData && o.userData.jship) f = o; });
+          return f ? { key: f.userData.jship, visible: f.visible,
+                       scale: f.scale.x, pos: f.position.toArray() } : null;
+        });
+        const ship1 = await findShip();
+        ok(!!ship1 && ship1.visible && ship1.scale > 0.01,
+          'ship model on the route (' + (ship1 ? ship1.key + ', scale ' + ship1.scale.toFixed(1) : 'missing') + ')');
+        await page.waitForTimeout(1500);
+        const ship2 = await findShip();
+        const shipMoved = ship1 && ship2 &&
+          Math.hypot(ship2.pos[0] - ship1.pos[0], ship2.pos[1] - ship1.pos[1],
+                     ship2.pos[2] - ship1.pos[2]) > 1;
+        ok(!!shipMoved, 'ship moves along the route during cruise');
+
+        /* bodies tick at 2 Hz during flight: 8 samples over ~2 s must hit
+           only a few DISTINCT positions (a ticking map, not a smear) */
+        const samp = [];
+        for (let i = 0; i < 8; i++) {
+          samp.push(await page.evaluate(() =>
+            JSON.stringify(P.app._dbg.solar.meshes['Earth'].position
+              .toArray().map(v => v.toFixed(3)))));
+          await page.waitForTimeout(250);
+        }
+        const distinct = new Set(samp).size;
+        ok(distinct >= 3 && distinct <= 6,
+          'bodies tick at ~2 Hz during flight (distinct ' + distinct + '/8 samples)');
       }
       await page.evaluate(() => P.app.journey.setWarp(4));   /* warp slider mid-flight */
       const w = await page.evaluate(() => P.app.journey.warp());
@@ -125,6 +155,12 @@ const near = await page.evaluate(() => {
   return { d: d0, date };
 });
 ok(near.d < 60, 'fly-in ended in orbit of the arrival star (' + near.d.toFixed(1) + 'u)');
+const shipGone = await page.evaluate(() => {
+  let f = null;
+  P.app._dbg.scene.traverse(o => { if (o.userData && o.userData.jship) f = o; });
+  return !f;
+});
+ok(shipGone, 'ship removed after arrival');
 ok(/203[89]|204[01]/.test(near.date), 'sim date near mission end (12.5 yr out): ' + near.date);
 const subAfter = await page.textContent('#speed-sub');
 ok(subAfter === 'time warp', 'time readout restored after the flight: ' + subAfter);

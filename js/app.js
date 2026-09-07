@@ -1528,6 +1528,13 @@ P.app = (function () {
   let lastNow = performance.now();
   let fpsFrames = 0, lastHud = 0, booted = false, lowFpsWarned = false;
   let missionUi = false, lastMissionUi = 0;
+  /* body-step clock: while a journey is in flight the sim runs at mission
+     rate (years per second), so per-frame position updates smear the
+     planets into a blur. Instead their ephemeris positions are re-solved
+     only every 0.5 s of real time — every step is still the exact
+     position, so the fast flight reads as a ticking map, and the date
+     box keeps flowing smoothly on its own clock. */
+  let bodySimMs = 0, lastBodyTick = 0;
   /* per-frame cost breakdown (ms, cumulative) — read via P.app._dbg.perf to
      diagnose slow machines: which stage eats the frame. perf.frames counts
      FULL render passes (the loop itself keeps ticking at display rate). */
@@ -1577,7 +1584,16 @@ P.app = (function () {
       missionUi = false;
       syncSpeedUI();
     }
-    const d = (state.simTimeMs - P.J2000_MS) / 86400000;
+    /* Body ephemeris: while a journey flies, re-solve positions only every
+       0.5 s (a "ticking map" — each step is still the exact position);
+       otherwise follow the clock exactly. The date box is independent and
+       keeps flowing smoothly either way. */
+    const journeyFlying = P.journey.active();
+    if (!journeyFlying || now - lastBodyTick >= 500) {
+      lastBodyTick = now;
+      bodySimMs = state.simTimeMs;
+    }
+    const d = (bodySimMs - P.J2000_MS) / 86400000;
 
     /* the journey steps the camera itself (bypassing applyCamera) —
        including the abort ease-back, which "holds" the camera too */
