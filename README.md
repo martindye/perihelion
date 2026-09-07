@@ -106,13 +106,18 @@ planetarium/index.html#solar    → solar-system mode
   (0.999 c). The flight runs the *real mission time* (constant accel →
   cruise → symmetric brake): London → Tau Ceti on Hail Mary is 12.5 ship
   years, and the in-game clock counts every one of those years.
-- The camera flies it: wide overview of the system, dive to the departure
-  point (a gold pin marks your city on the globe), launch, a long cruise —
-  the solar system keeps living behind you, planets lapping their orbits at
-  the mission's own time-lapse — and an arrival that orbits the destination
-  star (or hands the camera to the destination planet). A warp slider
-  (×0.25 – ×16) fast-forwards the boring middle; `Esc` or `J` aborts and
-  eases the camera back to where it was.
+- The camera flies it in four acts: a wide overview of the system, a dive to
+  the departure point (a gold pin marks your city on the globe), launch — and
+  then the cruise pulls back into a **schematic wide shot**: the whole route
+  in frame, home system on one end, the destination star on the other, your
+  ship a bright dot crossing the line while the mission clock laps the
+  planets behind you (the time-warp readout switches to the mission's own
+  rate; the `[` `]` keys and the flight's warp slider ×0.25–×16 speed the
+  whole thing up). For the arrival the clock hands back to normal time: the
+  ship is left behind at the star, and the camera makes one fast, real-time
+  fly-in to the destination — orbiting the arrival star (or handing you the
+  destination planet, no jump). `Esc` or `J` aborts at any point and eases
+  the camera back to where it was.
 
 ## Controls
 

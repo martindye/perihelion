@@ -463,6 +463,9 @@ P.ui = (function () {
       speed: (s, sub) => { put('#speed-label', s); put('#speed-sub', sub); }
     },
     syncPlay,
+    /* hide the whole label layer (journeys' schematic cruise wants a clean
+       diagram — body labels would turn the home cluster into a jumble) */
+    hideLabels: on => { labelLayer.style.display = on ? 'none' : ''; },
     speedSlider: () => document.getElementById('speed'),
     splashDone: () => {
       const s = document.getElementById('splash');

@@ -1111,9 +1111,21 @@ P.app = (function () {
   }
   function syncSpeedUI() {
     speedToSlider();
+    if (P.journey && P.journey.active()) {
+      /* in flight the world runs on the mission clock — say so */
+      P.ui.set.speed(speedLabel(P.journey.simRate()), 'mission time-lapse');
+      return;
+    }
     P.ui.set.speed(speedLabel(state.speed), 'time warp');
   }
   function nudgeSpeed(factor) {
+    /* in flight, [ ] warp the FLIGHT (the mission time-lapse), not the
+       world clock the app will return to afterwards */
+    if (P.journey.active()) {
+      P.journey.setWarp(P.journey.warp() * factor);
+      syncSpeedUI();
+      return;
+    }
     state.speed = Math.max(SPD_MIN, Math.min(SPD_MAX, state.speed * factor));
     syncSpeedUI();
   }
@@ -1335,11 +1347,23 @@ P.app = (function () {
     return 1;
   }
 
-  function arriveBody(name) {
+  function arriveBody(name, keepPose) {
     if (state.mode !== 'solar') setMode('solar');
     state.follow = name;
     cam.pan.set(0, 0, 0);
     const m = solar.meshes[name];
+    if (keepPose && m) {
+      /* the journey's fly-in ended in a good framing — adopt exactly that
+         (no jump): derive the follow rig from the current camera offset */
+      const off = camera.position.clone().sub(m.position);
+      const d = off.length();
+      if (d > 0.5) {
+        cam.dist = d;
+        cam.yaw = Math.atan2(off.z, off.x);
+        cam.pitch = Math.asin(Math.max(-1, Math.min(1, off.y / d)));
+        return;
+      }
+    }
     const r = m ? m.geometry.parameters.radius : 1;
     cam.dist = Math.max(2.5, r * 7);
     cam.pitch = 0.55;
@@ -1400,6 +1424,8 @@ P.app = (function () {
       return (((c[0] * 255) | 0) << 16) | (((c[1] * 255) | 0) << 8) | ((c[2] * 255) | 0);
     },
     arriveBody,
+    userRate: () => (state.playing ? state.speed : 0),
+    hideLabels: on => P.ui.hideLabels(on),
     restoreCamera: far => { camera.far = far; camera.updateProjectionMatrix(); },
     onJourneyChange: (active, j, aborted) => {
       /* the UI panel switches itself via its ticker; only the arrival
@@ -1501,6 +1527,7 @@ P.app = (function () {
   /* ---------------------------------------------------------- main loop -- */
   let lastNow = performance.now();
   let fpsFrames = 0, lastHud = 0, booted = false, lowFpsWarned = false;
+  let missionUi = false, lastMissionUi = 0;
   /* per-frame cost breakdown (ms, cumulative) — read via P.app._dbg.perf to
      diagnose slow machines: which stage eats the frame. perf.frames counts
      FULL render passes (the loop itself keeps ticking at display rate). */
@@ -1537,6 +1564,19 @@ P.app = (function () {
       const jr = P.journey.simRate();
       state.simTimeMs += dtms * (jr > 0 ? jr : (state.playing ? state.speed : 0));
     } else if (state.playing) state.simTimeMs += dtms * state.speed;
+    /* keep the time-warp readout honest: while the mission clock runs it
+       shows the rate the world is ACTUALLY advancing, and flips back to the
+       user's own warp the moment the flight ends */
+    if (P.journey.active()) {
+      if (!missionUi || now - lastMissionUi > 250) {
+        missionUi = true;
+        lastMissionUi = now;
+        syncSpeedUI();
+      }
+    } else if (missionUi) {
+      missionUi = false;
+      syncSpeedUI();
+    }
     const d = (state.simTimeMs - P.J2000_MS) / 86400000;
 
     /* the journey steps the camera itself (bypassing applyCamera) —

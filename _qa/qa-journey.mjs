@@ -85,9 +85,16 @@ while (Date.now() - t0 < 50000) {
     }
     if (ph === 'cruise' && !shotCruise) {
       shotCruise = true;
-      await page.waitForTimeout(2500);   /* settle mid-cruise: destination ahead */
-      if ((await page.evaluate(() => P.app.journey.phase())) === 'cruise')
+      await page.waitForTimeout(2500);   /* the pull-back to the diagram settles */
+      if ((await page.evaluate(() => P.app.journey.phase())) === 'cruise') {
         await page.screenshot({ path: 'qa-journey-cruise.png' });
+        /* the cruise is the wide "schematic" view, and the time readout
+           must say so (mission clock, not the user's stale warp) */
+        const d0 = await page.evaluate(() => P.app._dbg.camera.position.length());
+        ok(d0 > 2000, 'cruise is the wide diagram (camera ' + Math.round(d0) + 'u out)');
+        const sub = await page.textContent('#speed-sub');
+        ok(sub === 'mission time-lapse', 'time readout shows the mission clock: ' + sub);
+      }
       await page.evaluate(() => P.app.journey.setWarp(4));   /* warp slider mid-flight */
       const w = await page.evaluate(() => P.app.journey.warp());
       ok(w === 4, 'mid-flight time-warp slider set to ×4 (got ' + w + ')');
@@ -111,6 +118,16 @@ const st = await page.evaluate(() => ({
 ok(!st.active, 'journey finished');
 ok(st.follow === '__dest', 'camera left orbiting the arrival star (follow=' + st.follow + ')');
 ok(st.arrived, 'arrived() has the destination star');
+const near = await page.evaluate(() => {
+  const a = P.journey.arrived();
+  const d0 = P.app._dbg.camera.position.distanceTo(a.dest);
+  const date = document.getElementById('date-main').textContent;
+  return { d: d0, date };
+});
+ok(near.d < 60, 'fly-in ended in orbit of the arrival star (' + near.d.toFixed(1) + 'u)');
+ok(/203[89]|204[01]/.test(near.date), 'sim date near mission end (12.5 yr out): ' + near.date);
+const subAfter = await page.textContent('#speed-sub');
+ok(subAfter === 'time warp', 'time readout restored after the flight: ' + subAfter);
 const earthAfter = await page.evaluate(() =>
   P.app._dbg.solar.meshes['Earth'].position.toArray());
 const moved = Math.hypot(...earthAfter.map((v, i) => v - earthBefore[i])) > 1e-6;
@@ -141,6 +158,9 @@ const st2 = await page.evaluate(() => ({
 ok(!st2.active, 'Pluto flight finished');
 ok(st2.follow === 'Pluto', 'hand-off: follow=Pluto (got ' + st2.follow + ')');
 ok(seen2.includes('cruise'), 'in-system flight had a cruise phase: ' + seen2.join(','));
+const nearPluto = await page.evaluate(() =>
+  P.app._dbg.camera.position.distanceTo(P.app._dbg.solar.meshes['Pluto'].position));
+ok(nearPluto < 80, 'fly-in ended framing Pluto (camera ' + nearPluto.toFixed(0) + 'u away)');
 
 /* --------------------------------------------------------- 4) abort + warp */
 camBefore = await page.evaluate(() => P.app._dbg.camera.position.toArray());

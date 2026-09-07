@@ -192,8 +192,12 @@ P.journey = (function () {
       interstellar, dir: dir.clone(), dest, cityDir,
       fromPos: fromPos.clone(),
       destSprite, pin,
+      scenery: makeScenery(fromPos.clone(), dest.clone()),
       phase: 'brief', t: 0, warp: 1,
-      lag: 0, lagOn: 0, shipS: 0, simRate: 0, done: false, frames: 0
+      lag: 0, lagOn: 0, shipS: 0, simRate: 0, done: false, frames: 0,
+      /* filled in lazily as the flight unfolds */
+      diagFrom: null, diagPos: null, diagQuat: null, diagM: null,
+      arriveFrom: null, arriveP1: null, arriveP2: null
     };
     /* phase plan (animation seconds at warp 1) */
     j.plan = {
@@ -263,32 +267,33 @@ P.journey = (function () {
       }
     }
 
-    /* --- sim clock: the journey IS the time-lapse.
-         brief/approach: almost real time (1 day/s) so the departure scene
-         holds still; launch ramps the warp up; cruise runs at the mission
-         rate (the planets lap their orbits while you watch); arrival eases
-         back down. */
-    const cruiseRate = j.m.T / j.plan.cruise;            /* sim-s per real-s @ warp 1 */
+    /* --- sim clock: the journey IS the time-lapse (v2).
+         brief/approach/launch: almost real time (1 day/s) — the departure
+         scene holds still and the planets barely creep; the warp kicks in
+         with the cruise (we have left the solar system by then), when the
+         planets lap their orbits while the ship crosses the diagram;
+         arrival hands the clock back to the user's own time. */
+    const cruiseRate = 0.98 * j.m.T / j.plan.cruise;            /* sim-s per real-s @ warp 1 (constant) */
     let rate;
-    if (ph.k === 'brief' || ph.k === 'approach') rate = CALM_RATE;
-    else if (ph.k === 'launch') rate = lerp(CALM_RATE, cruiseRate * 0.5, easeIO(ph.u));
-    else if (ph.k === 'cruise') {
-      const tC = j.t - (j.plan.brief + j.plan.approach + j.plan.launch);
-      rate = cruiseRate * lerp(0.5, 1, Math.min(1, tC / 2.5));
-    } else rate = lerp(cruiseRate, CALM_RATE, ph.u);     /* arrive: ease down */
+    if (ph.k === 'brief' || ph.k === 'approach' || ph.k === 'launch') rate = CALM_RATE;
+    else if (ph.k === 'cruise') rate = cruiseRate;
+    else {                                               /* arrive: user's time */
+      const userRate = ctx.userRate ? ctx.userRate() : CALM_RATE;
+      rate = lerp(cruiseRate, userRate, Math.min(1, ph.u / 0.3));
+    }
     /* sim-s per real-s, warp included: the app advances simTimeMs by dtms·this */
     j.simRate = rate * j.warp;
 
     /* --- mission progress along the path. Cruise covers 98% of the
-         distance; the arrival phase is the long deceleration through the
-         final 2% — the destination grows while you close. */
+         distance; at arrival the ship is left parked at the destination
+         while the camera makes the final approach on its own. */
     let s = 0;
     if (ph.k === 'cruise') {
       const tC = j.t - (j.plan.brief + j.plan.approach + j.plan.launch);
       const mNow = Math.min(j.m.T * 0.98, tC / j.plan.cruise * j.m.T * 0.98);
       s = profileDist(mNow, j.m, j.dKm) / j.dKm;
     } else if (ph.k === 'arrive') {
-      s = lerp(0.98, 1, easeIO(ph.u));
+      s = 0.98;                                          /* ship stays put */
     } else if (ph.k === 'launch') {
       s = easeIO(ph.u) * 0.002;
     }
@@ -323,20 +328,60 @@ P.journey = (function () {
       cam.quaternion.slerpQuaternions(q0, q1, e);
       cam.fov = lerp(46, 60, ph.u);
     } else if (ph.k === 'cruise') {
-      const rig = cruiseCam(s);
-      cam.position.copy(rig.pos);
-      /* one over-the-shoulder glance at home in the first quarter —
-         zero at both ends, so it matches the launch/arrive gaze exactly */
-      const w = s < 0.25 ? Math.sin(Math.PI * s / 0.25) * 0.7 : 0;
-      cam.lookAt(rig.look.clone().lerp(j.fromPos, w));
-      cam.fov = 60;
+      /* diagrammatic cruise: pull back until the WHOLE route fits in
+         frame — home system, the line to the destination, the ship
+         crossing it — then hold while the mission clock laps the
+         planets. The pull-back takes the first 2.5 s of the phase. */
+      if (!j.diagPos) {
+        const A = j.fromPos, B = j.dest;
+        const L = A.distanceTo(B);
+        const U = B.clone().sub(A).normalize();
+        const side = new ctx.THREE.Vector3().crossVectors(U, v3(0, 1, 0));
+        if (side.lengthSq() < 1e-8) side.set(1, 0, 0); else side.normalize();
+        const viewDir = U.clone().multiplyScalar(-0.8)
+          .addScaledVector(side, 0.55).add(v3(0, 0.28, 0)).normalize();
+        const D = Math.max(80, 0.75 * L / Math.tan(27.5 * Math.PI / 180) * 0.85);
+        j.diagM = A.clone().lerp(B, 0.5);
+        j.diagPos = j.diagM.clone().addScaledVector(viewDir, D);
+        j.diagFrom = { pos: cam.position.clone(), quat: cam.quaternion.clone() };
+        /* the diagram wants to stay clean — no label jumble at home */
+        ctx.hideLabels && ctx.hideLabels(true);
+        const m4 = new ctx.THREE.Matrix4().lookAt(j.diagPos, j.diagM, v3(0, 1, 0));
+        j.diagQuat = new ctx.THREE.Quaternion().setFromRotationMatrix(m4);
+      }
+      {
+        const tC = j.t - (j.plan.brief + j.plan.approach + j.plan.launch);
+        const e = easeIO(Math.min(1, tC / 2.5));
+        cam.position.lerpVectors(j.diagFrom.pos, j.diagPos, e);
+        cam.quaternion.slerpQuaternions(j.diagFrom.quat, j.diagQuat, e);
+        cam.fov = lerp(60, 55, Math.min(1, tC / 2.5));
+      }
       j.lagOn = 1;
-    } else { /* arrive */
-      const rig = cruiseCam(Math.min(1, s));
-      cam.position.copy(rig.pos);
-      const target = j.interstellar ? j.dest : (ctx.bodyPos(toNameOf(j.to)) || j.dest);
-      cam.lookAt(target);
-      cam.fov = lerp(60, 50, ph.u);
+    } else { /* arrive: leave the ship behind — a fast, real-time fly-in */
+      const B = j.interstellar ? j.dest : (ctx.bodyPos(toNameOf(j.to)) || j.dest);
+      if (!j.arriveFrom) {
+        j.arriveFrom = cam.position.clone();
+        ctx.hideLabels && ctx.hideLabels(false);   /* labels come back for the arrival */
+      }
+      const L = j.fromPos.distanceTo(B);
+      const U = B.clone().sub(j.fromPos).normalize();
+      const side = new ctx.THREE.Vector3().crossVectors(U, v3(0, 1, 0));
+      if (side.lengthSq() < 1e-8) side.set(1, 0, 0); else side.normalize();
+      const r = j.interstellar
+        ? 35
+        : Math.max(40, Math.min(300, (ctx.bodyRadius(toNameOf(j.to)) || 1) * 12));
+      const P1 = B.clone().addScaledVector(U, 0.15 * L).add(v3(0, 0.1 * L, 0));
+      const P2 = B.clone().addScaledVector(side, 0.5 * r).add(v3(0, 0.35 * r, 0));
+      const e = easeIO(ph.u);
+      const i1 = 1 - e;
+      cam.position.set(
+        i1 * i1 * j.arriveFrom.x + 2 * i1 * e * P1.x + e * e * P2.x,
+        i1 * i1 * j.arriveFrom.y + 2 * i1 * e * P1.y + e * e * P2.y,
+        i1 * i1 * j.arriveFrom.z + 2 * i1 * e * P1.z + e * e * P2.z
+      );
+      /* gaze: keep blending from the route centre to the destination */
+      cam.lookAt(j.diagM.clone().lerp(B, Math.min(1, ph.u / 0.2)));
+      cam.fov = lerp(55, 50, e);
       j.lagOn = 0;
     }
     cam.updateProjectionMatrix();
@@ -347,6 +392,33 @@ P.journey = (function () {
       const sc = Math.max(1.6, Math.min(70, 34 * Math.pow(500 / L, 1.4)));
       j.destSprite.scale.setScalar(sc);
       j.destSprite.visible = j.t > j.plan.brief + j.plan.approach * 0.5;
+    }
+    /* --- route scenery: the diagram line, the travelled trail, the ship --- */
+    if (j.scenery) {
+      const sc = j.scenery;
+      const ship = shipPoint(s);
+      sc.a.copy(j.fromPos);
+      sc.b.copy(j.dest);
+      const pa = sc.dim.geometry.attributes.position;
+      pa.setXYZ(0, sc.a.x, sc.a.y, sc.a.z);
+      pa.setXYZ(1, sc.b.x, sc.b.y, sc.b.z);
+      pa.needsUpdate = true;
+      const pt = sc.trail.geometry.attributes.position;
+      pt.setXYZ(0, sc.a.x, sc.a.y, sc.a.z);
+      pt.setXYZ(1, ship.x, ship.y, ship.z);
+      pt.needsUpdate = true;
+      sc.dot.position.copy(ship);
+      sc.dot.scale.setScalar(Math.max(3, Math.min(80, sc.a.distanceTo(sc.b) * 0.015)));
+      const on = (ph.k === 'cruise' || ph.k === 'arrive');
+      sc.dim.visible = sc.trail.visible = sc.dot.visible = on;
+      if (ph.k === 'arrive') {
+        /* left behind: the ship fades as the camera takes over */
+        sc.dot.material.opacity = lerp(1, 0.25, easeIO(ph.u));
+        sc.trail.material.opacity = 0.85 * (1 - 0.5 * easeIO(ph.u));
+      } else {
+        sc.dot.material.opacity = 1;
+        sc.trail.material.opacity = 0.85;
+      }
     }
     /* --- dome drift (warp streaks) --- */
     const lagTarget = (ph.k === 'cruise') ? 1 : 0;
@@ -369,9 +441,13 @@ P.journey = (function () {
       if (dest) dest.scale.setScalar(30);
       arrived = { dest: j.dest.clone(), sprite: dest, to: j.to };
     } else {
-      ctx.arriveBody(toNameOf(j.to));
+      /* keepPose: the fly-in already ended in a good framing of the body —
+         adopt it instead of jumping to the default close-up */
+      ctx.arriveBody(toNameOf(j.to), true);
       if (dest && dest.parent) dest.parent.remove(dest);
     }
+    removeScenery(j.scenery);
+    ctx.hideLabels && ctx.hideLabels(false);
     ctx.onJourneyChange && ctx.onJourneyChange(false, j);
     setTimeout(() => { if (pin && pin.parent) pin.parent.remove(pin); }, 1500);
     j = null;
@@ -386,6 +462,8 @@ P.journey = (function () {
     if (arrived && arrived.sprite !== dest) clearArrived();
     if (pin && pin.parent) pin.parent.remove(pin);
     if (dest && dest.parent) dest.parent.remove(dest);
+    removeScenery(j.scenery);
+    ctx.hideLabels && ctx.hideLabels(false);
     ctx.onJourneyChange && ctx.onJourneyChange(false, j, true);
     j = null;
     /* ease the camera home — the main loop must not fight this, so the
@@ -477,6 +555,34 @@ P.journey = (function () {
       map: new ctx.THREE.CanvasTexture(c),
       transparent: true, depthWrite: false, blending: ctx.THREE.AdditiveBlending
     }));
+  }
+  /* route scenery for the diagrammatic cruise: dim full route, bright
+     travelled trail, and the ship marker */
+  function makeScenery(a, b) {
+    const mkLine = (color, opacity) => {
+      const g = new ctx.THREE.BufferGeometry().setFromPoints([a.clone(), b.clone()]);
+      const ln = new ctx.THREE.Line(g, new ctx.THREE.LineBasicMaterial({
+        color, transparent: true, opacity,
+        blending: ctx.THREE.AdditiveBlending, depthWrite: false
+      }));
+      ln.visible = false;
+      ctx.scene.add(ln);
+      return ln;
+    };
+    const dim = mkLine(0x6f8fc8, 0.30);
+    const trail = mkLine(0xcfe0ff, 0.85);
+    const dot = makeStarSprite(0xffdf9e);
+    dot.visible = false;
+    ctx.scene.add(dot);
+    return { dim, trail, dot, a: a.clone(), b: b.clone() };
+  }
+  function removeScenery(sc) {
+    if (!sc) return;
+    for (const o of [sc.dim, sc.trail, sc.dot]) {
+      if (o.parent) o.parent.remove(o);
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) o.material.dispose();
+    }
   }
   function makeCityPin() {
     const c = document.createElement('canvas');
