@@ -154,6 +154,16 @@ P.ui = (function () {
     launchB.id = 'jr-launch';
     const jrErr = el('div', 'jr-error', '', jrPlan);
     jrErr.style.display = 'none';
+    /* scenarios — journeys as data: bundled + loaded, launch/save/load */
+    const jrScen = el('div', 'jr-scen', '', jrPlan);
+    el('label', 'jr-lab jr-scen-head', 'SCENARIOS', jrScen);
+    const jrScenLoad = el('button', 'btn jr-scen-load', 'LOAD…', jrScen);
+    const jrScenList = el('div', 'jr-scen-list', '', jrScen);
+    const jrScenFile = document.createElement('input');
+    jrScenFile.type = 'file';
+    jrScenFile.accept = '.json,application/json';
+    jrScenFile.style.display = 'none';
+    jrScen.appendChild(jrScenFile);
     /* in-flight view */
     const jrFlight = el('div', 'jr-flight', '', jr);
     jrFlight.style.display = 'none';
@@ -186,7 +196,8 @@ P.ui = (function () {
     journeyNodes = {
       jr, jrPlan, jrFlight, jrClose, fromF, toF, drive,
       launchB, jrErr, jrRoute, jrPhase, jrSpeed, jrElapsed, jrRemain,
-      jrFill, warpInp, warpVal, skipB, abortB
+      jrFill, warpInp, warpVal, skipB, abortB,
+      jrScen, jrScenList, jrScenLoad, jrScenFile
     };
 
     /* help overlay */
@@ -392,6 +403,57 @@ P.ui = (function () {
         jn.setWarp(v);
         N.warpVal.textContent = '×' + v;
       });
+      /* scenarios — journeys as data (bundled data file + loaded JSON) */
+      const renderScen = () => {
+        N.jrScenList.innerHTML = '';
+        for (const sc of jn.scenarios()) {
+          const row = document.createElement('div');
+          row.className = 'jr-scen-row';
+          const b = document.createElement('b');
+          b.textContent = sc.name || sc.id || 'scenario';
+          row.appendChild(b);
+          const go = document.createElement('button');
+          go.className = 'btn';
+          go.textContent = 'LAUNCH';
+          go.onclick = () => {
+            const r = jn.launchScenario(sc);
+            N.jrErr.style.display = r.ok ? 'none' : '';
+            N.jrErr.textContent = r.ok ? '' : r.error;
+          };
+          row.appendChild(go);
+          const sv = document.createElement('button');
+          sv.className = 'btn jr-scen-save';
+          sv.textContent = '⬇';
+          sv.title = 'Save scenario as JSON';
+          sv.onclick = () => jn.saveScenario(sc);
+          row.appendChild(sv);
+          if (sc.blurb) {
+            const s = document.createElement('span');
+            s.textContent = sc.blurb;
+            row.appendChild(s);
+          }
+          N.jrScenList.appendChild(row);
+        }
+      };
+      renderScen();
+      N.jrScenLoad.onclick = () => N.jrScenFile.click();
+      N.jrScenFile.addEventListener('change', () => {
+        const f = N.jrScenFile.files && N.jrScenFile.files[0];
+        if (!f) return;
+        const rd = new FileReader();
+        rd.onload = () => {
+          const r = jn.loadScenarioText(String(rd.result || ''));
+          N.jrErr.style.display = r.ok ? 'none' : '';
+          N.jrErr.textContent = r.ok ? '' : r.error;
+          if (r.ok) renderScen();
+        };
+        rd.onerror = () => {
+          N.jrErr.style.display = '';
+          N.jrErr.textContent = 'could not read that file';
+        };
+        rd.readAsText(f);
+        N.jrScenFile.value = '';
+      });
       let wasFlight = false;
       setInterval(() => {
         if (N.jr.style.display === 'none') return;
@@ -405,7 +467,9 @@ P.ui = (function () {
         if (a) {
           const h = jn.hud();
           if (h) {
-            N.jrRoute.textContent = h.route;
+            N.jrRoute.textContent = h.leg
+              ? h.leg.label + '   ·   LEG ' + h.leg.idx + '/' + h.leg.total
+              : h.route;
             N.jrPhase.textContent = h.phaseLabel + ' — ' + h.note;
             N.jrSpeed.textContent = h.speed;
             N.jrElapsed.textContent = h.elapsed;

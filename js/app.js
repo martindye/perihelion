@@ -1450,7 +1450,36 @@ P.app = (function () {
       phase: () => P.journey.phase(),
       warp: () => P.journey.warp(),
       hud: () => P.journey.hud(),
-      PRESETS: P.journey.PRESETS
+      PRESETS: P.journey.PRESETS,
+      /* scenarios: journeys as data — bundled (js/scenarios.js) or loaded
+         from a JSON file; save any of them back out again */
+      scenarios: () => P.scenarios || [],
+      launchScenario: sc => P.journey.launchScenario(sc),
+      saveScenario(sc) {
+        const blob = new Blob([JSON.stringify(sc, null, 1)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = String(sc.id || sc.name || 'scenario').replace(/[^\w.-]+/g, '-') + '.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      },
+      loadScenarioText(text) {
+        let sc = null;
+        try { sc = JSON.parse(text); }
+        catch (e) { return { ok: false, error: 'not valid JSON: ' + e.message }; }
+        if (!sc || !Array.isArray(sc.legs) || !sc.legs.length)
+          return { ok: false, error: 'no legs found in that file' };
+        if (!sc.id) sc.id = 'scenario-' + Date.now().toString(36);
+        if (!sc.name) sc.name = sc.id;
+        const err = P.journey.validateScenario(sc);
+        if (err) return { ok: false, error: err };
+        if (!P.scenarios) P.scenarios = [];
+        const i = P.scenarios.findIndex(s => s.id === sc.id);
+        if (i >= 0) P.scenarios[i] = sc; else P.scenarios.push(sc);
+        return { ok: true };
+      }
     },
     setHighlight: on => { state.highlightSel = !!on; },
     onUIMode: m => {

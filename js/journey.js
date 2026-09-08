@@ -30,7 +30,9 @@ P.journey = (function () {
   let ctx = null;    // context handed over by app.js (see P.journey.init)
   let j = null;      // active journey state (null when idle)
   let _fwd = null;   // lazy unit +Z (ship nose axis)
+  let _side = null;  // lazy right vector (convoy formation axis)
   let snapshot = null;
+  let startSnapshot = null; /* the pose before the whole scenario (abort home) */
   let arrived = null;  /* {dest: V3, sprite, to} — the lingering arrival view */
 
   const v3 = (x, y, z) => new ctx.THREE.Vector3(x, y, z);
@@ -53,6 +55,10 @@ P.journey = (function () {
     if (addr.type === 'star') {
       if (addr.dir) return addr.dir.clone().normalize().multiplyScalar(4500);
       return starScenePos(addr.ra, addr.dec, 4500);
+    }
+    if (addr.type === 'waypoint') {
+      /* a fixed point in the scene (scenario legs meet in deep space) */
+      return v3(addr.x || 0, addr.y || 0, addr.z || 0);
     }
     return null;
   }
@@ -101,7 +107,8 @@ P.journey = (function () {
 
   /* ------------------------------------------------------- plan a trip ---- */
   /* pure: mission numbers for a from/to/preset triple, no scene changes */
-  function quote(from, to, presetKey) {
+  function quote(from, to, presetKey, opts) {
+    opts = opts || {};
     const preset = PRESETS[presetKey] || PRESETS.hmary;
     const fromPos = addrPos(from);
     const toPos0 = addrPos(to);
@@ -110,7 +117,12 @@ P.journey = (function () {
     const interstellar = to.type === 'star';
     const dest = toPos0.clone();
     let dKm, dLabel;
-    if (interstellar) {
+    if (opts.ly != null) {
+      /* story distance (light-years) — for legs that cross the scene in a
+         straight line but cover "real" light-years in the tale */
+      dKm = opts.ly * 9.4607e12;
+      dLabel = opts.ly.toFixed(1) + ' light-years';
+    } else if (interstellar) {
       const ly = (to.distPc || 0) * 3.26156;    /* pc -> ly */
       dKm = ly * 9.4607e12;
       dLabel = to.distPc
@@ -150,10 +162,41 @@ P.journey = (function () {
     if (arrived.sprite && arrived.sprite.parent) arrived.sprite.parent.remove(arrived.sprite);
     arrived = null;
   }
+  /* A scenario is DATA (see js/scenarios.js — loadable/saveable JSON): a
+     named list of legs, each leg a normal journey (from/to/preset) plus a
+     label, a story distance (ly) and the ships that fly it. Legs chain:
+     leg n+1 departs where leg n arrived, and the camera "cuts" to each new
+     scene the way a film would. */
+  function validateScenario(sc) {
+    if (!sc || !Array.isArray(sc.legs) || !sc.legs.length) return 'scenario has no legs';
+    for (let i = 0; i < sc.legs.length; i++) {
+      const L = sc.legs[i];
+      if (!L || !L.from || !L.to || !L.preset || !PRESETS[L.preset])
+        return 'leg ' + (i + 1) + ' needs from, to and a valid preset';
+      if (i > 0 && (L.from.name || '') !== (sc.legs[i - 1].to.name || ''))
+        return 'leg ' + (i + 1) + ' does not continue where leg ' + i + ' ends';
+    }
+    return null;
+  }
+  function launchScenario(sc) {
+    if (j) return { ok: false, error: 'a journey is already in flight' };
+    const err = validateScenario(sc);
+    if (err) return { ok: false, error: err };
+    return beginScenario(sc, 0);
+  }
   function launch(from, to, presetKey) {
     if (j) return { ok: false, error: 'a journey is already in flight' };
+    return beginScenario(null, 0, from, to, presetKey);
+  }
+  function beginScenario(sc, idx, from, to, presetKey) {
+    /* the legs carry their own from/to; a bare journey passes them in */
+    if (!from) {
+      const leg = sc.legs[idx];
+      from = leg.from; to = leg.to; presetKey = leg.preset;
+    }
     clearArrived();                    /* a new voyage replaces the old view */
-    const q = quote(from, to, presetKey);
+    const leg = sc ? sc.legs[idx] : null;
+    const q = quote(from, to, presetKey, leg ? { ly: leg.ly } : undefined);
     if (!q.ok) return q;
     const { preset, fromPos, dest, interstellar, m, dKm, dLabel, years } = q;
     const dir = dest.clone().sub(fromPos).normalize();
@@ -182,20 +225,26 @@ P.journey = (function () {
     }
 
     /* the ship lifts off from the surface, not from the path's anchor —
-       offset the whole flight so s=0 sits just above the departure point */
+       offset the whole flight so s=0 sits just above the departure point.
+       Deep-space legs (waypoints/stars) depart in place: no pad. */
     let padOffset;
     if (from.type === 'city') {
       padOffset = cityDir.clone()
         .multiplyScalar(Math.max(0.9, ctx.bodyRadius('Earth') || 1) * 1.5);
-    } else {
+    } else if (from.type === 'body') {
       padOffset = dir.clone()
         .multiplyScalar((ctx.bodyRadius(from.name) || 1) * 1.4 + 0.6);
+    } else {
+      padOffset = v3(0, 0, 0);
     }
 
     snapshot = {
       pos: ctx.camera.position.clone(),
       quat: ctx.camera.quaternion.clone(),
       fov: ctx.camera.fov
+    };
+    startSnapshot = {
+      pos: snapshot.pos.clone(), quat: snapshot.quat.clone(), fov: snapshot.fov
     };
 
     j = {
@@ -204,22 +253,20 @@ P.journey = (function () {
       interstellar, dir: dir.clone(), dest, cityDir,
       fromPos: fromPos.clone(),
       destSprite, pin,
-      scenery: makeScenery(fromPos.clone(), dest.clone(), makeShip(presetKey)),
       padOffset, shipPos: new ctx.THREE.Vector3(), shipRoll: 0,
       phase: 'brief', t: 0, warp: 1,
       lag: 0, lagOn: 0, shipS: 0, simRate: 0, done: false, frames: 0,
+      scenario: sc || null, legIdx: idx,
+      leg: sc ? sc.legs[idx] : null,
+      shipModels: {}, ships: [],
       /* filled in lazily as the flight unfolds */
       diagFrom: null, diagPos: null, diagQuat: null, diagM: null,
       arriveFrom: null, arriveP1: null, arriveP2: null
     };
+    setupShips(leg || { ships: [presetKey] });
+    j.scenery = makeScenery(fromPos.clone(), dest.clone(), j.ships);
     /* phase plan (animation seconds at warp 1) */
-    j.plan = {
-      brief: 2.4,
-      approach: 3.2,
-      launch: 4.5,
-      cruise: Math.max(7, Math.min(26, 8 + years * 0.3)),   // the boring bit
-      arrive: 5.0
-    };
+    j.plan = planFor(years);
     j.total = j.plan.brief + j.plan.approach + j.plan.launch + j.plan.cruise + j.plan.arrive;
 
     ctx.camera.far = 12000;                 /* dome (5000) + camera travel */
@@ -229,6 +276,15 @@ P.journey = (function () {
   }
 
   /* --------------------------------------------------------------- phases -- */
+  function planFor(years) {
+    return {
+      brief: 2.4,
+      approach: 3.2,
+      launch: 4.5,
+      cruise: Math.max(7, Math.min(26, 8 + years * 0.3)),   // the boring bit
+      arrive: 5.0
+    };
+  }
   function phaseOf(t) {
     let a = t;
     for (const k of ['brief', 'approach', 'launch', 'cruise', 'arrive']) {
@@ -450,38 +506,53 @@ P.journey = (function () {
       sc.trail.material.opacity = (ph.k === 'arrive')
         ? 0.85 * (1 - 0.5 * easeIO(ph.u)) : 0.85;
 
-      /* --- the ship: a constant slice of the view, engine lit --- */
-      const ship = sc.ship;
-      ship.group.visible = inFlight;
-      if (inFlight) {
-        const cam = ctx.camera;
-        ship.group.position.copy(j.shipPos);
-        if (!_fwd) _fwd = new ctx.THREE.Vector3(0, 0, 1);
-        ship.group.quaternion.setFromUnitVectors(_fwd, j.dir);
-        j.shipRoll += dtReal * 0.25;                    /* slow cinematic roll */
-        ship.group.rotateZ(j.shipRoll);
-        const tC = j.t - (j.plan.brief + j.plan.approach + j.plan.launch);
-        const frac = ph.k === 'launch' ? 0.30
-          : ph.k === 'cruise'
-            ? lerp(0.30, 0.035, easeIO(Math.min(1, tC / 2.5)))
-            : lerp(0.035, 0.05, Math.min(1, ph.u / 0.25));
-        const dist = cam.position.distanceTo(j.shipPos);
-        const frameH = 2 * dist * Math.tan((cam.fov * Math.PI) / 360);
-        ship.group.scale.setScalar(Math.max(1e-4, frameH * frac / 4));
-        /* plumes: stern drive while driving, nose brakes when arriving */
-        let sternK, noseK;
-        if (ph.k === 'launch') { sternK = easeIO(Math.min(1, ph.u / 0.4)); noseK = 0; }
-        else if (ph.k === 'cruise') { sternK = 1; noseK = 0; }
-        else {
-          const k = Math.min(1, ph.u / 0.3);
-          sternK = 1 - k;
-          noseK = k * (1 - 0.75 * Math.min(1, ph.u));
-        }
-        const flick = 0.85 + 0.15 * Math.sin(j.frames * 0.9);
-        ship.sternPlume.visible = sternK > 0.004;
-        ship.sternPlume.scale.setScalar(Math.max(1e-4, sternK * flick));
-        ship.nosePlume.visible = noseK > 0.004;
-        ship.nosePlume.scale.setScalar(Math.max(1e-4, noseK * flick));
+      /* --- the convoy: a constant slice of the view, engines lit.
+             ship[0] leads on the route line; wingmen hold formation a
+             body-width off the line (offset scales with the ships). */
+      if (j.ships && j.ships.length) {
+      const cam = ctx.camera;
+      const tC = j.t - (j.plan.brief + j.plan.approach + j.plan.launch);
+      let frac = ph.k === 'launch' ? 0.30
+        : ph.k === 'cruise'
+          ? lerp(0.30, 0.035, easeIO(Math.min(1, tC / 2.5)))
+          : lerp(0.035, 0.05, Math.min(1, ph.u / 0.25));
+      if (j.ships.length > 1) frac *= 0.7;              /* room for the convoy */
+      const dist = cam.position.distanceTo(j.shipPos);
+      const frameH = 2 * dist * Math.tan((cam.fov * Math.PI) / 360);
+      const sMain = Math.max(1e-4, frameH * frac / j.ships[0].unitLen);
+      /* plumes: stern drive while driving, nose brakes when arriving */
+      let sternK, noseK;
+      if (ph.k === 'launch') { sternK = easeIO(Math.min(1, ph.u / 0.4)); noseK = 0; }
+      else if (ph.k === 'cruise') { sternK = 1; noseK = 0; }
+      else {
+        const k = Math.min(1, ph.u / 0.3);
+        sternK = 1 - k;
+        noseK = k * (1 - 0.75 * Math.min(1, ph.u));
+      }
+      const flick = 0.85 + 0.15 * Math.sin(j.frames * 0.9);
+      for (const k in j.shipModels) {                   /* ships out of this leg */
+        const m = j.shipModels[k];
+        if (j.ships.indexOf(m) === -1) m.model.group.visible = false;
+      }
+      if (inFlight) j.shipRoll += dtReal * 0.25;        /* slow cinematic roll */
+      if (!_fwd) _fwd = new ctx.THREE.Vector3(0, 0, 1);
+      if (!_side) _side = new ctx.THREE.Vector3();
+      _side.crossVectors(j.dir, v3(0, 1, 0));
+      if (_side.lengthSq() < 1e-8) _side.set(1, 0, 0); else _side.normalize();
+      for (const m of j.ships) {
+        const g = m.model.group;
+        g.visible = inFlight;
+        if (!inFlight) continue;
+        g.position.copy(j.shipPos);
+        if (m.offUnits > 0) g.position.addScaledVector(_side, m.offUnits * sMain);
+        g.quaternion.setFromUnitVectors(_fwd, j.dir);
+        g.rotateZ(j.shipRoll);
+        g.scale.setScalar(sMain);
+        m.model.sternPlume.visible = sternK > 0.004;
+        m.model.sternPlume.scale.setScalar(Math.max(1e-4, sternK * flick));
+        m.model.nosePlume.visible = noseK > 0.004;
+        m.model.nosePlume.scale.setScalar(Math.max(1e-4, noseK * flick));
+      }
       }
     }
     /* --- dome drift (warp streaks) --- */
@@ -497,6 +568,11 @@ P.journey = (function () {
   function finish() {
     if (!j || j.done) return;
     j.done = true;
+    /* scenario legs chain: this leg's "arrival" is the next leg's departure */
+    if (j.scenario && j.legIdx < j.scenario.legs.length - 1) {
+      startNextLeg();
+      return;
+    }
     const pin = j.pin, dest = j.destSprite;
     if (j.interstellar) {
       /* stay: keep the star sprite as an arrival marker and let the user
@@ -504,32 +580,113 @@ P.journey = (function () {
          "wall of light" down to a proper star close-up */
       if (dest) dest.scale.setScalar(30);
       arrived = { dest: j.dest.clone(), sprite: dest, to: j.to };
-    } else {
+    } else if (j.to && (j.to.type === 'body' || j.to.type === 'city')) {
       /* keepPose: the fly-in already ended in a good framing of the body —
          adopt it instead of jumping to the default close-up */
       ctx.arriveBody(toNameOf(j.to), true);
       if (dest && dest.parent) dest.parent.remove(dest);
+    } else if (dest && dest.parent) {
+      dest.parent.remove(dest);
     }
     removeScenery(j.scenery);
+    disposeShips();
     ctx.hideLabels && ctx.hideLabels(false);
     ctx.onJourneyChange && ctx.onJourneyChange(false, j);
     setTimeout(() => { if (pin && pin.parent) pin.parent.remove(pin); }, 1500);
     j = null;
+    startSnapshot = null;
     /* the 12000 far plane was a journey convenience — give it back
        (unless a new journey has already taken off) */
     setTimeout(() => { if (!j) ctx.restoreCamera(6000); }, 1600);
   }
+  /* the next leg of a scenario: the ship (and its crew) stays on, the camera
+     "cuts" — the new scene grows out of exactly where we just arrived */
+  function startNextLeg() {
+    const sc = j.scenario;
+    j.legIdx++;
+    const leg = sc.legs[j.legIdx];
+    if (j.destSprite && j.destSprite.parent) j.destSprite.parent.remove(j.destSprite);
+    removeScenery(j.scenery);
+    const q = quote(leg.from, leg.to, leg.preset, { ly: leg.ly });
+    if (!q.ok) { teardownJourney(); return; }
+    const { preset, fromPos, dest, interstellar, m, dKm, dLabel, years } = q;
+    const dir = dest.clone().sub(fromPos).normalize();
+    let destSprite = null;
+    if (interstellar) {
+      destSprite = makeStarSprite(leg.to.bv != null ? ctx.bvColor(leg.to.bv) : 0xffe0b0);
+      destSprite.position.copy(dest);
+      destSprite.visible = false;
+      ctx.scene.add(destSprite);
+    }
+    let padOffset = v3(0, 0, 0);
+    if (leg.from.type === 'city') {
+      padOffset = cityLatLonVec3(leg.from.lat, leg.from.lon)
+        .multiplyScalar(Math.max(0.9, ctx.bodyRadius('Earth') || 1) * 1.5);
+    } else if (leg.from.type === 'body') {
+      padOffset = dir.clone()
+        .multiplyScalar((ctx.bodyRadius(leg.from.name) || 1) * 1.4 + 0.6);
+    }
+    /* the "cut": the overview grows out of the current camera pose */
+    snapshot = {
+      pos: ctx.camera.position.clone(),
+      quat: ctx.camera.quaternion.clone(),
+      fov: ctx.camera.fov
+    };
+    ctx.hideLabels && ctx.hideLabels(true);
+    j.from = leg.from; j.to = leg.to; j.preset = preset;
+    j.m = m; j.dKm = dKm; j.dLabel = dLabel;
+    j.interstellar = interstellar; j.dir = dir;
+    j.dest = dest; j.fromPos = fromPos;
+    j.destSprite = destSprite; j.pin = null;
+    j.padOffset = padOffset;
+    j.leg = leg;
+    j.t = 0; j.phase = 'brief'; j.shipS = 0; j.frames = 0;
+    j.lag = 0; j.lagOn = 0;
+    j.diagFrom = null; j.diagPos = null; j.diagQuat = null; j.diagM = null;
+    j.arriveFrom = null;
+    j.plan = planFor(years);
+    j.total = j.plan.brief + j.plan.approach + j.plan.launch + j.plan.cruise + j.plan.arrive;
+    setupShips(leg);
+    j.scenery = makeScenery(fromPos.clone(), dest.clone(), j.ships);
+    j.done = false;
+  }
+  /* mid-scenario failure: end the whole thing, no arrival card */
+  function teardownJourney() {
+    if (!j) return;
+    const dest = j.destSprite;
+    if (dest && dest.parent) dest.parent.remove(dest);
+    removeScenery(j.scenery);
+    disposeShips();
+    ctx.hideLabels && ctx.hideLabels(false);
+    ctx.onJourneyChange && ctx.onJourneyChange(false, j, true);
+    j = null;
+    setTimeout(() => { if (!j) ctx.restoreCamera(6000); }, 1600);
+  }
+  function disposeShips() {
+    if (!j) return;
+    for (const k in j.shipModels) {
+      const m = j.shipModels[k];
+      if (m.model.group.parent) m.model.group.parent.remove(m.model.group);
+      disposeGroup(m.model.group);
+    }
+    j.shipModels = {};
+    j.ships = [];
+  }
   let abortFrame = 0, holding = false;   /* abort ease-back owns the camera */
   function abort() {
     if (!j) return;
-    const pin = j.pin, dest = j.destSprite, snap = snapshot;
+    const pin = j.pin, dest = j.destSprite;
+    /* scenarios abort to the pose of the WHOLE voyage, not the last leg */
+    const snap = startSnapshot || snapshot;
     if (arrived && arrived.sprite !== dest) clearArrived();
     if (pin && pin.parent) pin.parent.remove(pin);
     if (dest && dest.parent) dest.parent.remove(dest);
     removeScenery(j.scenery);
+    disposeShips();
     ctx.hideLabels && ctx.hideLabels(false);
     ctx.onJourneyChange && ctx.onJourneyChange(false, j, true);
     j = null;
+    startSnapshot = null;
     /* ease the camera home — the main loop must not fight this, so the
        journey keeps "holding" the camera until the ease completes */
     const fpos = ctx.camera.position.clone(), fquat = ctx.camera.quaternion.clone(),
@@ -571,6 +728,12 @@ P.journey = (function () {
       phase: ph.k,
       phaseLabel: { brief: 'PRE-FLIGHT', approach: 'DEPARTURE', launch: 'LAUNCH', cruise: 'CRUISE', arrive: 'ARRIVAL' }[ph.k],
       route: labelOf(j.from) + '  →  ' + labelOf(j.to),
+      /* scenario legs: the film's caption for this scene */
+      leg: j.leg ? {
+        label: j.leg.label || '',
+        idx: j.legIdx + 1,
+        total: (j.scenario && j.scenario.legs.length) || 1
+      } : null,
       progress: j.shipS,
       speed: fmtSpeed(speedAt(Math.min(mNow, j.m.T), j.m)),
       elapsed: fmtYears(mNow / SEC_PER_YR),
@@ -621,8 +784,9 @@ P.journey = (function () {
     }));
   }
   /* route scenery for the diagrammatic cruise: dim full route, bright
-     travelled trail, and the ship marker */
-  function makeScenery(a, b, ship) {
+     travelled trail. The ships themselves belong to the journey (they
+     survive leg-to-leg in a scenario), not to the scenery. */
+  function makeScenery(a, b, ships) {
     const mkLine = (color, opacity) => {
       const g = new ctx.THREE.BufferGeometry().setFromPoints([a.clone(), b.clone()]);
       const ln = new ctx.THREE.Line(g, new ctx.THREE.LineBasicMaterial({
@@ -635,7 +799,7 @@ P.journey = (function () {
     };
     const dim = mkLine(0x6f8fc8, 0.30);
     const trail = mkLine(0xcfe0ff, 0.85);
-    return { dim, trail, ship, a: a.clone(), b: b.clone() };
+    return { dim, trail, ships, a: a.clone(), b: b.clone() };
   }
   function disposeGroup(g) {
     g.traverse(o => {
@@ -653,17 +817,34 @@ P.journey = (function () {
       if (o.geometry) o.geometry.dispose();
       if (o.material) o.material.dispose();
     }
-    if (sc.ship) {
-      const sg = sc.ship.group;
-      if (sg.parent) sg.parent.remove(sg);
-      disposeGroup(sg);
-    }
+    /* ships are the journey's, not the scenery's — they survive leg cuts */
   }
   /* -------------------------------------------------------------- ships --
-     Procedural hulls per drive preset, built in a 4-unit frame (nose +Z,
-     stern -Z). Each frame the group is rescaled to a constant slice of the
-     view height, so the ship reads as a ship at every range: a hero close-
-     up at ignition, a lit model gliding along the route line in cruise. */
+     Procedural hulls, built in a per-ship unit frame (nose +Z, stern -Z):
+     4 units for the crewed ships, 12 for the Blip-A (it is 3× the Hail
+     Mary in the film). Each frame the group is rescaled to a constant
+     slice of the view height, so a ship reads as a ship at every range:
+     a hero close-up at ignition, lit models gliding along the route line
+     in cruise. The first ship of a leg flies the route; later ships hold
+     formation off the line (setupShips). */
+  function setupShips(leg) {
+    const keys = (leg && Array.isArray(leg.ships) && leg.ships.length)
+      ? leg.ships : ['hmary'];
+    const ships = [];
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      let m = j.shipModels[key];
+      if (!m) {
+        const built = makeShip(key);
+        m = { key: key, model: built, unitLen: built.unitLen, offUnits: 0 };
+        j.shipModels[key] = m;
+      }
+      m.offUnits = i === 0 ? 0
+        : ships[0].unitLen / 2 + m.unitLen / 2 + 1.0;   /* bow-to-stern gap */
+      ships.push(m);
+    }
+    j.ships = ships;
+  }
   function makeShip(presetKey) {
     const T = ctx.THREE;
     const g = new T.Group();
@@ -683,23 +864,72 @@ P.journey = (function () {
     const sph = (r, m, ws, hs) => new T.Mesh(new T.SphereGeometry(r, ws || 14, hs || 10), m);
 
     if (presetKey === 'hmary') {
-      /* Project Hail Mary — an ice-sculpted colony ship: pale hex hull,
-         gold solar wings, a warm crew dome, blue engine glow. */
-      const ice = mat(0xdfeeff, 0.30);
-      const dark = mat(0x39424e, 0.16);
-      const gold = mat(0xe0a92e, 0.40);
-      add(cyl(0.52, 0.52, 2.3, 10, ice), 0, 0, 0, R);            // ice hull
-      add(cyl(0.30, 0.52, 0.6, 10, ice), 0, 0, 1.45, R);         // nose taper
-      add(sph(0.20, mat(0xffd98a, 0.95), 12, 8), 0, 0, 1.78);    // crew dome
-      add(box(1.1, 0.85, 0.75, dark), 0, 0, -1.55);              // engine block
-      add(cyl(0.34, 0.44, 0.35, 10, dark), 0, 0, -2.0, R);       // nozzle
-      add(box(1.7, 0.035, 0.85, gold), -1.25, 0, -0.15);         // solar wings
-      add(box(1.7, 0.035, 0.85, gold), 1.25, 0, -0.15);
-      add(box(0.05, 0.4, 0.05, dark), -0.55, 0, -0.15);          // struts
-      add(box(0.05, 0.4, 0.05, dark), 0.55, 0, -0.15);
-      const band = new T.Mesh(new T.TorusGeometry(0.545, 0.028, 6, 24), dark);
-      add(band, 0, 0, 0.55);
-      add(new T.Mesh(band.geometry, dark), 0, 0, -0.55);
+      /* The Hail Mary (movie): three parallel white fuel modules converging
+         into a dark nose hub, a silver service bus between them, one big
+         diagonal solar array, and four beetle probes at the tip. */
+      const white = mat(0xe8eaee, 0.30);
+      const silver = mat(0xb6bcc6, 0.26);
+      const dark = mat(0x49515b, 0.14);
+      const gold = mat(0xd8a92e, 0.55);
+      add(cyl(0.30, 0.30, 2.6, 14, white), 0, 0.42, -0.42, R);    /* upper module */
+      add(sph(0.30, white, 14, 10), 0, 0.42, -1.72);              /* round cap */
+      add(cyl(0.22, 0.22, 2.7, 14, silver), 0, 0, -0.435, R);     /* service bus */
+      const band1 = new T.Mesh(new T.TorusGeometry(0.235, 0.028, 6, 20), gold);
+      add(band1, 0, 0, -0.42);                                    /* gold bands */
+      add(new T.Mesh(band1.geometry, gold), 0, 0, -0.10);
+      add(cyl(0.30, 0.30, 2.6, 14, white), 0, -0.42, -0.42, R);   /* lower module */
+      add(cyl(0.30, 0.30, 0.06, 14, dark), 0, -0.42, -1.75, R);   /* flat cap */
+      add(cyl(0.06, 0.62, 1.05, 16, dark), 0, 0, 1.425, R);       /* nose hub */
+      const hub1 = new T.Mesh(new T.TorusGeometry(0.60, 0.035, 6, 24), silver);
+      add(hub1, 0, 0, 0.95);                                      /* coupling rings */
+      add(new T.Mesh(hub1.geometry, silver), 0, 0, 0.78);
+      for (let i = 0; i < 4; i++) {                               /* beetle probes */
+        const a = Math.PI / 4 + i * Math.PI / 2;
+        add(sph(0.06, silver, 8, 6), Math.cos(a) * 0.16, Math.sin(a) * 0.16, 1.88);
+      }
+      const panel = new T.Group();                                /* solar array */
+      const frameM = mat(0x8f98a3, 0.18);
+      const cellsM = mat(0x131b26, 0.10);
+      panel.add(new T.Mesh(new T.BoxGeometry(1.62, 0.05, 0.98), frameM));
+      const cells = new T.Mesh(new T.BoxGeometry(1.52, 0.06, 0.88), cellsM);
+      cells.position.z = 0.02;
+      panel.add(cells);
+      panel.position.set(0, 0.58, 0.30);
+      panel.rotation.x = 0.55;
+      g.add(panel);
+    } else if (presetKey === 'blipa') {
+      /* Blip-A — the Eridian ship: a slender lattice of parallel xenonite
+         strands, ring loops and diagonal bracing, blunt at both ends,
+         three times the Hail Mary's length. Built in a 12-unit frame. */
+      const strand = mat(0x6e5c40, 0.12);
+      const core = mat(0x55483a, 0.10);
+      const ringM = mat(0x7d6b4d, 0.20);
+      add(cyl(0.20, 0.20, 11.5, 10, core), 0, 0, 0, R);           /* core strand */
+      for (let i = 0; i < 6; i++) {                               /* outer strands */
+        const a = i * Math.PI / 3;
+        const c = new T.Mesh(new T.CylinderGeometry(0.10, 0.10, 11.6, 8), strand);
+        c.position.set(Math.cos(a) * 0.55, Math.sin(a) * 0.55, 0);
+        c.rotation.x = R;
+        g.add(c);
+      }
+      const ringGeo = new T.TorusGeometry(0.72, 0.05, 6, 22);     /* ring loops */
+      for (const z of [-4.6, -1.5, 0, 1.5, 4.6]) add(new T.Mesh(ringGeo, ringM), 0, 0, z);
+      const yv = new T.Vector3(0, 1, 0);                          /* bracing */
+      const braceGeo = new T.CylinderGeometry(0.02, 0.02, 0.75, 5);
+      for (let i = 0; i < 6; i++) {
+        const a0 = i * Math.PI / 3, a1 = (i + 1) * Math.PI / 3;
+        const p0 = new T.Vector3(Math.cos(a0) * 0.55, Math.sin(a0) * 0.55, 0);
+        const p1 = new T.Vector3(Math.cos(a1) * 0.55, Math.sin(a1) * 0.55, 0);
+        for (const zc of [-3.4, 3.4]) {
+          const b = new T.Mesh(braceGeo, strand);
+          b.position.copy(p0).lerp(p1, 0.5);
+          b.position.z = zc;
+          b.quaternion.setFromUnitVectors(yv, p1.clone().sub(p0).normalize());
+          g.add(b);
+        }
+      }
+      add(cyl(0.75, 0.75, 0.12, 16, core), 0, 0, 5.85, R);        /* blunt ends */
+      add(cyl(0.75, 0.75, 0.12, 16, core), 0, 0, -5.85, R);
     } else if (presetKey === 'apollo') {
       /* Apollo-class — a capsule on a chemical stack, four fins. */
       const white = mat(0xe8e6df, 0.30);
@@ -738,8 +968,8 @@ P.journey = (function () {
     }
 
     /* plumes — stern drive (cruise) and nose brakes (arrival) */
-    const plumeCol = { hmary: 0x7fd0ff, apollo: 0xffc06a, photon: 0xbfe8ff, fusion: 0x35e0ff }[presetKey] || 0x7fd0ff;
-    const plumeSize = { hmary: 2.3, apollo: 0.85, photon: 2.3, fusion: 1.2 }[presetKey] || 1.2;
+    const plumeCol = { hmary: 0x8fc8ff, apollo: 0xffc06a, photon: 0xbfe8ff, fusion: 0x35e0ff, blipa: 0x9fd8ff }[presetKey] || 0x7fd0ff;
+    const plumeSize = { hmary: 1.3, apollo: 0.85, photon: 2.3, fusion: 1.2, blipa: 1.8 }[presetKey] || 1.2;
     const mkPlume = nose => {
       const p = new T.Group();
       const c = document.createElement('canvas');
@@ -773,14 +1003,16 @@ P.journey = (function () {
       p.visible = false;
       return p;
     };
+    const unitLen = presetKey === 'blipa' ? 12 : 4;
+    const half = unitLen / 2 - 0.2;
     const sternPlume = mkPlume(false);
-    sternPlume.position.z = -2.0;
+    sternPlume.position.z = -half;
     const nosePlume = mkPlume(true);
-    nosePlume.position.z = 2.0;
+    nosePlume.position.z = half;
     g.add(sternPlume, nosePlume);
     g.visible = false;
     ctx.scene.add(g);
-    return { group: g, sternPlume, nosePlume };
+    return { group: g, sternPlume, nosePlume, unitLen };
   }
   function makeCityPin() {
     const c = document.createElement('canvas');
@@ -805,6 +1037,8 @@ P.journey = (function () {
     init(c) { ctx = c; },
     quote,
     launch,
+    launchScenario,
+    validateScenario,
     abort,
     skip() {
       if (!j || j.done) return;

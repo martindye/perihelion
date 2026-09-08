@@ -106,11 +106,26 @@ planetarium/index.html#solar    → solar-system mode
   (0.999 c). The flight runs the *real mission time* (constant accel →
   cruise → symmetric brake): London → Tau Ceti on Hail Mary is 12.5 ship
   years, and the in-game clock counts every one of those years.
-- Every drive flies its own procedurally-built ship (ice hull, gold solar
-  wings and a blue engine plume for Hail Mary; a classic capsule for Apollo;
-  a silver spindle with a glowing reactor ring for Fusion; a needle on a
-  photon drive for Photon). Each frame the ship keeps a constant share of
-  the frame, so it reads as a ship at every range.
+- Every drive flies its own procedurally-built ship. The Hail Mary is
+  modelled on the film — three parallel white fuel modules converging into a
+  dark nose hub, a silver service bus with gold bands, four beetle probes at
+  the tip, and one big diagonal solar array — plus a blue engine plume.
+  Apollo is a classic capsule with fins; Fusion a silver spindle with a
+  glowing reactor ring; Photon a needle on a photon drive. Each frame the
+  ship keeps a constant share of the frame, so it reads as a ship at every
+  range.
+- **Scenarios** — journeys are *data* (a named list of legs; each leg a
+  normal journey plus a caption, a story distance and the ships that fly
+  it). The drawer's SCENARIOS section lists the bundled scenarios, can
+  **load** more from a JSON file and **save** any of them back out (⬇).
+  Legs chain into a single continuous flight — the camera "cuts" to each
+  new scene like a film — and a leg may carry several ships, which then fly
+  in formation (the leader on the route line, wingmen off to the side).
+  Bundled: **Hail Mary: Homecoming** — the movie re-enacted: homebound from
+  Tau Ceti (leg 1), the turnaround to save Rocky (leg 2), then both ships —
+  the Hail Mary and Blip-A, Rocky's long xenonite-stranded Eridian vessel —
+  flying on to 40 Eridani A, *Erid*, home of the Eridians (leg 3).
+  40 Eridani A (Keid) is in the star catalog and flyable like any star.
 - The camera flies it in four acts: a wide overview of the system, a dive to
   the departure point (a gold pin marks your city on the globe), then a
   three-beat **hero launch** — push in to a 3/4 view of the ship on its pad

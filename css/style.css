@@ -418,6 +418,27 @@ body {
 .jr-warpval { min-width: 34px; text-align: right; color: var(--txt); letter-spacing: 0.05em; font-size: 11px; }
 .jr-btns { display: flex; gap: 8px; padding: 10px 14px 0; }
 .jr-btns .btn { flex: 1; }
+/* scenarios — journeys stored as data (bundled + loadable/saveable) */
+.jr-scen { padding: 12px 12px 0; }
+.jr-scen-head { display: block; margin-bottom: 6px; }
+.jr-scen-load {
+  display: block; margin-left: auto; width: auto;
+  font-size: 9px; letter-spacing: 0.2em; padding: 3px 10px;
+}
+.jr-scen-list { display: flex; flex-direction: column; gap: 6px; }
+.jr-scen-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.jr-scen-row b { flex: 1; font-size: 11.5px; letter-spacing: 0.05em; }
+.jr-scen-row span {
+  flex-basis: 100%; order: 9;
+  font-size: 9.5px; line-height: 1.45; color: var(--dim);
+}
+.jr-scen-row .btn { font-size: 9.5px; padding: 3px 10px; letter-spacing: 0.12em; }
+.jr-scen-save { width: 30px; text-align: center; padding: 3px 0; }
 
 /* ---------------- help ---------------- */
 .help {
