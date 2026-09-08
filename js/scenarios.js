@@ -30,15 +30,15 @@ P.scenarios = [
         label: 'THE TURNAROUND — Rocky\u2019s ship is dying',
         preset: 'hmary',
         from: { type: 'waypoint', name: 'Turnaround point', x: 2333, y: -741.5, z: -1139 },
-        to: { type: 'waypoint', name: 'Rendezvous with Blip-A', x: 3785.6, y: -872.4, z: -2159.9 },
+        to: { type: 'waypoint', name: 'Rendezvous with Blip-A', x: 3312.2, y: -1044.8, z: -2529.5 },
         ly: 3.5,
         ships: ['hmary']
       },
       {
         label: 'ERID — home of the Eridians',
         preset: 'hmary',
-        from: { type: 'waypoint', name: 'Rendezvous with Blip-A', x: 3785.6, y: -872.4, z: -2159.9 },
-        to: { type: 'star', name: '40 Eridani A', ra: 38.0, dec: -0.311, distPc: 4.86, bv: 0.90 },
+        from: { type: 'waypoint', name: 'Rendezvous with Blip-A', x: 3312.2, y: -1044.8, z: -2529.5 },
+        to: { type: 'star', name: '40 Eridani A', ra: 63.818, dec: -7.6529, distPc: 4.9845, bv: 0.82 },
         ly: 7.0,
         ships: ['hmary', 'blipa']
       }

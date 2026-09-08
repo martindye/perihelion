@@ -28,14 +28,23 @@ ok(!!sc && sc.legs[2].ships.join(',') === 'hmary,blipa', 'leg 3 flies the convoy
 let v = await page.evaluate(() => P.journey.validateScenario(P.scenarios[0]));
 ok(v === null, 'scenario validates: ' + v);
 
-/* --------------------------------------- 2) 40 Eridani A in the catalog */
+/* --------------------------------- 2) 40 Eridani A in the catalog
+ * NOTE: the catalog carries the star under its IAU name "Keid" (HIP 19849);
+ * "40 Eri" / "40 Eridani" are in its refs, so the search must find it there.
+ * (An earlier bad build mislabelled a faint Pyx star as "40 Eridani A" —
+ *  guard against regressions in both directions.) */
 await page.keyboard.press('j');
 await page.waitForTimeout(300);
 await page.fill('#jr-to', '40 ERID');
 await page.waitForTimeout(450);
-const cands = await page.$$eval('.jr-cand', els => els.map(e => e.textContent.trim()));
-ok(cands.some(t => /40 Eridani A/.test(t) && /pc/.test(t)),
-  'autocomplete offers 40 Eridani A: ' + JSON.stringify(cands.slice(0, 3)));
+let cands = await page.$$eval('.jr-cand', els => els.map(e => e.textContent.trim()));
+ok(cands.some(t => /keid/i.test(t) && /pc/.test(t)),
+  'autocomplete finds 40 Eridani A via Keid: ' + JSON.stringify(cands.slice(0, 3)));
+await page.fill('#jr-to', '40 ERIDANI A');
+await page.waitForTimeout(450);
+cands = await page.$$eval('.jr-cand', els => els.map(e => e.textContent.trim()));
+ok(!cands.some(t => /40 Eridani A/i.test(t)),
+  'no bogus "40 Eridani A" label on a wrong star: ' + JSON.stringify(cands.slice(0, 3)));
 await page.keyboard.press('j');   /* close drawer */
 await page.waitForTimeout(200);
 
